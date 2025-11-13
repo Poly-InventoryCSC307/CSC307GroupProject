@@ -1,13 +1,13 @@
 import React from "react";
-import ReactDOMClient from "react-dom/client";
+import ReactDOM from "react-dom/client";
 import "./main.css";
-import App from "./App.jsx";
+import App from "./App";  
+import { AuthProvider } from "./context/authContext"; 
 
-// Create the container
-const container = document.getElementById("root");
-
-// Create a root
-const root = ReactDOMClient.createRoot(container);
-
-// Initial render: Render an element to the Root
-root.render(<App />);
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <AuthProvider>
+      <App />  
+    </AuthProvider>
+  </React.StrictMode>
+);
