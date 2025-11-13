@@ -1,0 +1,58 @@
+<svg width="555" height="313" viewBox="0 0 555 313" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 3.99999C0 1.79086 1.79086 0 4 0H551C553.209 0 555 1.79086 555 4V309C555 311.209 553.209 313 551 313H4C1.79087 313 0 311.209 0 309V3.99999Z" fill="white"/>
+<path d="M0 4C0 1.79086 1.79086 0 4 0H551C553.209 0 555 1.79086 555 4V38H0V4Z" fill="#CFF7D3"/>
+<rect x="364" y="9" width="136" height="20" rx="4" fill="#AAE5AF"/>
+<ellipse cx="529.5" cy="19" rx="11.5" ry="10" fill="#AAE5AF"/>
+<rect x="42" y="78" width="24" height="4" rx="2" fill="#D9D9D9"/>
+<path d="M42.4999 89.4999L431.5 89.4999" stroke="#B3B3B3" stroke-linecap="round"/>
+<line x1="34.5" y1="49.998" x2="35.5" y2="299.998" stroke="#B3B3B3"/>
+<rect x="9" y="60" width="18" height="3" rx="1.5" fill="#D9D9D9"/>
+<path d="M9 66.5C9 65.6716 9.67157 65 10.5 65H25.5C26.3284 65 27 65.6716 27 66.5C27 67.3284 26.3284 68 25.5 68H10.5C9.67157 68 9 67.3284 9 66.5Z" fill="#D9D9D9"/>
+<rect x="9" y="55" width="18" height="3" rx="1.5" fill="#D9D9D9"/>
+<rect x="10.5" y="82.5" width="14" height="14" rx="3.5" stroke="#D9D9D9"/>
+<path d="M11 88H24.5" stroke="#D9D9D9"/>
+<path d="M15.5 88V97" stroke="#D9D9D9"/>
+<path d="M16 111.5C18.4853 111.5 20.5 113.515 20.5 116C20.5 118.485 18.4853 120.5 16 120.5C13.5147 120.5 11.5 118.485 11.5 116C11.5 113.515 13.5147 111.5 16 111.5Z" stroke="#D9D9D9"/>
+<path d="M20.5 118.5L25.4999 121.5" stroke="#D9D9D9" stroke-linecap="round"/>
+<rect x="11" y="146" width="3" height="4" stroke="#D9D9D9"/>
+<rect x="16" y="146" width="3" height="4" stroke="#D9D9D9"/>
+<rect x="21" y="146" width="3" height="4" stroke="#D9D9D9"/>
+<rect x="21" y="134" width="3" height="4" stroke="#D9D9D9"/>
+<rect x="16" y="134" width="3" height="4" stroke="#D9D9D9"/>
+<rect x="11" y="140" width="3" height="4" stroke="#D9D9D9"/>
+<rect x="16" y="140" width="3" height="4" stroke="#D9D9D9"/>
+<rect x="21" y="140" width="3" height="4" stroke="#D9D9D9"/>
+<rect x="11" y="134" width="3" height="4" stroke="#D9D9D9"/>
+<rect x="11" y="167" width="3" height="7" stroke="#D9D9D9"/>
+<rect x="21" y="165" width="3" height="9" stroke="#D9D9D9"/>
+<rect x="16" y="162" width="3" height="12" stroke="#D9D9D9"/>
+<rect x="45" y="58" width="48" height="8" rx="4" fill="#D9D9D9"/>
+<rect x="306" y="215" width="125" height="53" rx="2" fill="#D9D9D9"/>
+<rect x="174" y="215" width="125" height="53" rx="2" fill="#D9D9D9"/>
+<rect x="306" y="156" width="125" height="53" rx="2" fill="#D9D9D9"/>
+<rect x="174" y="156" width="125" height="53" rx="2" fill="#D9D9D9"/>
+<rect x="306" y="97" width="125" height="53" rx="2" fill="#D9D9D9"/>
+<rect x="42" y="215" width="125" height="53" rx="2" fill="#D9D9D9"/>
+<rect x="42" y="97" width="125" height="53" rx="2" fill="#D9D9D9"/>
+<rect x="42" y="156" width="125" height="53" rx="2" fill="#D9D9D9"/>
+<rect x="174" y="97" width="125" height="53" rx="2" fill="#D9D9D9"/>
+<line x1="444.75" y1="84.25" x2="540.25" y2="84.25" stroke="#D9D9D9" stroke-width="1.5" stroke-linecap="round"/>
+<rect x="444" y="74" width="47" height="6" rx="3" fill="#D9D9D9"/>
+<ellipse cx="448" cy="99.5" rx="4" ry="3.5" fill="#D9D9D9"/>
+<ellipse cx="448" cy="111.5" rx="4" ry="3.5" fill="#D9D9D9"/>
+<ellipse cx="448" cy="123.5" rx="4" ry="3.5" fill="#D9D9D9"/>
+<ellipse cx="448" cy="135.5" rx="4" ry="3.5" fill="#D9D9D9"/>
+<ellipse cx="448" cy="146.5" rx="4" ry="3.5" fill="#D9D9D9"/>
+<rect x="456" y="97" width="19" height="5" rx="2.5" fill="#D9D9D9"/>
+<rect x="456" y="109" width="31" height="5" rx="2.5" fill="#D9D9D9"/>
+<rect x="456" y="121" width="19" height="5" rx="2.5" fill="#D9D9D9"/>
+<rect x="456" y="133" width="23" height="5" rx="2.5" fill="#D9D9D9"/>
+<rect x="456" y="145" width="9" height="5" rx="2.5" fill="#D9D9D9"/>
+<line x1="444.75" y1="197.25" x2="540.25" y2="197.25" stroke="#D9D9D9" stroke-width="1.5" stroke-linecap="round"/>
+<rect x="444" y="188" width="37" height="6" rx="3" fill="#D9D9D9"/>
+<rect x="444" y="205" width="8" height="5" rx="2.5" fill="#D9D9D9"/>
+<rect x="444" y="214" width="14" height="5" rx="2.5" fill="#D9D9D9"/>
+<rect x="444" y="223" width="43" height="5" rx="2.5" fill="#D9D9D9"/>
+<rect x="444" y="232" width="57" height="5" rx="2.5" fill="#D9D9D9"/>
+<rect x="444" y="241" width="33" height="5" rx="2.5" fill="#D9D9D9"/>
+</svg>

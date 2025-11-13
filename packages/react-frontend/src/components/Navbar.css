@@ -1,0 +1,70 @@
+.navbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent; /* blend with hero */
+  color: white;
+  padding: 1rem 3rem;
+  z-index: 10;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo {
+  width: auto;
+  height: 50px;
+}
+
+.navbar-menu {
+  margin-top: 26px;
+  display: flex;
+  list-style: none;
+  gap: 5rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.navbar-menu li:hover {
+  color: #CFF7D3;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+} 
+
+.icon {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  transition: opacity 0.2s ease;
+}
+
+.sign-in {
+  width: 100px;
+  height: auto;
+  border-radius: 6px;    
+  transition: all 0.3s ease;
+}
+
+.sign-in:hover {
+  background-color: #CFF7D3;
+  color: #26a69a;
+}
+
+.search { 
+  width: 30px; 
+  height: auto; 
+  margin-top: 9px; 
+  #fill: white; 
+  #transition: fill 0.3s ease; 
+} 

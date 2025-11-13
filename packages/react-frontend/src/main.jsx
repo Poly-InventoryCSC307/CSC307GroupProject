@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOMClient from "react-dom/client";
 import "./main.css";
-import ProductScreen from "./productScreen.jsx";
+import App from "./App.jsx";
 
 // Create the container
 const container = document.getElementById("root");
@@ -10,4 +10,4 @@ const container = document.getElementById("root");
 const root = ReactDOMClient.createRoot(container);
 
 // Initial render: Render an element to the Root
-root.render(<ProductScreen />);
+root.render(<App />);
