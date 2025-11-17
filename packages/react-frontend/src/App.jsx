@@ -23,19 +23,23 @@ function App() {
         setProducts(cardData)
 
       })
-      .then((error) => {console.log(error); });
+      .catch((error) => {console.log(error); });
   }, []);
 
   const handleProductAdded = (cardData) => {
     setProducts((prev) => [cardData, ...prev]);
   };
+
+  const handleProductRemoved = (SKU) => {
+    setProducts(prev => prev.filter(p => (p.SKU || "").trim() !== (SKU || "".trim())));
+  }
   
   return (
     <div>
       {/* Set LoggedIn to false for Sign Button or true for Logout Button */ }
       <Navbar isLoggedIn={true} showSearch={false}/>
       <Search 
-        productsData={products} onProductAdded={handleProductAdded}
+        productsData={products} onProductAdded={handleProductAdded} onProductRemoved={handleProductRemoved}
       />
 
       {/* <Navbar />

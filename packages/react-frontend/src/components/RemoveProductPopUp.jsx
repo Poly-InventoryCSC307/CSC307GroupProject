@@ -9,11 +9,7 @@ function RemoveProductPopUp({
 }) {
   const overlayRef = useRef(null);
   const [form, setForm] = useState({
-    name: "",
     SKU: "",
-    price: "",
-    quantity: "",
-    description: "",
   });
 
   useEffect(() => {
@@ -25,7 +21,7 @@ function RemoveProductPopUp({
 
   useEffect(() => {
     if (!open) return;
-    setForm({ name: "", SKU: "", price: "", quantity: "", description: "" });
+    setForm({ SKU: ""});
   }, [open]);
 
   if (!open) return null;
@@ -42,11 +38,7 @@ function RemoveProductPopUp({
   const handleSubmit = (e) => {
     e.preventDefault();
     const payload = {
-      name: form.name.trim(),
       SKU: form.SKU.trim(),
-      price: Number(form.price || 0),
-      quantity: Number(form.quantity || 0),
-      description: form.description.trim(),
     };
     onSubmit?.(payload);
   };
@@ -62,24 +54,13 @@ function RemoveProductPopUp({
     >
       <div className="modal" role="document">
         <header className="modal-header">
-          <h3 id="add-product-title">Remove Product</h3>
+          <h3 id="remove-product-title">Remove Product By SKU</h3>
           <button className="modal-close" onClick={onClose} aria-label="Close">
             X
           </button>
         </header>
 
         <form className="modal-content" onSubmit={handleSubmit}>
-          <div className="field">
-            <label htmlFor="name">Product Name</label>
-            <input
-              id="name"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="e.g., Green Tea 16oz"
-              required
-            />
-          </div>
 
           <div className="field">
             <label htmlFor="SKU">SKU</label>
@@ -93,45 +74,6 @@ function RemoveProductPopUp({
             />
           </div>
 
-          <div className="field">
-            <label htmlFor="price">Price</label>
-            <input
-              id="price"
-              name="price"
-              value={form.price}
-              onChange={handleChange}
-              placeholder="e.g., 10.99"
-              required
-            />
-          </div>
-
-          <div className="field">
-            <label htmlFor="quantity">Quantity</label>
-            <input
-              id="quantity"
-              name="quantity"
-              type="number"
-              min="0"
-              step="1"
-              value={form.quantity}
-              onChange={handleChange}
-              placeholder="0"
-              required
-            />
-          </div>
-
-          <div className="field">
-            <label htmlFor="description">Product Description</label>
-            <textarea
-              id="description"
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              placeholder="Short description..."
-              rows={4}
-            />
-          </div>
-
           <footer className="modal-actions">
             <button
               type="button"
@@ -142,7 +84,7 @@ function RemoveProductPopUp({
               Cancel
             </button>
             <button type="submit" className="btn primary" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save Product"}
+              {isSubmitting ? "Removing..." : "Remove Product"}
             </button>
           </footer>
         </form>
@@ -151,4 +93,4 @@ function RemoveProductPopUp({
   );
 }
 
-export default AddProductPopUp
+export default RemoveProductPopUp

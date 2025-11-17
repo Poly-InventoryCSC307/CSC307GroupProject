@@ -2,29 +2,36 @@
 import "./Search.css";
 import addProductIcon from "../assets/add-product-button.svg";
 import removeProductIcon from "../assets/remove-product-button.svg";
+
 import SearchBar from "../components/SearchBar";
 import ProductCard from "../components/ProductCard";
 import AddProductPopUp from "../components/AddProductPopUp";
+import RemoveProductPopUp from "../components/RemoveProductPopUp.jsx";
+
 import ProductScreen from "./productPage.jsx"; // <-- add this import
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-function Search({ productsData, onProductAdded }) {
+function Search({ productsData, onProductAdded, onProductRemoved }) {
   const [term, setTerm] = useState("");
-  // state for the add-product modal
+
+// state for the add-product modal
 const [open, setOpen] = useState(false);
 const [submitting, setSubmitting] = useState(false);
+
+// close the "Add Product" dialog safely
+const handleClose = () => { if (!submitting) setOpen(false); };
 
 // state for the remove-product modal
 const [openR, setOpenR] = useState(false);
 const [submittingR, setSubmittingR] = useState(false);
 
+// close the "Remove Product" dialog safely
+const handleCloseR = () => { if (!submittingR) setOpenR(false); };
+
 // state for the product overlay
 const [selected, setSelected] = useState(null);
 const closeOverlay = () => setSelected(null);
-
-// close the "Add Product" dialog safely
-const handleClose = () => { if (!submitting) setOpen(false); };
 
 // keep this effect if you want to lock page scroll when overlay is open
 useEffect(() => {
@@ -32,7 +39,7 @@ useEffect(() => {
   return () => { document.body.style.overflow = ""; };
 }, [selected]);
 
-// submit handler (reuse your existing POST; simplified here)
+// submit handler (reuse existing POST; simplified here)
 const handleSubmit = async (payload) => {
   try {
     setSubmitting(true);
@@ -75,6 +82,44 @@ const handleSubmit = async (payload) => {
   }
 };
 
+// submit handler for DELETE
+const handleSubmitR = async (payload) => {
+  try {
+    setSubmittingR(true);
+    const res = await fetch(
+      "http://localhost:8000/inventory/690aaa9be73854e0640a1927/products",
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          SKU: payload.SKU?.trim(),
+        }),
+      }
+    );
+
+    let data; try { data = await res.json(); } catch { data = {}; }
+    if (!res.ok) {
+      const msg = data?.message || data?.error || `Request failed with status ${res.status}`;
+      throw new Error(msg);
+    }
+
+    // const saved = data;
+    // const cardData = {
+    //   name: saved.name ?? payload.name ?? "",
+    //   imageURL: saved.imageURL ?? saved.product_photo ?? "",
+    //   SKU: saved.SKU ?? saved.sku ?? payload.SKU ?? "",
+    //   price: Number(saved.price ?? 0),
+    //   quantity: Number(saved.quantity ?? saved.total_quantity ?? payload.quantity ?? 0),
+    // };
+
+    onProductRemoved?.(payload.SKU?.trim());
+    setOpenR(false);
+  } catch (e) {
+    alert(`Failed to remove product: ${e.message}`);
+  } finally {
+    setSubmittingR(false);
+  }
+};
 
   // filter by search term (optional)
   const filtered = useMemo(() => {
@@ -130,14 +175,13 @@ const handleSubmit = async (payload) => {
         <button 
           type="button"
           className="remove-product"
-          // onClick={() => setOpen(true)}   // <— no separate handleOpen needed
+          onClick={() => setOpenR(true)}   // <— no separate handleOpen needed
           aria-label="Remove Product"
           title="Remove Product"
           style={{ border: "none" }}
           >
           <img src={removeProductIcon} alt="" />
         </button>
-
 
       </div>
 
@@ -163,7 +207,7 @@ const handleSubmit = async (payload) => {
       <AddProductPopUp open={open} onClose={handleClose} onSubmit={handleSubmit} isSubmitting={submitting} />
 
       {/* This Remove Product doesn't work yet, opens up Add Product Popup because of copy paste lol*/}
-      {/* <RemoveProductPopUp open={openR} onClose={handleClose} onSubmit={handleSubmit} isSubmitting={submittingR} /> */}
+      <RemoveProductPopUp open={openR} onClose={handleCloseR} onSubmit={handleSubmitR} isSubmitting={submittingR} />
 
       {selected && createPortal(
         <div

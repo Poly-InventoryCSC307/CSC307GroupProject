@@ -47,7 +47,16 @@ section.hero {
   color: #26a69a;
 }
 
+
+.add-product:focus,
+.add-product:active {
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+}
+
 .remove-product {
+  margin-top: 10px;
   margin-left: 16px;
   display: inline-grid;
   place-items: center;
@@ -60,6 +69,13 @@ section.hero {
 .remove-product:hover {
   background-color: #cff7d3;
   color: #26a69a;
+}
+
+.remove-product:focus,
+.remove-product:active {
+  outline: none;
+  background: transparent;
+  box-shadow: none;
 }
 
 .results-wrap {

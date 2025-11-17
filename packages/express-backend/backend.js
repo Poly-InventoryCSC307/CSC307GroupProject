@@ -29,7 +29,7 @@ app.get("/inventory", (req, res) => {
 app.get("/inventory/:storeId/products", (req, res) => {
   const { storeId } = req.params;
 
-  // Use your service: returns all store docs; filter in-memory to the one we need
+  // Use service: returns all store docs; filter in-memory to the one we need
   inventoryServices
     .getInventory(undefined, undefined) // <- required per your request
     .then((docs) => {
@@ -48,7 +48,7 @@ app.get("/inventory/:storeId/products", (req, res) => {
         SKU: p.SKU ?? "",
         price: Number(p.price ?? 0),
         total_quantity: Number(p.total_quantity ?? 0),
-        // include a 'quantity' mirror since your UI reads either
+        // include a 'quantity' mirror since UI reads either
         quantity: Number(p.total_quantity ?? 0),
         quantity_on_floor: Number(p.quantity_on_floor ?? 0),
         quantity_in_back: Number(p.quantity_in_back ?? 0),
@@ -69,7 +69,7 @@ app.post("/inventory/:storeId/products", (req, res) => {
   const { storeId } = req.params;
   const body = req.body || {};
 
-  // Normalize incoming payload -> your service already remaps quantity->total_quantity
+  // Normalize incoming payload
   const product = {
     name: (body.name || "").trim(),
     SKU: (body.SKU || "").trim(),
@@ -87,7 +87,7 @@ app.post("/inventory/:storeId/products", (req, res) => {
     return res.status(400).json({ message: "name and SKU are required" });
   }
 
-  // Use your service to push into inventory
+  // Use service to push into inventory
   inventoryServices
     .addProduct(storeId, product)
     .then((updatedDoc) => {
@@ -120,23 +120,35 @@ app.post("/inventory/:storeId/products", (req, res) => {
 });
 
 
-/*
-app.delete("/stores/:id", (req, res) => {
-  const id = req.params["id"];
-  
-  const deleteStore = inventoryServices.deleteStoreById(id);
-  
-  deleteStore
-    .then((result) => {
-      res.status(204).send(result);
-    })
-    .catch((error) => {
-      console.log(error);
-      res.status(404).send("ID not found");
-    });
+app.delete("/inventory/:storeId/products", (req, res) => {
+  const { storeId } = req.params;
+  const { SKU } = req.body || {};
+  if (!SKU || !SKU.trim()){
+    return res.status(400).json({ error: "SKU is required" });
+  }
 
+  inventoryServices
+    .removeProductBySKU(storeId, SKU.trim())
+    .then((result) => {
+      if (!result) {
+        return res.status(404).json({ error: "Store not found" });
+      }
+
+      // Check if a product was actually removed
+      const inventoryAfter = result.inventory || [];
+      const stillExists = inventoryAfter.some((item) => item.SKU === SKU.trim());
+      if (stillExists) {
+        return res.status(404).json({ error: "Product SKU not found in this store" });
+      }
+
+      res.json({ ok: true, removedSKU: SKU.trim() });
+    })
+    .catch((err) => {
+      console.error("Error removing product:", err);
+      res.status(500).json({ error: "Failed to remove product" });
+    });
 });
-*/
+
 
 app.listen(port, () => {
   console.log(

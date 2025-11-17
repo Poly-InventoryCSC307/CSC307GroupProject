@@ -73,6 +73,15 @@ function addProduct(storeID, product) {
     );
 }
 
+// Find a product with a given SKU and remove it 
+function removeProductBySKU(storeID, SKU){
+    return inventoryModel.findByIdAndUpdate(
+        storeID,
+        { $pull: {inventory: {SKU: SKU}}},
+        { returnDocument: "after"}
+    );
+}
+
 export default{
     getInventory,
     findProductByName,
@@ -80,4 +89,5 @@ export default{
     updateQuantityFloor,
     updateQuantityBack,
     addProduct,
+    removeProductBySKU,
 };
