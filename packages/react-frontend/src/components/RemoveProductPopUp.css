@@ -1,0 +1,107 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 11;
+}
+
+/* modal panel */
+.modal {
+  width: 520px;
+  max-width: 95vw;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  border: 1px solid #0f0f0f;
+}
+
+/* header */
+.modal-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1.5px solid #0f0f0f;
+  background: #b6ffc1;
+}
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f0f0f;
+}
+.modal-close {
+  border: none;
+  background: transparent;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  color:black;
+  transition: all 0.3s ease;
+}
+
+/* Change the background color to something else */
+.modal-close:hover{
+  background: black;
+  border: none;
+}
+
+/* body */
+.modal-content {
+  padding: 18px 16px 16px 16px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.field label {
+  font-weight: 700;
+  color: #0f0f0f;
+}
+.field input,
+.field textarea {
+  border: 1.5px solid #0f0f0f;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  outline: none;
+}
+.field textarea {
+  resize: vertical;
+}
+
+/* footer */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+  color: black
+}
+.btn {
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.05s ease, box-shadow 0.2s ease;
+  border: 1.5px solid #0f0f0f;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn.primary {
+  background: #26a69a;
+  color: black;
+}
+.btn.ghost {
+  background: white;
+  color: black;
+} 
+

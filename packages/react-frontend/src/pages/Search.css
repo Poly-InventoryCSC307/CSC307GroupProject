@@ -15,7 +15,7 @@ section.hero {
   justify-content: space-between;
 
   /* placement */
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 12px auto 20px;   /* centers the row and gives bottom gap */
   padding: 10px 12px;
 
@@ -33,6 +33,7 @@ section.hero {
 
 .add-product {
   margin-left: 16px;
+  margin-top: 10px;
   display: inline-grid;
   place-items: center;
   border-radius: 10px;
@@ -63,7 +64,7 @@ section.hero {
 
 .results-wrap {
   max-width: 1200px;
-  margin: 0 auto 64px;
+  margin: 20px auto 64px;
 }
 
 .results-grid {

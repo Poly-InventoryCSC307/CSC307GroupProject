@@ -5,6 +5,7 @@ import removeProductIcon from "../assets/remove-product-button.svg";
 import SearchBar from "../components/SearchBar";
 import ProductCard from "../components/ProductCard";
 import AddProductPopUp from "../components/AddProductPopUp";
+import RemoveProductPopUp from "../components/RemoveProductPopUp"
 import ProductScreen from "./productPage.jsx"; // <-- add this import
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -14,6 +15,10 @@ function Search({ productsData, onProductAdded }) {
   // state for the add-product modal
 const [open, setOpen] = useState(false);
 const [submitting, setSubmitting] = useState(false);
+
+// state for the remove-product modal
+const [openR, setOpenR] = useState(false);
+const [submittingR, setSubmittingR] = useState(false);
 
 // state for the product overlay
 const [selected, setSelected] = useState(null);
@@ -157,6 +162,9 @@ const handleSubmit = async (payload) => {
       </div>
 
       <AddProductPopUp open={open} onClose={handleClose} onSubmit={handleSubmit} isSubmitting={submitting} />
+
+      {/* This Remove Product doesn't work yet, opens up Add Product Popup because of copy paste lol*/}
+      {/* <RemoveProductPopUp open={openR} onClose={handleClose} onSubmit={handleSubmit} isSubmitting={submittingR} /> */}
 
       {selected && createPortal(
         <div
