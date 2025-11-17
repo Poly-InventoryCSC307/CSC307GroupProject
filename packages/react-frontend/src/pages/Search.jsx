@@ -86,6 +86,7 @@ const handleSubmit = async (payload) => {
       SKU: saved.SKU ?? saved.sku ?? payload.SKU ?? "",
       price: Number(saved.price ?? 0),
       quantity: Number(saved.quantity ?? saved.total_quantity ?? payload.quantity ?? 0),
+      description: saved.description ?? payload.description ?? "",
     };
 
     onProductAdded?.(cardData);
@@ -176,6 +177,7 @@ const handleSubmitR = async (payload) => {
         <div className="search-bar-container">
           <SearchBar onSearch={setTerm} />
         </div>
+        {/* Add Product Button*/}
         <button 
           type="button"
           className="add-product"
@@ -187,6 +189,7 @@ const handleSubmitR = async (payload) => {
           <img src={addProductIcon} alt="" />
         </button>
 
+        {/* Remove Product Button*/}
         <button 
           type="button"
           className="remove-product"
@@ -221,7 +224,6 @@ const handleSubmitR = async (payload) => {
 
       <AddProductPopUp open={open} onClose={handleClose} onSubmit={handleSubmit} isSubmitting={submitting} />
 
-      {/* This Remove Product doesn't work yet, opens up Add Product Popup because of copy paste lol*/}
       <RemoveProductPopUp open={openR} onClose={handleCloseR} onSubmit={handleSubmitR} isSubmitting={submittingR} />
 
       {selected && createPortal(
@@ -264,7 +266,7 @@ const handleSubmitR = async (payload) => {
               style={{
                 position: "absolute",
                 top: 16,
-                right: 16,
+                right: 15,
                 zIndex: 1,
                 width: 36,
                 height: 36,
@@ -277,12 +279,11 @@ const handleSubmitR = async (payload) => {
                 placeItems: "center",
                 boxShadow: "0 3px 8px rgba(0,0,0,.25)",
                 cursor: "pointer",
-                /* ADD THIS ↓ */
                 color: "#111",       // makes the × visible
                 lineHeight: 1
               }}
             >
-              ×
+              X
             </button>
 
             {/* scrollable body */}

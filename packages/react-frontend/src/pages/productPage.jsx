@@ -40,6 +40,7 @@ export default function ProductScreen({ initialProduct = null, overlay = false }
         <section className="p-modal__desc">
           <h3>Product Description:</h3>
           <p>{(p.description || "").trim() || "No description provided."}</p>
+
         </section>
       </div>
     );

@@ -19,6 +19,7 @@ function App() {
           SKU: p.SKU ?? p.sku ?? "",
           price: Number(p.price ?? 0),
           quantity: Number(p.quantity ?? p.total_quantity ?? 0),
+          description: p.description ?? "",
         }));
         setProducts(cardData)
 

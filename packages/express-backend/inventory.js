@@ -28,6 +28,7 @@ const ProductSchema = new mongoose.Schema(
         incoming_quantity: { type: Number, min: 0, default: 0 },
         product_photo: { type: String, required: true },
         price: { type: Number, min: 0, default: 0, required: true },
+        description: {type: String, trim: true},
         // pending_shipping : { type: Number, min: 0, default: 0 }
     }
 );
