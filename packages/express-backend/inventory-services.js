@@ -24,7 +24,9 @@ function getInventory(SKU, name){
     return promise;
 }
 
-//Use this for the search bar on the main product page 
+function getStoreByID(storeID){
+    return inventoryModel.findById(storeID).lean().exec();
+}
 
 // Filter via a given product name
 function findProductByName(name){

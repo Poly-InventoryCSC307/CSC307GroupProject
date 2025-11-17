@@ -119,13 +119,20 @@ app.post("/inventory/:storeId/products", (req, res) => {
     });
 });
 
-
 app.delete("/inventory/:storeId/products", (req, res) => {
   const { storeId } = req.params;
   const { SKU } = req.body || {};
   if (!SKU || !SKU.trim()){
     return res.status(400).json({ error: "SKU is required" });
   }
+
+  // If the SKU doesn't exist, don't do anything
+  // inventoryServices.findProductBySKU(SKU)
+  // .then((result) => {
+  //   if (!result) {
+  //     return res.status(400).json({ error: "SKU doesn't exist"});  
+  //   }
+  // });
 
   inventoryServices
     .removeProductBySKU(storeId, SKU.trim())

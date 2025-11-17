@@ -43,6 +43,17 @@ useEffect(() => {
 const handleSubmit = async (payload) => {
   try {
     setSubmitting(true);
+    // Check if SKU already exists
+    const exists = (productsData ?? []).some(
+      p => String(p.SKU || "").trim().toLocaleLowerCase() === String(payload.SKU || "").trim().toLocaleLowerCase()
+    );
+
+    if (exists){
+      alert(`SKU "${payload.SKU}" already exists. Choose a different SKU`);
+      setSubmitting(false);
+      return;
+    }
+    
     const res = await fetch(
       "http://localhost:8000/inventory/690aaa9be73854e0640a1927/products",
       {
@@ -60,6 +71,10 @@ const handleSubmit = async (payload) => {
 
     let data; try { data = await res.json(); } catch { data = {}; }
     if (!res.ok) {
+      if (res.status === 409){
+        throw new Errow(data?.message || "SKU already exists.");
+      }
+
       const msg = data?.message || data?.error || `Request failed with status ${res.status}`;
       throw new Error(msg);
     }
