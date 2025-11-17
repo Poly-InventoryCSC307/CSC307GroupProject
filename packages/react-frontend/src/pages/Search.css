@@ -46,6 +46,21 @@ section.hero {
   color: #26a69a;
 }
 
+.remove-product {
+  margin-left: 16px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 10px;
+  padding: 0;              /* you already render it as an <img> button */
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+
+.remove-product:hover {
+  background-color: #cff7d3;
+  color: #26a69a;
+}
+
 .results-wrap {
   max-width: 1200px;
   margin: 0 auto 64px;

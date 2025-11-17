@@ -1,6 +1,7 @@
 // Search.jsx
 import "./Search.css";
 import addProductIcon from "../assets/add-product-button.svg";
+import removeProductIcon from "../assets/remove-product-button.svg";
 import SearchBar from "../components/SearchBar";
 import ProductCard from "../components/ProductCard";
 import AddProductPopUp from "../components/AddProductPopUp";
@@ -121,6 +122,18 @@ const handleSubmit = async (payload) => {
           >
           <img src={addProductIcon} alt="" />
         </button>
+
+        <button 
+          type="button"
+          className="remove-product"
+          // onClick={() => setOpen(true)}   // <— no separate handleOpen needed
+          aria-label="Remove Product"
+          title="Remove Product"
+          style={{ border: "none" }}
+          >
+          <img src={removeProductIcon} alt="" />
+        </button>
+
 
       </div>
 
