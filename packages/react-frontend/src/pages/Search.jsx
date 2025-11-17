@@ -5,7 +5,6 @@ import removeProductIcon from "../assets/remove-product-button.svg";
 import SearchBar from "../components/SearchBar";
 import ProductCard from "../components/ProductCard";
 import AddProductPopUp from "../components/AddProductPopUp";
-import RemoveProductPopUp from "../components/RemoveProductPopUp"
 import ProductScreen from "./productPage.jsx"; // <-- add this import
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
