@@ -41,12 +41,28 @@
 }
 .p-label { font-weight: 700; color: #1a1a1a; }
 .p-val   { color: #1a1a1a; }
-.p-actions { margin-top: 12px; }
+.p-actions { 
+  display: flex;
+  justify-content:flex-start;
+  height: 100px;
+  margin-top: 12px; 
+  gap: 25px;
+}
+.btn-edit-price,
 .btn-order {
+  height: 50%;
+  width: 25%;
   border: 1px solid #0f5132;
   background: #2e7d68;
-  color: #fff; font-weight: 700;
+  color: #fff; font-weight: 700; font-size: larger;
   padding: 8px 16px; border-radius: 8px; cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-edit-price:hover,
+.btn-order:hover {
+  background-color: #cff7d3;
+  color: #26a69a;
 }
 
 /* Bottom description bar */

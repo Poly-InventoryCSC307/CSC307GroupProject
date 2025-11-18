@@ -156,6 +156,38 @@ app.delete("/inventory/:storeId/products", (req, res) => {
     });
 });
 
+app.patch("/inventory/:storeId/products", (req, res) => {
+  const { storeId } = req.params;
+  const { SKU, price } = req.body;
+
+  // basic validation + helpful messages
+  if (!SKU) {
+    return res.status(400).json({ error: "SKU is required" });
+  }
+  if (typeof price !== "number" || Number.isNaN(price)) {
+    return res.status(400).json({ error: "price must be a number" });
+  }
+
+  inventoryServices
+    .updatePriceBySKU(storeId, SKU, price)
+    .then((updated) => {
+      if (!updated) {
+        // no matched product for this store/SKU
+        return res.status(404).json({ error: "No product found for that SKU in this store" });
+      }
+      return res.json(updated); // { SKU, price }
+    })
+    .catch((err) => {
+      console.error("PATCH /inventory/:storeId/products error:", {
+        storeId,
+        SKU,
+        price,
+        message: err?.message,
+      });
+      // propagate a specific message if present, otherwise generic 500
+      res.status(500).json({ error: err?.message || "Failed to update price" });
+    });
+});
 
 app.listen(port, () => {
   console.log(

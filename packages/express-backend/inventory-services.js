@@ -55,6 +55,31 @@ function updateQuantityBack(SKU, update_val){
     );
 }
 
+function updatePriceBySKU(storeId, SKU, newPrice) {
+  const cleanSKU = String(SKU || "").trim();
+  const priceNum = Number(newPrice);
+
+  return inventoryModel
+    .findOneAndUpdate(
+      { _id: storeId, "inventory.SKU": cleanSKU },
+      { $set: { "inventory.$[elem].price": priceNum } },
+      {
+        new: true,                          // return updated doc
+        arrayFilters: [{ "elem.SKU": cleanSKU }],
+        // ❌ no positional projection here
+      }
+    )
+    .then((doc) => {
+      if (!doc || !doc.inventory) return null;
+      const p = doc.inventory.find((it) => it.SKU === cleanSKU);
+      return p ? { SKU: p.SKU, price: p.price } : null;
+    })
+    .catch((err) => {
+      console.log("Error updating price:", err);
+      throw err; // let backend send the real message
+    });
+}
+
 function addProduct(storeID, product) {
     const productDetails = {
         name: product.name,
@@ -92,4 +117,5 @@ export default{
     updateQuantityBack,
     addProduct,
     removeProductBySKU,
+    updatePriceBySKU,
 };
