@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import "./RemoveProductPopUp.css";
+import "./PopUp.css";
 
 function RemoveProductPopUp({
   open,

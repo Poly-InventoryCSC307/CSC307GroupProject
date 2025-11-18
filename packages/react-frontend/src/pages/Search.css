@@ -31,6 +31,7 @@ section.hero {
   flex: 1;                 /* grow to fill left side */
 }
 
+.remove-product,
 .add-product {
   margin-left: 16px;
   margin-top: 10px;
@@ -42,37 +43,16 @@ section.hero {
   transition: all 0.3s ease;
 }
 
+.remove-product:hover,
 .add-product:hover {
   background-color: #cff7d3;
   color: #26a69a;
 }
 
-
+.remove-product:focus,
+.remove-product:active,
 .add-product:focus,
 .add-product:active {
-  outline: none;
-  background: transparent;
-  box-shadow: none;
-}
-
-.remove-product {
-  margin-top: 10px;
-  margin-left: 16px;
-  display: inline-grid;
-  place-items: center;
-  border-radius: 10px;
-  padding: 0;              /* you already render it as an <img> button */
-  background-color: transparent;
-  transition: all 0.3s ease;
-}
-
-.remove-product:hover {
-  background-color: #cff7d3;
-  color: #26a69a;
-}
-
-.remove-product:focus,
-.remove-product:active {
   outline: none;
   background: transparent;
   box-shadow: none;

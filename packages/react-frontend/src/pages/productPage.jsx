@@ -1,5 +1,6 @@
 import "./productPage.css"
 import EditPricePopUp from "../components/EditPricePopUp";
+import UpdateQuantityPopUp from "../components/UpdateQuantityPopUp";
 import React, {useMemo, useState} from "react";
 
 export default function ProductScreen({ 
@@ -7,9 +8,12 @@ export default function ProductScreen({
   overlay = false,
   storeID =  "690aaa9be73854e0640a1927",     // Hard coded ID for one store
   onPriceUpdated,
+  onQuantUpdated,
 }) {
-  // state for the edit-price modal
   const [product, setProduct] = useState(() => initialProduct || {});
+
+
+  // state for the edit-price modal
   const [openEP, setOpenEP] = useState(false);
   const [submittingEP, setSubmittingEP] = useState(false);
 
@@ -53,7 +57,52 @@ export default function ProductScreen({
       setSubmittingEP(false);
     }
   };
-  
+
+  // state for the update-quantity modal
+  const [openUQ, setOpenUQ] = useState(false);
+  const [submittingUQ, setSubmittingUQ] = useState(false);
+
+  // close the "Update Quantity" dialog safely
+  const handleCloseUQ = () => { if (!submittingUQ) setOpenUQ(false); };
+
+  const handleSubmitUQ = async ({quantity}) => {
+    try {
+      setSubmittingUQ(true);
+
+      const sku = String(product?.SKU || "").trim();
+      if (!sku) throw new Error("Missing SKU for this product.");
+
+      const res = await fetch(
+        `http://localhost:8000/inventory/${storeID}/products`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            SKU: sku,
+            quantity: Number(quantity),
+          }),
+        }
+      );
+
+      let data; try { data = await res.json(); } catch { data = {}; }
+      if (!res.ok) {
+        const msg = data?.message || data?.error || `Request failed with status ${res.status}`;
+        throw new Error(msg);
+      }
+
+      const newQuantity = Number(data?.quantity ?? quantity ?? 0);
+      setProduct((p) => ({ ...p, quantity: newQuantity }));
+
+      onQuantUpdated?.(sku, newQuantity);
+
+      setOpenUQ(false);
+    } catch (e) {
+      alert(`Failed to save product (ProductPage): ${e.message}`);
+    } finally {
+      setSubmittingUQ(false);
+    }
+  };
+
   const name = product?.name || "—";
   const sku = product?.SKU || "—";
   const qtyTotal = Number(
@@ -102,11 +151,15 @@ export default function ProductScreen({
               <button className="btn-edit-price" onClick={() => setOpenEP(true)}>
                 Edit Price
               </button>
+              <button className="btn-update-quantity" onClick={() => setOpenUQ(true)}>
+                Update Quantity
+              </button>
             </div>
           </aside>
         </div>
 
         <EditPricePopUp open={openEP} onClose={handleCloseEP} onSubmit={handleSubmitEP} isSubmitting={submittingEP} />
+        <UpdateQuantityPopUp open={openUQ} onClose={handleCloseUQ} onSubmit={handleSubmitUQ} isSubmitting={submittingUQ} />
 
         {/* Bottom: description */}
         <section className="p-modal__desc">

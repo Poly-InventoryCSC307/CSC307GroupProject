@@ -66,7 +66,6 @@ function updatePriceBySKU(storeId, SKU, newPrice) {
       {
         new: true,                          // return updated doc
         arrayFilters: [{ "elem.SKU": cleanSKU }],
-        // ❌ no positional projection here
       }
     )
     .then((doc) => {

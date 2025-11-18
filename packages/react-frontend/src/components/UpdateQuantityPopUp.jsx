@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import "./PopUp.css";
 
-function EditPricePopUp({
+function UpdateQuantityPopUp({
     open,
     onClose,
     onSubmit,
@@ -9,7 +9,7 @@ function EditPricePopUp({
 }) {
     const overlayRef = useRef(null);
         const [form, setForm] = useState({
-        price: "",
+        quantity: "",
       });
     
     useEffect(() => {
@@ -21,7 +21,7 @@ function EditPricePopUp({
 
     useEffect(() => {
         if (!open) return;
-        setForm({price: ""});
+        setForm({quantity: ""});
       }, [open]);
 
     if (!open) return null;
@@ -38,7 +38,7 @@ function EditPricePopUp({
     const handleSubmit = (e) => {
         e.preventDefault();
         const payload = {
-            price: Number(form.price || 0),
+            quantity: Number(form.quantity || 0),
         };
         onSubmit?.(payload);
     };
@@ -50,11 +50,11 @@ function EditPricePopUp({
       onMouseDown={handleOverlayClick}
       aria-modal="true"
       role="dialog"
-      aria-labelledby="edit-price-title"
+      aria-labelledby="update-quant-title"
     >
       <div className="modal" role="document">
         <header className="modal-header">
-          <h3 id="edit-price-title">Edit Price</h3>
+          <h3 id="update-quant-title">Update Quantity</h3>
           <button className="modal-close" onClick={onClose} aria-label="Close">
             X
           </button>
@@ -62,13 +62,16 @@ function EditPricePopUp({
 
         <form className="modal-content" onSubmit={handleSubmit}>
           <div className="field">
-            <label htmlFor="price">Price</label>
+            <label htmlFor="quantity">Quantity</label>
             <input
-              id="price"
-              name="price"
-              value={form.price}
+              id="quantity"
+              name="quantity"
+              type="number"
+              min="0"
+              step="1"
+              value={form.quantity}
               onChange={handleChange}
-              placeholder="e.g., 10.99"
+              placeholder="0"
               required
             />
           </div>
@@ -83,7 +86,7 @@ function EditPricePopUp({
               Cancel
             </button>
             <button type="submit" className="btn primary" disabled={isSubmitting}>
-              {isSubmitting ? "Updating Price..." : "Update Price"}
+              {isSubmitting ? "Updating Quantity..." : "Updated Quantity"}
             </button>
           </footer>
         </form>
@@ -94,4 +97,4 @@ function EditPricePopUp({
 
 
 
-export default EditPricePopUp
+export default UpdateQuantityPopUp

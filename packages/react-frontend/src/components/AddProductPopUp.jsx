@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import "./AddProductPopUp.css";
+import "./PopUp.css";
 
 function AddProductPopUp({
   open,
