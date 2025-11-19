@@ -71,8 +71,11 @@ app.delete("/stores/:id", (req, res) => {
 });
 */
 
-app.listen(port, () => {
-  console.log(
-    `Example app listening at http://localhost:${port}`
-  );
+// app.listen(port, () => {
+//   console.log(
+//     `Example app listening at http://polyplus-inventory-febhaeaah4a2a9ht.westus3-01.azurewebsites.net`
+//   );
+// });
+app.listen(process.env.PORT || port, () => {
+  console.log("REST API is listening.");
 });
