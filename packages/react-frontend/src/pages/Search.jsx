@@ -153,7 +153,7 @@ const handleSubmit = async (payload) => {
           onMouseDown={closeOverlay}
           style={{
             position: "fixed", inset: 0, zIndex: 2000,
-            display: "flex", alignItems: "center", justifyContent: "center"
+            display: "flex", alignItems: "center", justifyContent: "center", 
           }}
         >
           {/* backdrop */}
@@ -176,13 +176,16 @@ const handleSubmit = async (payload) => {
               boxShadow: "0 24px 80px rgba(0,0,0,.35)",
               background: "transparent",
               display: "flex",
-              flexDirection: "column"
+              flexDirection: "column",
             }}
           >
             {/* close button */}
             <button
               onClick={closeOverlay}
               aria-label="Close"
+              className="close-overlay"
+              onMouseEnter={(e) => e.currentTarget.style.background = "#f2f2f2"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "#fff"}
               style={{
                 position: "absolute",
                 top: 16,
@@ -197,21 +200,19 @@ const handleSubmit = async (payload) => {
                 fontWeight: 700,
                 display: "grid",
                 placeItems: "center",
+                justifyContent: "center",
+                paddingTop: 8,
                 boxShadow: "0 3px 8px rgba(0,0,0,.25)",
                 cursor: "pointer",
-                /* ADD THIS ↓ */
                 color: "#111",       // makes the × visible
-                lineHeight: 1
-              }}
-            >
-              ×
-            </button>
+                lineHeight: 1,
+              }}>X</button>
 
             {/* scrollable body */}
             <div
               style={{
                 maxHeight: "90vh", overflowY: "auto",
-                background: "#fff", borderRadius: 16, padding: 20
+                background: "#fff", borderRadius: 16, padding: 20, paddingTop: 60,
               }}
             >
               <ProductScreen initialProduct={selected} overlay />

@@ -45,11 +45,11 @@ export default function ProductScreen({ initialProduct = null, overlay = false }
     );
   }
 
-  // full-page version (leave as you had it)
+  // full-page version (leave as it was)
   return (
     <div className={`app-shell ${overlay ? "" : "fullpage"}`}>
-      {!overlay && <header className="topbar">{/* ... */}</header>}
-      <main className="stage">{/* your existing full-page layout */}</main>
+      {!overlay && <header className="topbar">{}</header>}
+      <main className="stage">{/*  existing full-page layout */}</main>
     </div>
   );
 }
