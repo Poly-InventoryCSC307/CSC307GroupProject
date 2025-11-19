@@ -38,12 +38,15 @@ function Search({
   const [selected, setSelected] = useState(null);
   const closeOverlay = () => setSelected(null);
 
-  // update the price 
+  // update the price and quantity
   const [priceOverrides, setPriceOverrides] = useState({});
+  const [quantOverrides, setQuanOverrides] = useState({});
   const applyOverrides = (list) =>
-    (list ?? []).map(p =>
-      priceOverrides[p.SKU] != null ? { ...p, price: priceOverrides[p.SKU] } : p
-    );
+    (list ?? []).map(p => ({
+      ...p,
+      ...(priceOverrides[p.SKU] != null ? { price: priceOverrides[p.SKU] } : null),
+      ...(quantOverrides[p.SKU] != null ? { quantity: quantOverrides[p.SKU] } : null),
+    }));
 
   // keep this effect if you want to lock page scroll when overlay is open
   useEffect(() => {
@@ -57,7 +60,7 @@ function Search({
       setSubmitting(true);
       // Check if SKU already exists
       const exists = (productsData ?? []).some(
-        p => String(p.SKU || "").trim().toLocaleLowerCase() === String(payload.SKU || "").trim().toLocaleLowerCase()
+        p => String(p.SKU || "").trim().toLocaleLowerCase() === String(payload.SKU || "").trim().toLowerCase()
       );
 
       if (exists){
@@ -151,15 +154,14 @@ function Search({
 
   const filtered = useMemo(() => {
     const q = term.trim().toLowerCase();
-    const base = productsData ?? [];
-    const withPrices = applyOverrides(base); // apply any local price updates
-    if (!q) return withPrices;
-    return withPrices.filter((p) =>
-      [p.name, p.SKU].some((v) =>
+    const withBoth = applyOverrides(productsData ?? []);
+    if (!q) return withBoth;
+    return withBoth.filter((p) =>
+      [p.name, p.SKU].some((v) => 
         String(v || "").toLowerCase().includes(q)
       )
     );
-  }, [productsData, term, priceOverrides]);
+  }, [productsData, term, priceOverrides, quantOverrides]);
 
   // how many cards are currently visible
   const PAGE = 12;                          // initial batch size
@@ -319,6 +321,14 @@ function Search({
                     );
                     // Update product grid too
                     setPriceOverrides((prev) => ({ ...prev, [sku]: newPrice }));
+                  }}
+                  onQuantUpdated={(sku, newQuantity) => {
+                    // Update overlay immediately
+                    setSelected((prev) =>
+                      prev && prev.SKU === sku ? { ...prev, quantity: newQuantity } : prev
+                    );
+                    // Update product grid too
+                    setQuanOverrides((prev) => ({ ...prev, [sku]: newQuantity }));
                   }}
                 />
               </div>

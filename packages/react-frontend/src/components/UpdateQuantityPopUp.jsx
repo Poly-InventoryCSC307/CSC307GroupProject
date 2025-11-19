@@ -8,39 +8,39 @@ function UpdateQuantityPopUp({
     isSubmitting,
 }) {
     const overlayRef = useRef(null);
-        const [form, setForm] = useState({
-        quantity: "",
-      });
+    const [form, setForm] = useState({ delta: "" });
+    
+    // When open allow the user to press esc to exit out 
+    useEffect(() => {
+      if (!open) return;
+      const onKey = (e) => e.key === "Escape" && onClose?.();
+      document.addEventListener("keydown", onKey);
+      return () => document.removeEventListener("keydown", onKey);
+    }, [open, onClose]);
+
     
     useEffect(() => {
-        if (!open) return;
-        const onKey = (e) => e.key === "Escape" && onClose?.();
-        document.addEventListener("keydown", onKey);
-        return () => document.removeEventListener("keydown", onKey);
-      }, [open, onClose]);
-
-    useEffect(() => {
-        if (!open) return;
-        setForm({quantity: ""});
-      }, [open]);
+      if (!open) return;
+      setForm({ delta: "" });
+    }, [open]);
 
     if (!open) return null;
 
     const handleOverlayClick = (e) => {
-        if (e.target === overlayRef.current) onClose?.();
+      if (e.target === overlayRef.current) onClose?.();
     };
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm((f) => ({ ...f, [name]: value }));
+      const { name, value } = e.target;
+      setForm((f) => ({ ...f, [name]: value }));
     };
 
     const handleSubmit = (e) => {
-        e.preventDefault();
-        const payload = {
-            quantity: Number(form.quantity || 0),
-        };
-        onSubmit?.(payload);
+      e.preventDefault();
+      const payload = {
+        delta: Number(form.delta || 0),
+      };
+      onSubmit?.(payload);
     };
 
     return (
@@ -62,16 +62,15 @@ function UpdateQuantityPopUp({
 
         <form className="modal-content" onSubmit={handleSubmit}>
           <div className="field">
-            <label htmlFor="quantity">Quantity</label>
+            <label htmlFor="delta">Change Quantity By (+-)</label>
             <input
-              id="quantity"
-              name="quantity"
+              id="delta"
+              name="delta"
               type="number"
-              min="0"
               step="1"
-              value={form.quantity}
+              value={form.delta}
               onChange={handleChange}
-              placeholder="0"
+              placeholder="e.g., 5 or -3"
               required
             />
           </div>
@@ -86,7 +85,7 @@ function UpdateQuantityPopUp({
               Cancel
             </button>
             <button type="submit" className="btn primary" disabled={isSubmitting}>
-              {isSubmitting ? "Updating Quantity..." : "Updated Quantity"}
+              {isSubmitting ? "Updating Quantity..." : "Apply Change"}
             </button>
           </footer>
         </form>

@@ -10,8 +10,8 @@ export default function ProductScreen({
   onPriceUpdated,
   onQuantUpdated,
 }) {
-  const [product, setProduct] = useState(() => initialProduct || {});
 
+  const [product, setProduct] = useState(() => initialProduct || {});
 
   // state for the edit-price modal
   const [openEP, setOpenEP] = useState(false);
@@ -65,21 +65,36 @@ export default function ProductScreen({
   // close the "Update Quantity" dialog safely
   const handleCloseUQ = () => { if (!submittingUQ) setOpenUQ(false); };
 
-  const handleSubmitUQ = async ({quantity}) => {
+  const handleSubmitUQ = async ({ delta }) => {
     try {
       setSubmittingUQ(true);
 
       const sku = String(product?.SKU || "").trim();
       if (!sku) throw new Error("Missing SKU for this product.");
 
+      const prevTotal = Number(product?.total_quantity ?? product?.quantity ?? 0);
+      const change = Number(delta);
+      const nextTotal = prevTotal + change;
+
+      if (!Number.isInteger(change)) {
+        throw new Error("Please enter a integer value")
+      }
+
+      if (!Number.isFinite(change) || change === 0) {
+        throw new Error("Please enter a non-zero numeric value.");
+      }
+
+      if (nextTotal < 0){
+        throw new Error(`Quantity Below Zero: Try -${prevTotal} or more`);
+      }
+
       const res = await fetch(
-        `http://localhost:8000/inventory/${storeID}/products`,
+        `http://localhost:8000/inventory/${storeID}/products/${encodeURIComponent(sku)}/quantity`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            SKU: sku,
-            quantity: Number(quantity),
+            delta: Number(delta),
           }),
         }
       );
@@ -90,10 +105,8 @@ export default function ProductScreen({
         throw new Error(msg);
       }
 
-      const newQuantity = Number(data?.quantity ?? quantity ?? 0);
-      setProduct((p) => ({ ...p, quantity: newQuantity }));
-
-      onQuantUpdated?.(sku, newQuantity);
+      setProduct((p) => ({ ...p, quantity: nextTotal, total_quantity: nextTotal }));
+      onQuantUpdated?.(sku, nextTotal);
 
       setOpenUQ(false);
     } catch (e) {
