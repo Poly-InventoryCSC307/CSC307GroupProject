@@ -21,18 +21,18 @@ function Search({
   const [term, setTerm] = useState("");
 
   // state for the add-product modal
-  const [open, setOpen] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [openAdd, setOpenAdd] = useState(false);
+  const [submittingAdd, setSubmittingAdd] = useState(false);
 
   // close the "Add Product" dialog safely
-  const handleClose = () => { if (!submitting) setOpen(false); };
+  const handleCloseAdd = () => { if (!submittingAdd) setOpenAdd(false); };
 
   // state for the remove-product modal
-  const [openR, setOpenR] = useState(false);
-  const [submittingR, setSubmittingR] = useState(false);
+  const [openRem, setOpenRem] = useState(false);
+  const [submittingRem, setSubmittingRem] = useState(false);
 
   // close the "Remove Product" dialog safely
-  const handleCloseR = () => { if (!submittingR) setOpenR(false); };
+  const handleCloseRem = () => { if (!submittingRem) setOpenRem(false); };
 
   // state for the product overlay
   const [selected, setSelected] = useState(null);
@@ -47,24 +47,24 @@ function Search({
       ...(quantOverrides[p.SKU] != null ? { quantity: quantOverrides[p.SKU] } : null),
     }));
 
-  // keep this effect if you want to lock page scroll when overlay is open
+  // lock page scroll when overlay is open
   useEffect(() => {
-    document.body.style.overflow = selected ? "hidden" : "";
+    document.body.style.overflow = (selected || openAdd || openRem) ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
-  }, [selected]);
+  }, [selected, openAdd, openRem]);
 
   // submit handler (reuse existing POST; simplified here)
-  const handleSubmit = async (payload) => {
+  const handleSubmitAdd = async (payload) => {
     try {
-      setSubmitting(true);
+      setSubmittingAdd(true);
       // Check if SKU already exists
       const exists = (productsData ?? []).some(
-        p => String(p.SKU || "").trim().toLocaleLowerCase() === String(payload.SKU || "").trim().toLowerCase()
+        p => String(p.SKU || "").trim().toLowerCase() === String(payload.SKU || "").trim().toLowerCase()
       );
 
       if (exists){
         alert(`SKU "${payload.SKU}" already exists. Choose a different SKU`);
-        setSubmitting(false);
+        setSubmittingAdd(false);
         return;
       }
       
@@ -104,18 +104,18 @@ function Search({
       };
 
       onProductAdded?.(cardData);
-      setOpen(false);
+      setOpenAdd(false);
     } catch (e) {
       alert(`Failed to save product (Search): ${e.message}`);
     } finally {
-      setSubmitting(false);
+      setSubmittingAdd(false);
     }
   };
 
   // submit handler for DELETE
-  const handleSubmitR = async (payload) => {
+  const handleSubmitRem = async (payload) => {
     try {
-      setSubmittingR(true);
+      setSubmittingRem(true);
       const res = await fetch(
         `http://localhost:8000/inventory/${storeID}/products`,
         {
@@ -133,21 +133,12 @@ function Search({
         throw new Error(msg);
       }
 
-      // const saved = data;
-      // const cardData = {
-      //   name: saved.name ?? payload.name ?? "",
-      //   imageURL: saved.imageURL ?? saved.product_photo ?? "",
-      //   SKU: saved.SKU ?? saved.sku ?? payload.SKU ?? "",
-      //   price: Number(saved.price ?? 0),
-      //   quantity: Number(saved.quantity ?? saved.total_quantity ?? payload.quantity ?? 0),
-      // };
-
       onProductRemoved?.(payload.SKU?.trim());
-      setOpenR(false);
+      setOpenRem(false);
     } catch (e) {
       alert(`Failed to remove product: ${e.message}`);
     } finally {
-      setSubmittingR(false);
+      setSubmittingRem(false);
     }
   };
 
@@ -213,7 +204,7 @@ function Search({
           <button 
             type="button"
             className="add-product"
-            onClick={() => setOpen(true)}   // <— no separate handleOpen needed
+            onClick={() => setOpenAdd(true)}  
             aria-label="Add Product"
             title="Add Product"
             style={{ border: "none" }}
@@ -225,7 +216,7 @@ function Search({
           <button 
             type="button"
             className="remove-product"
-            onClick={() => setOpenR(true)}   // <— no separate handleOpen needed
+            onClick={() => setOpenRem(true)}   
             aria-label="Remove Product"
             title="Remove Product"
             style={{ border: "none" }}
@@ -254,9 +245,9 @@ function Search({
           {visible < filtered.length && <div ref={loaderRef} className="grid-sentinel" />}
         </div>
 
-        <AddProductPopUp open={open} onClose={handleClose} onSubmit={handleSubmit} isSubmitting={submitting} />
+        <AddProductPopUp open={openAdd} onClose={handleCloseAdd} onSubmit={handleSubmitAdd} isSubmitting={submittingAdd} />
 
-        <RemoveProductPopUp open={openR} onClose={handleCloseR} onSubmit={handleSubmitR} isSubmitting={submittingR} />
+        <RemoveProductPopUp open={openRem} onClose={handleCloseRem} onSubmit={handleSubmitRem} isSubmitting={submittingRem} />
 
         {selected && createPortal(
           <div

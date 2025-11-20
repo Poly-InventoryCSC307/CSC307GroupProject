@@ -15,10 +15,12 @@ function AddProductPopUp({
     quantity: "",
     description: "",
   });
+
   // Use for opening and closing animations 
   const [show, setShow] = useState(open);
   const [closing, setClosing] = useState(false);
 
+  // Close the popup with escape key
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === "Escape" && onClose?.();
@@ -31,6 +33,7 @@ function AddProductPopUp({
     setForm({ name: "", SKU: "", price: "", quantity: "", description: "" });
   }, [open]);
 
+  // Add transition between opening and closing 
   useEffect(() => {
     if (open) {
       setShow(true);
