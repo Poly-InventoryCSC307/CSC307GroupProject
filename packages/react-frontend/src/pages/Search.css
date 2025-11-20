@@ -142,3 +142,98 @@ section.hero {
 
 .p-modal { animation: popIn 0.2s ease forwards; }
 .p-modal.closing { animation: popOut 0.2s ease forwards; }
+
+.content-wrap{
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 20px;
+  align-items: start;
+  min-height: calc(100vh - 120px);
+}
+.filters-panel{
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  padding: 18px;
+  height: 100%;
+  align-self: stretch;
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+}
+.filters-panel h2{
+  margin: 2px 0;
+  font-size: 20px;
+  color:aliceblue;
+}
+
+.filters-panel .price-input{
+  width: 80px;
+  padding: 0px 2px;
+  height: 30px;
+  font-size: 14px;
+  color: aliceblue;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  display: inline-block;
+}
+.filter-checkbox{
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-top: 10px;
+  color:aliceblue;
+  white-space: nowrap;
+  padding: 2px 0;
+}
+.filter-checkbox input{
+  margin: 0;
+  cursor: pointer;
+}
+.filter-row{
+  display: grid;
+  grid-template-columns: .5fr .5fr;
+  gap: 1px;
+  margin-top: 2px;
+  margin-bottom: 4px;
+}
+
+.filters-panel .filter-clear{
+  margin-top: 8px;
+  padding: 2px 4px;
+  width: 100%;
+  text-align: center;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: rgba(255, 255, 255, 0.16);
+  transition: all 0.3s ease;
+  position: static;
+}
+.filter-clear:hover{
+  cursor: pointer;
+  background: #cff7d3;
+  border: 1px solid #aaa;
+}
+.filters-body{
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+.sort-body select{
+  width: 100%;
+  height: 30px;
+  border-radius: 8px;
+  padding: 4px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  background: rgba(0, 63, 70, 0.16);
+  color: rgb(255, 255, 255);
+}
+
+.sort-body select option{
+  background-color: rgba(52, 50, 50, 0.18);
+  color: white;
+}
+.sort-body select option:hover{
+  background-color: #cff7d3;
+  color: #608c88;
+}

@@ -151,17 +151,69 @@ function Search({
     }
   };
 
+  //starter filters
+  const [filters, setFilters] = useState({
+    inStockOnly: false,
+    priceMin: Infinity,
+    priceMax: Infinity
+  });
+  const [sortBy, setSortBy] = useState("name-asc");
+
+
   const filtered = useMemo(() => {
     const q = term.trim().toLowerCase();
     const withBoth = applyOverrides(productsData ?? []);
-    if (!q) return withBoth;
-    return withBoth.filter((p) =>
-      [p.name, p.SKU].some((v) => 
-        String(v || "").toLowerCase().includes(q)
-      )
-    );
-  }, [productsData, term, priceOverrides, quantOverrides]);
+    const bySearch = !q ? withBoth: withBoth.filter((p) => [p.name, p.SKU].some((v) => String(v || "").toLowerCase().includes(q)));
+    // if (!q) return withBoth;
+    // return withBoth.filter((p) =>
+    //   [p.name, p.SKU].some((v) => 
+    //     String(v || "").toLowerCase().includes(q)
+    //   )
+    // );
+    return bySearch.filter((p) => {
+      if(filters.inStockOnly && (Number(p.quantity ?? p.total_quantity ?? 0) <= 0)) {
+        return false;
+      }
+      if(Number.isFinite(filters.priceMin) && (Number(p.price ?? 0) < filters.priceMin)) {
+        return false;
+      }
+      if(Number.isFinite(filters.priceMax) && (Number(p.price ?? 0) > filters.priceMax)) {
+        return false;
+      }
+      return true;  
+    });
+  }, [productsData, term, priceOverrides, quantOverrides, filters]);
 
+  const sorted = useMemo(() => {
+    const sortedList = [...filtered];
+    const cmpStr = (a, b, key) => 
+      String(a[key] || "").localeCompare(String(b[key] || ""), undefined, {
+        sensitivity: "base", numeric: true
+      });
+    const num = (v) => Number(v ?? 0);
+    const cmpNum = (a, b, key) => num(a[key]) - num(b[key]);
+    switch (sortBy) {
+      case "name-desc":
+        sortedList.sort((a, b) => cmpStr(b, a, "name"));
+        break;
+      case "price-asc":
+        sortedList.sort((a, b) => cmpNum(a, b, "price"));
+        break;
+      case "price-desc":
+        sortedList.sort((a, b) => cmpNum(b, a, "price"));
+        break;
+      case "sku-asc":
+        sortedList.sort((a, b) => cmpStr(a, b, "SKU"));
+        break;
+      case "name-asc":
+      default:
+        sortedList.sort((a, b) => cmpStr(a, b, "name"));
+        break;
+    }
+    return sortedList;
+  }, [filtered, sortBy]);
+
+  // final list to show
   // how many cards are currently visible
   const PAGE = 12;                          // initial batch size
   const [visible, setVisible] = useState(PAGE);
@@ -236,23 +288,90 @@ function Search({
         </div>
 
         {/* GRID */}
-        <div className="results-wrap">
-          <div className="results-grid">
-            {(filtered.slice(0, visible)).map((p) => (
-              <button
-                key={p.SKU}
-                className="product-card-button"
-                onClick={() => setSelected(p)}
-                aria-label={`Open ${p.name}`}
-                title={`Open ${p.name}`}
+        <div className="content-wrap">
+          <aside className="filters-panel">
+             <div className="sort-body">
+              <label htmlFor="sortSelect">Sort By</label>
+              <select
+                id="sortSelect"
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value)}
+                >
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+                <option value="price-asc">Price (Low to High)</option>
+                <option value="price-desc">Price (High to Low)</option>
+                <option value="sku-asc">SKU</option>
+                </select>
+                </div>
+            <div className="filters-body">
+            <h2>Filters</h2>
+            <label className="filter-checkbox">
+              <input
+                type="checkbox"
+                checked={filters.inStockOnly}
+                onChange={e => setFilters(f => ({ ...f, inStockOnly: e.target.checked }))}
+              />
+              In Stock Only
+            </label>
+            <div className="filter-row">
+              <div className="filter-label">
+                <label htmlFor="minPrice">Min Price</label>
+              <input
+                type="number"
+                placeholder = "Min Price"
+                value = {Number.isFinite(filters.priceMin) ? filters.priceMin : ""}
+                onChange={e => setFilters(f => ({ ...f, priceMin: e.target.valueAsNumber }))}
+                className="price-input"
+              />
+              </div>
+              <div className="filter-label">
+                <label htmlFor="maxPrice">Max Price</label>
+              <input
+                type="number"
+                placeholder = "Max Price"
+                value = {Number.isFinite(filters.priceMax) && filters.priceMax !== Infinity ? filters.priceMax: ""}
+                onChange={(e) => setFilters((f) => ({...f, priceMax: Number(e.target.value) || Infinity}))}
+                className="price-input"
+            />
+            </div>
+            </div>
+              </div>           
+            <button
+              type="button"
+              onClick={() => {
+                setFilters({
+                  inStockOnly: false, 
+                  priceMin: Infinity, 
+                  priceMax: Infinity
+              });
+              setSortBy("name-asc");
+            }
+            }
+              className="filter-clear"
               >
-                <ProductCard {...p} />
-              </button>
-            ))}
+                Clear Filters
+            </button>
+          </aside>
+
+          <div className="results-wrap">
+            <div className="results-grid">
+              {(filtered.slice(0, visible)).map((p) => (
+                <button
+                  key={p.SKU}
+                  className="product-card-button"
+                  onClick={() => setSelected(p)}
+                  aria-label={`Open ${p.name}`}
+                  title={`Open ${p.name}`}
+                >
+                  <ProductCard {...p} />
+                </button>
+              ))}
+            </div>
+            {/* sentinel for infinite scroll */}
+            {visible < filtered.length && <div ref={loaderRef} className="grid-sentinel" />}
           </div>
-          {/* sentinel for infinite scroll */}
-          {visible < filtered.length && <div ref={loaderRef} className="grid-sentinel" />}
-        </div>
+          </div>
 
         <AddProductPopUp open={open} onClose={handleClose} onSubmit={handleSubmit} isSubmitting={submitting} />
 
