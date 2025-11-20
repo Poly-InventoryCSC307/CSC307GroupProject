@@ -11,6 +11,9 @@ function RemoveProductPopUp({
   const [form, setForm] = useState({
     SKU: "",
   });
+  // Use for opening and closing animations 
+  const [show, setShow] = useState(open);
+  const [closing, setClosing] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -24,7 +27,23 @@ function RemoveProductPopUp({
     setForm({ SKU: ""});
   }, [open]);
 
-  if (!open) return null;
+  useEffect(() => {
+    if (open) {
+      setShow(true);
+      setClosing(false);
+      return;
+    }
+    if (show) {
+      setClosing(true);
+      const t = setTimeout(() => {
+        setShow(false);
+        setClosing(false);
+      }, 250); 
+      return () => clearTimeout(t);
+    }
+  }, [open, show]);
+    
+  if (!show) return null;
 
   const handleOverlayClick = (e) => {
     if (e.target === overlayRef.current) onClose?.();
@@ -45,14 +64,14 @@ function RemoveProductPopUp({
 
   return (
     <div
-      className="modal-overlay"
+      className={`modal-overlay ${closing ? "closing" : ""}`}
       ref={overlayRef}
       onMouseDown={handleOverlayClick}
       aria-modal="true"
       role="dialog"
       aria-labelledby="remove-product-title"
     >
-      <div className="modal" role="document">
+      <div className={`modal ${closing ? "closing" : ""}`} role="document">
         <header className="modal-header">
           <h3 id="remove-product-title">Remove Product By SKU</h3>
           <button className="modal-close" onClick={onClose} aria-label="Close">

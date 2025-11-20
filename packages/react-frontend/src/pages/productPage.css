@@ -1,5 +1,26 @@
 /* ===== Overlay layout ===== */
-.p-modal { display: grid; gap: 20px; }
+
+/* Fade-in overlay animation */
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Slide / scale modal animation */
+@keyframes popIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+} 
+
+.overlay {
+  animation: fadeInOverlay 0.3s ease forwards;
+}
+
+.p-modal { 
+  display: grid; 
+  gap: 20px; 
+  animation: popIn 0.25s ease forwards;
+}
 
 .p-modal__grid {
   display: grid;

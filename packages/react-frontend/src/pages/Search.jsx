@@ -36,7 +36,6 @@ function Search({
 
   // state for the product overlay
   const [selected, setSelected] = useState(null);
-  const closeOverlay = () => setSelected(null);
 
   // update the price and quantity
   const [priceOverrides, setPriceOverrides] = useState({});
@@ -186,6 +185,22 @@ function Search({
     return () => io.disconnect();
   }, [filtered.length]);
 
+  const [portalProduct, setPortalProduct] = useState(null);
+  const [overlayClosing, setOverlayClosing] = useState(false);
+
+  // whenever a product is selected, sync it into the portal
+  useEffect(() => {
+    if (selected) setPortalProduct(selected);
+  }, [selected]);
+
+  const closeOverlay = () => {
+    setOverlayClosing(true);
+    setTimeout(() => {
+      setOverlayClosing(false);
+      setPortalProduct(null);
+      setSelected(null);
+    }, 250); // match CSS overlayOut/panelOut timing
+  };
 
   return (
     <section className="hero">
@@ -245,6 +260,7 @@ function Search({
 
         {selected && createPortal(
           <div
+            className={`overlay ${overlayClosing ? "closing" : ""}`}
             role="dialog"
             aria-modal="true"
             onMouseDown={closeOverlay}
@@ -309,28 +325,31 @@ function Search({
                   maxHeight: "90vh", overflowY: "auto",
                   background: "#fff", borderRadius: 16, padding: 20
                 }}
+                className={overlayClosing ? "closing" : ""}
               >
-                <ProductScreen
-                  initialProduct={selected}
-                  overlay
-                  onClose={() => setSelected(null)}
-                  onPriceUpdated={(sku, newPrice) => {
-                    // Update overlay immediately
-                    setSelected((prev) =>
-                      prev && prev.SKU === sku ? { ...prev, price: newPrice } : prev
-                    );
-                    // Update product grid too
-                    setPriceOverrides((prev) => ({ ...prev, [sku]: newPrice }));
-                  }}
-                  onQuantUpdated={(sku, newQuantity) => {
-                    // Update overlay immediately
-                    setSelected((prev) =>
-                      prev && prev.SKU === sku ? { ...prev, quantity: newQuantity } : prev
-                    );
-                    // Update product grid too
-                    setQuanOverrides((prev) => ({ ...prev, [sku]: newQuantity }));
-                  }}
-                />
+                <div className={`p-modal ${overlayClosing ? "closing" : ""}`}>
+                  <ProductScreen
+                    initialProduct={selected}
+                    overlay
+                    onClose={closeOverlay}
+                    onPriceUpdated={(sku, newPrice) => {
+                      // Update overlay immediately
+                      setSelected((prev) =>
+                        prev && prev.SKU === sku ? { ...prev, price: newPrice } : prev
+                      );
+                      // Update product grid too
+                      setPriceOverrides((prev) => ({ ...prev, [sku]: newPrice }));
+                    }}
+                    onQuantUpdated={(sku, newQuantity) => {
+                      // Update overlay immediately
+                      setSelected((prev) =>
+                        prev && prev.SKU === sku ? { ...prev, quantity: newQuantity } : prev
+                      );
+                      // Update product grid too
+                      setQuanOverrides((prev) => ({ ...prev, [sku]: newQuantity }));
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>,

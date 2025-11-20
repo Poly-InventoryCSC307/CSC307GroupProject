@@ -1,7 +1,7 @@
 import "./productPage.css"
 import EditPricePopUp from "../components/EditPricePopUp";
 import UpdateQuantityPopUp from "../components/UpdateQuantityPopUp";
-import React, {useMemo, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 
 export default function ProductScreen({ 
   initialProduct = null, 
@@ -9,6 +9,7 @@ export default function ProductScreen({
   storeID =  "690aaa9be73854e0640a1927",     // Hard coded ID for one store
   onPriceUpdated,
   onQuantUpdated,
+  onClose,
 }) {
 
   const [product, setProduct] = useState(() => initialProduct || {});
@@ -115,6 +116,17 @@ export default function ProductScreen({
       setSubmittingUQ(false);
     }
   };
+
+  useEffect(() => {
+    if (!overlay) return;
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      if (openEP || openUQ) return;     // If the edit or update is open 
+      onClose?.();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onClose, openEP, openUQ]);  
 
   const name = product?.name || "—";
   const sku = product?.SKU || "—";
