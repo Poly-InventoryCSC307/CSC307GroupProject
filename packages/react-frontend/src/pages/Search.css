@@ -1,0 +1,99 @@
+section.hero {
+  height: auto;        /* allow the inventory page to grow with content */
+  min-height: 100vh;   /* still fill tall screens */
+  display: block;      /* remove flex centering from Home */
+  padding: 2rem 4rem;  /* optional: match your spacing */
+  background: linear-gradient(180deg, #26a69a 0%, #2e7d68 100%);
+  position: relative;     /* ensures stacking respects z-index */
+  z-index: 1;             /* keep below navbar */
+  padding-top: 90px;      /* gives space for navbar height */
+}
+
+.search-line {
+  /* layout */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  /* placement */
+  max-width: 1200px;
+  margin: 12px auto 20px;   /* centers the row and gives bottom gap */
+  padding: 10px 12px;
+
+  /* “frosted” look like in your background */
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 12px;
+  position: sticky; top: 12px; z-index: 10;
+}
+
+.search-bar-container {
+  flex: 1;                 /* grow to fill left side */
+}
+
+.add-product {
+  margin-left: 16px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 10px;
+  padding: 0;              /* you already render it as an <img> button */
+  background-color: transparent;
+}
+
+.add-product:hover {
+  background-color: #cff7d3;
+  color: #26a69a;
+}
+
+.results-wrap {
+  max-width: 1200px;
+  margin: 0 auto 64px;
+}
+
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+/* Optional: make cards a consistent height so the grid looks tidy */
+.product-card-button { 
+  width: 105%;
+  border: none;
+  border-radius: 5%;
+  background-color: transparent
+
+}
+.product-card-button .product-card {
+  height: 340px;               /* pick a size that fits your content */
+  display: grid;
+  grid-template-rows: auto 1fr auto; /* title | image | meta */
+
+}
+
+.product-card-button:hover {
+  background-color: transparent;
+  border: none;
+}
+
+.product-card:hover {
+  height: 350px;
+}
+/* sentinel (infinite scroll trigger) */
+.grid-sentinel {
+  height: 40px;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;            /* was 1000 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  animation: fadeIn .2s ease;
+}
