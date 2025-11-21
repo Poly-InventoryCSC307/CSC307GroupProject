@@ -5,7 +5,12 @@ import signInIcon from "../assets/sign-in-button.svg";
 import logoutIcon from "../assets/logout-button.svg";
 import "./Navbar.css";
 
-export default function Navbar({isLoggedIn = false, showSearch = true}) {
+export default function Navbar({
+  isLoggedIn = false, 
+  showSearch = true, 
+  storeName = "",
+  storeLocation =null,
+}) {
   return (
     <nav className="navbar">
       <div className="navbar-left">
@@ -21,6 +26,33 @@ export default function Navbar({isLoggedIn = false, showSearch = true}) {
 
       <div className="navbar-right">
         {showSearch && <img src={searchIcon} alt="Search" className="icon search" />}
+        {/* If the store name exists, display it */}
+        {storeName && (
+          <span className="store-name-wrap">
+            <span className="store-name">Welcome: {storeName}</span>
+            <div className="store-addr-rect" role="tooltip" aria-label="Store location">
+              {storeLocation ? (
+                <>
+                  <div className="addr-line addr-title">Store Location</div>
+                  {storeLocation.address && (
+                    <div className="addr-line">{storeLocation.address}</div>
+                  )}
+                  {([storeLocation.city, storeLocation.state, storeLocation.zip]
+                    .filter(Boolean).length > 0) && (
+                    <div className="addr-line">
+                      {[storeLocation.city, storeLocation.state, storeLocation.zip]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="addr-line">Location unavailable</div>
+              )}
+            </div>
+          </span>
+        )}
+        
         <div className="auth-button">  
           <img
             src={isLoggedIn ? logoutIcon : signInIcon}

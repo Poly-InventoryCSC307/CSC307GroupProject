@@ -9,7 +9,7 @@
   background: transparent; /* blend with hero */
   color: white;
   padding: 1rem 3rem;
-  z-index: 10;
+  z-index: 1000;
 }
 
 .navbar-left {
@@ -41,6 +41,53 @@
   align-items: center;
   gap: 1.5rem;
 } 
+
+.store-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: white;
+  margin-right: 1rem;
+}
+
+.store-name-wrap{
+  position: relative;
+  display: inline-block;
+}
+
+.store-addr-rect {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  max-width: 320px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  color: #0f0f0f;
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity .18s ease, visibility .18s ease, transform .18s ease;
+  pointer-events: none; /* prevents flicker */
+}
+
+.store-name-wrap:hover .store-addr-rect{
+  opacity: 1; 
+  visibility: visible; 
+  transform: translateY(0);
+}
+
+.addr-title {
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.addr-line {
+  line-height: 1.35;
+}
 
 .icon {
   cursor: pointer;

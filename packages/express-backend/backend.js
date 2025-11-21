@@ -25,6 +25,56 @@ app.get("/inventory", (req, res) => {
     }); 
 });
 
+app.get("/inventory/:storeId/", (req, res) => {
+  const { storeId } = req.params;
+
+  inventoryServices
+    .getStoreData(storeId)
+    .then((doc) => {
+      if (!doc) return res.status(404).json({ error: "Store not found" });
+      
+      res.json({ name: doc.name || "", location: doc.location || null });
+    })
+    .catch((err) => {
+      console.error("getStoreMeta failed:", err);
+      res.status(500).json({ error: "Failed to load store meta" });
+    });
+});
+
+// Find a given store
+// app.get("/inventory/:storeId", (req, res) => {
+//   const { storeId } = req.params;
+//   inventoryServices
+//     .getStoreName(storeId)
+//     .then((store) => {
+//       if (!store){
+//         return res.status(404).send("Store doesn't exist");
+//       }
+//       res.send({name: store.name});
+//     })
+//     .catch((err) => {
+//       console.error("Error fetching store name:", err);
+//       res.status(500).send({ error: "Failed to fetch store info" });
+//     })
+// })
+
+// Find a given store's location data
+// app.get("/inventory/:storeId", (req, res) => {
+//   const { storeId } = req.params;
+//   inventoryServices
+//     .getStoreLocation(storeId)
+//     .then((store) => {
+//       if (!store){
+//         return res.status(404).send("Store doesn't exist");
+//       }
+//       res.send({location: store.location});
+//     })
+//     .catch((err) => {
+//       console.error("Error fetching store location:", err);
+//       res.status(500).send({ error: "Failed to fetch store info" });
+//     })
+// })
+
 // Strictly the products for a store
 app.get("/inventory/:storeId/products", (req, res) => {
   const { storeId } = req.params;

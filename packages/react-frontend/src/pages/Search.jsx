@@ -86,7 +86,7 @@ function Search({
       let data; try { data = await res.json(); } catch { data = {}; }
       if (!res.ok) {
         if (res.status === 409){
-          throw new Errow(data?.message || "SKU already exists.");
+          throw new Error(data?.message || "SKU already exists.");
         }
 
         const msg = data?.message || data?.error || `Request failed with status ${res.status}`;
@@ -199,32 +199,31 @@ function Search({
       <div className="search-line">
         <div className="search-bar-container">
             <SearchBar onSearch={setTerm} />
-          </div>
-          {/* Add Product Button*/}
-          <button 
-            type="button"
-            className="add-product"
-            onClick={() => setOpenAdd(true)}  
-            aria-label="Add Product"
-            title="Add Product"
-            style={{ border: "none" }}
-            >
-            <img src={addProductIcon} alt="" />
-          </button>
-
-          {/* Remove Product Button*/}
-          <button 
-            type="button"
-            className="remove-product"
-            onClick={() => setOpenRem(true)}   
-            aria-label="Remove Product"
-            title="Remove Product"
-            style={{ border: "none" }}
-            >
-            <img src={removeProductIcon} alt="" />
-          </button>
-
         </div>
+        {/* Add Product Button*/}
+        <button 
+          type="button"
+          className="add-product"
+          onClick={() => setOpenAdd(true)}  
+          aria-label="Add Product"
+          title="Add Product"
+          style={{ border: "none" }}
+        >
+          <img src={addProductIcon} alt="" />
+        </button>
+
+        {/* Remove Product Button*/}
+        <button 
+          type="button"
+          className="remove-product"
+          onClick={() => setOpenRem(true)}   
+          aria-label="Remove Product"
+          title="Remove Product"
+          style={{ border: "none" }}
+        >
+          <img src={removeProductIcon} alt="" />
+        </button>
+      </div>
 
         {/* GRID */}
         <div className="results-wrap">

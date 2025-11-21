@@ -25,6 +25,12 @@ export default function ProductScreen({
     try {
       setSubmittingEP(true);
 
+      const newPrice = Number(price ?? 0);
+
+      if (newPrice < 0){
+        throw new Error(`New Price is less than 0`);
+      }
+
       const sku = String(product?.SKU || "").trim();
       if (!sku) throw new Error("Missing SKU for this product.");
 
@@ -46,7 +52,6 @@ export default function ProductScreen({
         throw new Error(msg);
       }
 
-      const newPrice = Number(data?.price ?? price ?? 0);
       setProduct((p) => ({ ...p, price: newPrice }));
 
       onPriceUpdated?.(sku, newPrice);
