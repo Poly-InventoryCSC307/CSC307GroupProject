@@ -6,7 +6,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: transparent; /* blend with hero */
+  background: transparent; 
   color: white;
   padding: 1rem 3rem;
   z-index: 10;
