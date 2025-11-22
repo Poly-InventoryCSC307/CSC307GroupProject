@@ -303,7 +303,9 @@ function Search({
                 onChange={e => setFilters(f => ({ ...f, inStockOnly: e.target.checked }))}
               />
               In Stock Only
+              
             </label>
+            <h3>Price Range</h3>
             <div className="filter-row">
               <div className="filter-label">
                 <label htmlFor="minPrice">Min Price</label>
