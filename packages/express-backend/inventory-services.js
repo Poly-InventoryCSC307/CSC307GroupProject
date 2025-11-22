@@ -24,9 +24,27 @@ function getInventory(SKU, name){
     return promise;
 }
 
-// function getStoreByID(storeID){
-//     return inventoryModel.findById(storeID).lean().exec();
+// function getStoreName(storeId){
+//     return inventoryModel.findOne(
+//         { _id: storeId},
+//         {name: 1, _id: 0}
+//     );
 // }
+
+// function getStoreLocation(storeId){
+//     return inventoryModel.findOne(
+//         { _id: storeId},
+//         {location: 1, _id: 0}
+//     );
+// }
+
+function getStoreData(storeId){
+    return inventoryModel
+    .findOne(
+      { _id: storeId },
+      { name: 1, location: 1, _id: 0 }   // IMPORTANT: include fields you need
+    )
+}
 
 // Filter via a given product name
 function findProductByName(storeID, name){
@@ -138,6 +156,9 @@ function removeProductBySKU(storeID, SKU){
 
 export default{
     getInventory,
+    getStoreData,
+    // getStoreName,
+    // getStoreLocation,
     findProductByName,
     findProductBySKU,
     // updateQuantityFloor,

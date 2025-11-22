@@ -8,7 +8,7 @@ function EditPricePopUp({
     isSubmitting,
 }) {
   const overlayRef = useRef(null);
-   const [form, setForm] = useState({ price: "", });
+  const [form, setForm] = useState({ price: "", });
     
   // Use for opening and closing animations 
   const [show, setShow] = useState(open);
