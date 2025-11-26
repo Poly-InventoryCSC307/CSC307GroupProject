@@ -1,31 +1,33 @@
 import React from "react"; 
 import logo from "../assets/logo.svg";
-
 import logoutIcon from "../assets/logout-button.svg";
 import "./Navbar_search.css";
 
+import { signOut } from "firebase/auth"; 
+import { auth } from "../firebase/firebase";
+
 export default function Navbar(){
+   
+    const handleLogout = () => {
+      signOut(auth)
+        .then(() => {
+          console.log("User signed out");
+        })
+        .catch((error) => {
+          console.error("Logout error:", error);
+        });
+    };
+
     return (
         <nav className="navbar">
           <div className="navbar-left">
             <img src={logo} alt="Poly+ Inventory Logo" className="logo" />
           </div>
     
-          <ul className="navbar-menu">
-            <li>Dashboard</li>
-            <li>Resources</li>
-            <li>Features</li>
-            <li>About</li>
-          </ul>
-    
           <div className="navbar-right">
-            {/* <img src={searchIcon} alt="Search" className="icon search" /> */}
-            <img src={logoutIcon} alt="Logout" className="icon logout" />
+            <img src={logoutIcon} alt="Logout" className="icon logout" onClick={handleLogout} />
           </div>
         </nav>
-      );
+   );
 
 }
-
-
-

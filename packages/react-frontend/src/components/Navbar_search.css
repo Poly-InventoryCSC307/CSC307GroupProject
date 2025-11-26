@@ -23,19 +23,6 @@
   height: 50px;
 }
 
-.navbar-menu {
-  margin-top: 26px;
-  display: flex;
-  list-style: none;
-  gap: 5rem;
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
-.navbar-menu li:hover {
-  color: #CFF7D3;
-}
-
 .navbar-right {
   display: flex;
   align-items: center;
