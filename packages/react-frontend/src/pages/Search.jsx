@@ -150,7 +150,6 @@ function Search({
   });
   const [sortBy, setSortBy] = useState("name-asc");
 
-
   const filtered = useMemo(() => {
     const q = term.trim().toLowerCase();
     const withBoth = applyOverrides(productsData ?? []);
@@ -344,6 +343,7 @@ function Search({
             </button>
           </aside>
 
+          {/* Display for all of the product cards */}
           <div className="results-wrap">
             <div className="results-grid">
               {(filtered.slice(0, visible)).map((p) => (
@@ -361,7 +361,7 @@ function Search({
             {/* sentinel for infinite scroll */}
             {visible < filtered.length && <div ref={loaderRef} className="grid-sentinel" />}
           </div>
-          </div>
+        </div>
 
         <AddProductPopUp open={openAdd} onClose={handleCloseAdd} onSubmit={handleSubmitAdd} isSubmitting={submittingAdd} />
 
