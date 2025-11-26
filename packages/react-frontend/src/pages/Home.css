@@ -30,14 +30,13 @@
 
 .card-stack {
   position: absolute;
-  top: 48%;             /* Move slightly up for better alignment with text */
-  right: 12%;           /* Adjust horizontal position */
+  top: 48%;           
+  right: 12%;          
   transform: translateY(-50%);
-  width: 400px;         /* Base width */
-  height: 320px;        /* Container height */
+  width: 400px;        
+  height: 320px;        
 }
 
-/* Base card style */
 .stack-card {
   position: absolute;
   opacity: 0;
@@ -72,7 +71,6 @@
   animation-delay: 3s;
 }
 
-/* --- Animation Keyframes --- */
 @keyframes stackFade {
   0%   { opacity: 0; transform: translateY(20px); }
   10%  { opacity: 1; transform: translateY(0); }
@@ -84,21 +82,19 @@
 @keyframes stackFadeFast {
   0%   { opacity: 0; transform: translateY(20px); }
   10%  { opacity: 1; transform: translateY(0); }
-  50%  { opacity: 1; transform: translateY(0); }  /* shorter hold */
-  65%  { opacity: 0; transform: translateY(-10px); } /* fades earlier */
+  50%  { opacity: 1; transform: translateY(0); }  
+  65%  { opacity: 0; transform: translateY(-10px); } 
   100% { opacity: 0; transform: translateY(-10px); }
 }
 
-/* --- Even faster (for Performance) --- */
 @keyframes stackFadeFaster {
   0%   { opacity: 0; transform: translateY(20px); }
   10%  { opacity: 1; transform: translateY(0); }
-  40%  { opacity: 1; transform: translateY(0); }  /* shortest hold */
+  40%  { opacity: 1; transform: translateY(0); } 
   55%  { opacity: 0; transform: translateY(-10px); }
   100% { opacity: 0; transform: translateY(-10px); }
 }
 
-/* Apply the different animations */
 .card1 {
   animation: stackFade 9s infinite ease-in-out;
   animation-delay: 0s;

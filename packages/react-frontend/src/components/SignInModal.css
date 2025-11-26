@@ -1,0 +1,102 @@
+/* Overlay dimming background */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(46, 125, 104, 0.6); /* translucent green overlay to match hero */
+  backdrop-filter: blur(4px);           /* subtle blur for depth */
+  z-index: 1000;
+  animation: fadeInOverlay 0.3s ease-in-out;
+}
+
+/* Popup content box */
+.modal-content {
+  background: linear-gradient(180deg, #ffffff 0%, #f6fffa 100%);
+  padding: 2.5rem;
+  border-radius: 16px;
+  width: 420px;
+  max-width: 90%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  position: relative;
+  text-align: center;
+  animation: scaleUp 0.4s ease-in-out;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Header or title styling */
+.modal-content h2 {
+  color: #2e7d68; /* matches hero gradient end */
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+/* Buttons and input areas */
+.modal-content button {
+  background-color: #26a69a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.modal-content button:hover {
+  background-color: #2e7d68;
+  transform: translateY(-2px);
+}
+
+/* Close button (X) */
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #2e7d68;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+}
+
+.modal-close:hover {
+  color: #26a69a;
+}
+/* Input fields */
+.modal-content input,
+.modal-content textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0 1.2rem 0;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+}
+
+/* Green glow when focused */
+.modal-content input:focus,
+.modal-content textarea:focus {
+  border-color: #26a69a;
+  box-shadow: 0 0 0 3px rgba(38, 166, 154, 0.3);
+}
+
+
+/* --- Animations --- */
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

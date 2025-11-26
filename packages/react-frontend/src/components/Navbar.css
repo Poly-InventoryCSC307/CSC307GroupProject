@@ -2,13 +2,19 @@
   position: absolute;         /* was absolute */
   top: 0;
   left: 0;
-  right: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent; 
+  color: white;
+  padding: 1rem 3rem;
   z-index: 10;
   background: rgba(38,166,154,0.95);
   backdrop-filter: blur(6px);
   padding: 1rem 3rem;
   box-shadow: 0 4px 14px rgba(0,0,0,.15);
-}
+} 
 
 .navbar-left {
   display: flex;
