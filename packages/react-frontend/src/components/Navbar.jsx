@@ -1,6 +1,5 @@
-import React, {useState} from "react"; 
+import React, {useState} from "react";
 import logo from "../assets/logo.svg";
-import searchIcon from "../assets/search-button.svg";
 import signInIcon from "../assets/sign-in-button.svg";
 import "./Navbar.css";
 import SignInModal from "./SignInModal";
@@ -15,15 +14,14 @@ export default function Navbar() {
       </div>
 
       <ul className="navbar-menu">
-        <li>Dashboard</li>
-        <li>Resources</li>
-        <li>Features</li>
-        <li>About</li>
+        <li onClick={() => console.log("Dashboard clicked")}>Dashboard</li>
+        <li onClick={() => console.log("Resources clicked")}>Resources</li>
+        <li onClick={() => console.log("Features clicked")}>Features</li>
+        <li onClick={() => console.log("About clicked")}>About</li>
       </ul>
 
       <div className="navbar-right">
-        <img src={searchIcon} alt="Search" className="icon search" />
-        <img 
+        <img
           src={signInIcon}
           alt="Sign In"
            className="icon sign-in"
@@ -36,3 +34,4 @@ export default function Navbar() {
     </>
   );
 }
+

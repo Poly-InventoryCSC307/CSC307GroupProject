@@ -19,13 +19,13 @@ export default function Navbar(){
     };
 
     return (
-        <nav className="navbar">
-          <div className="navbar-left">
-            <img src={logo} alt="Poly+ Inventory Logo" className="logo" />
+        <nav className="navbar-product">
+          <div className="navbar-product-left">
+            <img src={logo} alt="Poly+ Inventory Logo" className="logo-product" />
           </div>
     
-          <div className="navbar-right">
-            <img src={logoutIcon} alt="Logout" className="icon logout" onClick={handleLogout} />
+          <div className="navbar-product-right">
+            <img src={logoutIcon} alt="Logout" className="logout-product" onClick={handleLogout} />
           </div>
         </nav>
    );

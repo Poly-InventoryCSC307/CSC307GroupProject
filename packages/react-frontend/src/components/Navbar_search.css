@@ -1,4 +1,4 @@
-.navbar {
+.navbar-product {
   position: absolute;
   top: 0;
   left: 0;
@@ -7,36 +7,36 @@
   z-index: 10;
   justify-content: space-between;
   align-items: center;
-  background: transparent; /* blend with hero */
+  background: transparent; 
   color: white;
   padding: 1rem 3rem;
 }
 
-.navbar-left {
+.navbar-product-left {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.logo {
+.logo-product {
   width: auto;
   height: 50px;
 }
 
-.navbar-right {
+.navbar-product-right {
   display: flex;
   align-items: center;
   gap: 1.5rem;
 } 
 
-.icon {
+.icon-product {
   cursor: pointer;
   width: 24px;
   height: 24px;
   transition: opacity 0.2s ease;
 }
 
-.logout {
+.logout-product {
   cursor: pointer;
   width: 100px;
   height: auto;
@@ -44,7 +44,7 @@
   transition: all 0.3s ease;
 }
 
-.logout:hover {
+.logout-product:hover {
   background-color: #CFF7D3;
   color: #26a69a;
 }

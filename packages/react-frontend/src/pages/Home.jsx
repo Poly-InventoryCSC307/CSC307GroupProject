@@ -6,8 +6,8 @@ import capacityCard from "../assets/capacity-card.svg";
 
 export default function Home() {
   return (
-    <section className="hero">
-      <div className="hero-content">
+    <section className="home-text">
+      <div className="home-text-middle">
         <h1 className="hero-line white">Free inventory software.</h1>
         <h1 className="hero-line mint">Powered by Cal Poly innovation.</h1>
       </div>
