@@ -24,33 +24,105 @@ function getInventory(SKU, name){
     return promise;
 }
 
-//Use this for the search bar on the main product page 
+// function getStoreName(storeId){
+//     return inventoryModel.findOne(
+//         { _id: storeId},
+//         {name: 1, _id: 0}
+//     );
+// }
+
+// function getStoreLocation(storeId){
+//     return inventoryModel.findOne(
+//         { _id: storeId},
+//         {location: 1, _id: 0}
+//     );
+// }
+
+function getStoreData(storeId){
+    return inventoryModel
+    .findOne(
+      { _id: storeId },
+      { name: 1, location: 1, _id: 0 }   // IMPORTANT: include fields you need
+    )
+}
 
 // Filter via a given product name
-function findProductByName(name){
-    return inventoryModel.find({"inventory.name":name});
+function findProductByName(storeID, name){
+    return inventoryModel.find(
+        { _id: storeID},
+        {"inventory.name":name}
+    );
 }
 
 // Filter via a given product SKU
-function findProductBySKU(SKU){
-    return inventoryModel.find({"inventory.SKU":SKU});
+function findProductBySKU(storeID, SKU){
+    return inventoryModel.find(
+        { _id: storeID},
+        {"inventory.SKU":SKU}
+    );
 }
 
 // Use these to update the database quantity by given amount 
-function updateQuantityFloor(SKU, update_val){
-    return inventoryModel.findOneAndUpdate(
-        SKU, 
-        {$inc : {quantity_on_floor: update_val}},   
-        {new: true} 
-    );
+// function updateQuantityFloor(SKU, update_val){
+//     return inventoryModel.findOneAndUpdate(
+//         SKU, 
+//         {$inc : {quantity_on_floor: update_val}},   
+//         {new: true} 
+//     );
+// }
+
+// function updateQuantityBack(SKU, update_val){
+//     return inventoryModel.findOneAndUpdate(
+//         SKU, 
+//         {$inc : {quantity_in_back: update_val}},  
+//         {new: true} 
+//     );
+// }
+
+// The user should press the button to update the quantity and based on the number increase for decrease the amount by that much. 
+function updateQuantityBy(storeID, SKU, delta){
+    const cleanSKU = String(SKU || "").trim();
+    const incBy = Number(delta) || 0;
+    
+    return inventoryModel
+        .findOneAndUpdate(
+            { _id: storeID, "inventory.SKU": cleanSKU },
+            { $inc: { "inventory.$.total_quantity": incBy } },
+            { new: true, }
+        )
+        .then((doc) => {
+            if (!doc || !doc.inventory) return null;
+            const p = doc.inventory.find((it) => it.SKU === cleanSKU);
+            return p ? { SKU: p.SKU, total_quantity: p.total_quantity } : null;
+        })
+        .catch((err) => {
+            console.log("Error updating quantity:", err);
+            throw err; // let backend send the real message
+        });
 }
 
-function updateQuantityBack(SKU, update_val){
-    return inventoryModel.findOneAndUpdate(
-        SKU, 
-        {$inc : {quantity_in_back: update_val}},  
-        {new: true} 
-    );
+function updatePriceBySKU(storeID, SKU, newPrice) {
+  const cleanSKU = String(SKU || "").trim();
+  const priceNum = Number(newPrice);
+
+  return inventoryModel
+    .findOneAndUpdate(
+      { _id: storeID, "inventory.SKU": cleanSKU },
+      { $set: { "inventory.$[elem].price": priceNum } },
+      {
+        new: true,                          // return updated doc
+        arrayFilters: [{ "elem.SKU": cleanSKU }],
+      }
+    )
+    .then((doc) => {
+      if (!doc || !doc.inventory) return null;
+      const p = doc.inventory.find((it) => it.SKU === cleanSKU);
+      return p ? { SKU: p.SKU, price: p.price } : null;
+    })
+    .catch((err) => {
+      console.log("Error updating price:", err);
+      throw err; // let backend send the real message
+    });
 }
 
 function addProduct(storeID, product) {
@@ -73,11 +145,26 @@ function addProduct(storeID, product) {
     );
 }
 
+// Find a product with a given SKU and remove it 
+function removeProductBySKU(storeID, SKU){
+    return inventoryModel.findByIdAndUpdate(
+        storeID,
+        { $pull: {inventory: {SKU: SKU}}},
+        { returnDocument: "after"}
+    );
+}
+
 export default{
     getInventory,
+    getStoreData,
+    // getStoreName,
+    // getStoreLocation,
     findProductByName,
     findProductBySKU,
-    updateQuantityFloor,
-    updateQuantityBack,
+    // updateQuantityFloor,
+    // updateQuantityBack,
     addProduct,
+    removeProductBySKU,
+    updatePriceBySKU,
+    updateQuantityBy
 };

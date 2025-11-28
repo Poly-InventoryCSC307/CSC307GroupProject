@@ -1,3 +1,29 @@
+/* Central File used for all of the popup css instead of the individual .css for each popup*/
+
+/* Fade-in overlay animation */
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Slide / scale modal animation */
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes overlayOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes popOut {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to   { opacity: 0; transform: scale(0.94) translateY(10px); }
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -6,6 +32,7 @@
   align-items: center;
   justify-content: center;
   z-index: 3000;
+  animation: fadeInOverlay 0.25s ease forwards;
 }
 
 /* modal panel */
@@ -17,10 +44,20 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
   overflow: hidden;
   border: 1px solid #0f0f0f;
+  animation: popIn 0.3s ease forwards;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal-overlay.closing { 
+  animation: overlayOut 0.22s ease forwards; 
+}
+.modal.closing { 
+  animation: popOut 0.24s ease forwards; 
 }
 
 /* header */
 .modal-header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -41,6 +78,13 @@
   line-height: 1;
   cursor: pointer;
   color:black;
+  transition: all 0.3s ease;
+}
+
+/* Change the background color to something else */
+.modal-close:hover{
+  background: black;
+  border: none;
 }
 
 /* body */

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./PopUp.css";
 
-function AddProductPopUp({
+function RemoveProductPopUp({
   open,
   onClose,
   onSubmit,
@@ -9,18 +9,12 @@ function AddProductPopUp({
 }) {
   const overlayRef = useRef(null);
   const [form, setForm] = useState({
-    name: "",
     SKU: "",
-    price: "",
-    quantity: "",
-    description: "",
   });
-
   // Use for opening and closing animations 
   const [show, setShow] = useState(open);
   const [closing, setClosing] = useState(false);
 
-  // Close the popup with escape key
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === "Escape" && onClose?.();
@@ -30,10 +24,9 @@ function AddProductPopUp({
 
   useEffect(() => {
     if (!open) return;
-    setForm({ name: "", SKU: "", price: "", quantity: "", description: "" });
+    setForm({ SKU: ""});
   }, [open]);
 
-  // Add transition between opening and closing 
   useEffect(() => {
     if (open) {
       setShow(true);
@@ -49,7 +42,7 @@ function AddProductPopUp({
       return () => clearTimeout(t);
     }
   }, [open, show]);
-  
+    
   if (!show) return null;
 
   const handleOverlayClick = (e) => {
@@ -64,11 +57,7 @@ function AddProductPopUp({
   const handleSubmit = (e) => {
     e.preventDefault();
     const payload = {
-      name: form.name.trim(),
       SKU: form.SKU.trim(),
-      price: Number(form.price || 0),
-      quantity: Number(form.quantity || 0),
-      description: form.description.trim(),
     };
     onSubmit?.(payload);
   };
@@ -80,28 +69,17 @@ function AddProductPopUp({
       onMouseDown={handleOverlayClick}
       aria-modal="true"
       role="dialog"
-      aria-labelledby="add-product-title"
+      aria-labelledby="remove-product-title"
     >
       <div className={`modal ${closing ? "closing" : ""}`} role="document">
         <header className="modal-header">
-          <h3 id="add-product-title">Add Product</h3>
+          <h3 id="remove-product-title">Remove Product By SKU</h3>
           <button className="modal-close" onClick={onClose} aria-label="Close">
             X
           </button>
         </header>
 
         <form className="modal-content" onSubmit={handleSubmit}>
-          <div className="field">
-            <label htmlFor="name">Product Name</label>
-            <input
-              id="name"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="e.g., Green Tea 16oz"
-              required
-            />
-          </div>
 
           <div className="field">
             <label htmlFor="SKU">SKU</label>
@@ -115,45 +93,6 @@ function AddProductPopUp({
             />
           </div>
 
-          <div className="field">
-            <label htmlFor="price">Price</label>
-            <input
-              id="price"
-              name="price"
-              value={form.price}
-              onChange={handleChange}
-              placeholder="e.g., 10.99"
-              required
-            />
-          </div>
-
-          <div className="field">
-            <label htmlFor="quantity">Quantity</label>
-            <input
-              id="quantity"
-              name="quantity"
-              type="number"
-              min="0"
-              step="1"
-              value={form.quantity}
-              onChange={handleChange}
-              placeholder="0"
-              required
-            />
-          </div>
-
-          <div className="field">
-            <label htmlFor="description">Product Description</label>
-            <textarea
-              id="description"
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              placeholder="Short description..."
-              rows={4}
-            />
-          </div>
-
           <footer className="modal-actions">
             <button
               type="button"
@@ -164,7 +103,7 @@ function AddProductPopUp({
               Cancel
             </button>
             <button type="submit" className="btn primary" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save Product"}
+              {isSubmitting ? "Removing..." : "Remove Product"}
             </button>
           </footer>
         </form>
@@ -173,4 +112,4 @@ function AddProductPopUp({
   );
 }
 
-export default AddProductPopUp
+export default RemoveProductPopUp

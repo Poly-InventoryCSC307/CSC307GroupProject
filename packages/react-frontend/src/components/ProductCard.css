@@ -22,6 +22,7 @@
   display: grid;
   place-items: center;
   background: #f4f6f6;
+  color: black;       /* remove once there are images */
 }
 .pc-image img{
   max-width: 100%;

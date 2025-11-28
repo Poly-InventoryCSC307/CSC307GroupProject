@@ -7,11 +7,12 @@
   z-index: 10;
   justify-content: space-between;
   align-items: center;
-  background: transparent; 
+  background: transparent;
   color: white;
   padding: 1rem 3rem;
 }
 
+/* Left */
 .navbar-product-left {
   display: flex;
   align-items: center;
@@ -23,28 +24,84 @@
   height: 50px;
 }
 
+/* Right */
 .navbar-product-right {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-} 
-
-.icon-product {
-  cursor: pointer;
-  width: 24px;
-  height: 24px;
-  transition: opacity 0.2s ease;
 }
 
-.logout-product {
+/* Greeting + store text */
+.store-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: white;
+}
+
+/* Store tooltip wrapper */
+.store-name-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.store-addr-rect {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  max-width: 320px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  color: #0f0f0f;
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity .18s ease,
+              visibility .18s ease,
+              transform .18s ease;
+  pointer-events: none;
+}
+
+.store-name-wrap:hover .store-addr-rect {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.addr-title {
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.addr-line {
+  line-height: 1.35;
+}
+
+/* Search icon (optional) */
+.search-product {
+  width: 28px;
+  height: auto;
+}
+
+/* Logout button wrapper (hover works again!) */
+.logout-wrap {
+  padding: 0;
+  border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.logout-wrap:hover {
+  background-color: #CFF7D3;
+}
+
+/* Logout image */
+.logout-product {
   width: 100px;
   height: auto;
-  border-radius: 6px;    
-  transition: all 0.3s ease;
-}
-
-.logout-product:hover {
-  background-color: #CFF7D3;
-  color: #26a69a;
+  display: block;
 }

@@ -5,7 +5,6 @@ section.hero {
   padding: 2rem 4rem;  /* optional: match your spacing */
   background: linear-gradient(180deg, #26a69a 0%, #2e7d68 100%);
   position: relative;     /* ensures stacking respects z-index */
-  z-index: 1;             /* keep below navbar */
   padding-top: 90px;      /* gives space for navbar height */
 }
 
@@ -16,7 +15,7 @@ section.hero {
   justify-content: space-between;
 
   /* placement */
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 12px auto 20px;   /* centers the row and gives bottom gap */
   padding: 10px 12px;
 
@@ -32,25 +31,37 @@ section.hero {
   flex: 1;                 /* grow to fill left side */
 }
 
+.remove-product,
 .add-product {
   margin-left: 16px;
+  margin-top: 10px;
   display: inline-grid;
   place-items: center;
   border-radius: 10px;
   padding: 0;              /* you already render it as an <img> button */
   background-color: transparent;
+  transition: all 0.3s ease;
 }
 
+.remove-product:hover,
 .add-product:hover {
   background-color: #cff7d3;
   color: #26a69a;
 }
 
-.results-wrap {
-  max-width: 1200px;
-  margin: 0 auto 64px;
+.remove-product:focus,
+.remove-product:active,
+.add-product:focus,
+.add-product:active {
+  outline: none;
+  background: transparent;
+  box-shadow: none;
 }
 
+.results-wrap {
+  max-width: 1200px;
+  margin: 20px auto 64px;
+}
 
 .results-grid {
   display: grid;
@@ -60,18 +71,20 @@ section.hero {
 }
 
 /* Optional: make cards a consistent height so the grid looks tidy */
-.product-card-button { 
-  width: 105%;
+.product-card-button {
+  display: inline-block;       /* shrink-wraps around its child */
+  padding: 0;                  /* remove inner space */
+  margin: 0;                   /* no outer offset */
   border: none;
-  border-radius: 5%;
-  background-color: transparent
-
+  background: transparent;     
+  cursor: pointer;
+  width: 260px;
 }
-.product-card-button .product-card {
-  height: 340px;               /* pick a size that fits your content */
-  display: grid;
-  grid-template-rows: auto 1fr auto; /* title | image | meta */
 
+.product-card-button .product-card {
+  width: 260px;                /* same width as your .product-card definition */
+  height: 340px;
+  display: block;
 }
 
 .product-card-button:hover {
@@ -79,12 +92,39 @@ section.hero {
   border: none;
 }
 
-.product-card:hover {
-  height: 350px;
+/* smooth hover without reflow */
+.product-card {
+  transition: transform .18s ease, box-shadow .18s ease;
+  will-change: transform;
 }
+
+.product-card-button:hover .product-card {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 10px 24px rgba(0,0,0,.18);
+}
+
 /* sentinel (infinite scroll trigger) */
 .grid-sentinel {
   height: 40px;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.9) translateY(-10px);}
+  to { opacity: 1; transform: scale(1) translateY(0);}
+}
+
+@keyframes overlayOut { 
+  from { opacity: 1; } 
+  to { opacity: 0; } 
+}
+@keyframes popOut {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to   { opacity: 0; transform: scale(0.94) translateY(10px); }
 }
 
 .overlay {
@@ -95,5 +135,116 @@ section.hero {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  animation: fadeIn .2s ease;
+  animation: fadeInOverlay .2s ease forwards;
+}
+
+.overlay.closing { animation: overlayOut 0.2s ease forwards;}
+
+.p-modal { animation: popIn 0.2s ease forwards; }
+.p-modal.closing { animation: popOut 0.2s ease forwards; }
+
+.content-wrap{
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 20px;
+  align-items: start;
+  min-height: calc(100vh - 120px);
+}
+.filters-panel{
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  padding: 18px;
+  height: 100%;
+  align-self: stretch;
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+}
+.filters-panel h2{
+  margin: 2px 0;
+  font-size: 20px;
+  color:aliceblue;
+  
+}
+.filters-panel h3{
+  margin: 2px 2px;
+  font-size: 16px;
+  margin-top: 12px;
+  color: aliceblue;
+  text-align: center;
+}
+
+.filters-panel .price-input{
+  width: 80px;
+  padding: 0px 2px;
+  height: 30px;
+  font-size: 14px;
+  color: aliceblue;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  display: inline-block;
+}
+.filter-checkbox{
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-top: 10px;
+  color:aliceblue;
+  white-space: nowrap;
+  padding: 2px 0;
+}
+.filter-checkbox input{
+  margin: 0;
+  cursor: pointer;
+}
+.filter-row{
+  display: grid;
+  grid-template-columns: .5fr .5fr;
+  gap: 1px;
+  margin-top: 2px;
+  margin-bottom: 4px;
+}
+
+.filters-panel .filter-clear{
+  margin-top: 8px;
+  padding: 2px 4px;
+  width: 100%;
+  text-align: center;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: rgba(255, 255, 255, 0.16);
+  transition: all 0.3s ease;
+  position: static;
+}
+.filter-clear:hover{
+  cursor: pointer;
+  background: #cff7d3;
+  border: 1px solid #aaa;
+}
+.filters-body{
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+.sort-body{
+  font-size: 20px;
+}
+.sort-body select{
+  width: 100%;
+  height: 30px;
+  border-radius: 8px;
+  padding: 4px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  background: rgba(0, 63, 70, 0.16);
+  color: rgb(255, 255, 255);
+}
+
+.sort-body select option{
+  background-color: rgba(52, 50, 50, 0.18);
+  color: white;
+}
+.sort-body select option:hover{
+  background-color: #cff7d3;
+  color: #608c88;
 }
