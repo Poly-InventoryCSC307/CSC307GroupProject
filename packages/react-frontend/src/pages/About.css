@@ -1,0 +1,43 @@
+.about-page {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(180deg, #AAE5AF 0%, #107243 100%);
+  color: white;
+  overflow-x: hidden;
+}
+
+.about-hero {
+  text-align: center;
+  padding-top: 7rem;
+  padding-bottom: 2rem;
+}
+
+.about-title {
+  font-size: 2.4rem;
+  font-weight: 200;
+  margin-bottom: 2rem;
+  color: white;  
+}
+
+.about-image {
+  width: 60%;
+  max-width: 700px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.about-text-section {
+  display: flex;
+  justify-content: center;
+  align-items: right;
+  padding: 3rem 4rem;
+  gap: 4rem;
+}
+
+.about-paragraph {
+  text-align: left;
+  max-width: 500px;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}

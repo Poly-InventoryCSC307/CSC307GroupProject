@@ -3,8 +3,10 @@ import logo from "../assets/logo.svg";
 import signInIcon from "../assets/sign-in-button.svg";
 import "./Navbar.css";
 import SignInModal from "./SignInModal";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   return (
     <>
@@ -14,10 +16,10 @@ export default function Navbar() {
       </div>
 
       <ul className="navbar-menu">
-        <li onClick={() => console.log("Dashboard clicked")}>Dashboard</li>
-        <li onClick={() => console.log("Resources clicked")}>Resources</li>
-        <li onClick={() => console.log("Features clicked")}>Features</li>
-        <li onClick={() => console.log("About clicked")}>About</li>
+        <li onClick={() => navigate("/")}>Dashboard</li>
+        <li onClick={() => navigate("/features")}>Features</li>
+        <li onClick={() => navigate("/resources")}>Resources</li>
+        <li onClick={() => navigate("/about")}>About</li>
       </ul>
 
       <div className="navbar-right">
