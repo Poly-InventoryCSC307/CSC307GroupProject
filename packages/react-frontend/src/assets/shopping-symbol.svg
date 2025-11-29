@@ -1,0 +1,15 @@
+<svg width="152" height="126" viewBox="0 0 152 126" fill="none" xmlns="http://www.w3.org/2000/svg">
+<ellipse cx="76" cy="63" rx="76" ry="63" fill="white"/>
+<path d="M47 87H104.5" stroke="#700B55" stroke-width="4" stroke-linecap="round"/>
+<path d="M38 49.5V45H74.5H114.5L114.311 51.5H106.811L103.5 86.5H49L45 59.5L38 49.5Z" fill="#D86DBC"/>
+<rect x="37" y="44" width="78" height="9" rx="2" stroke="#700B55" stroke-width="4"/>
+<path d="M43.2466 54.7183L47 86" stroke="#700B55" stroke-width="4" stroke-linecap="round"/>
+<path d="M104.5 86.5L108.718 54.2469" stroke="#700B55" stroke-width="4" stroke-linecap="round"/>
+<path d="M54.4999 47.5L64.2506 29.6636" stroke="#700B55" stroke-width="4" stroke-linecap="round"/>
+<path d="M85.8368 30L95.5875 47.8364" stroke="#700B55" stroke-width="4" stroke-linecap="round"/>
+<path d="M56.9784 53.7068L62 87.5" stroke="#700B55" stroke-width="4"/>
+<path d="M89.5 86.5L92.9784 54.2931" stroke="#700B55" stroke-width="4"/>
+<path d="M75 53V86.5" stroke="#700B55" stroke-width="4"/>
+<path d="M107.008 65.9999C108.112 65.9999 109.008 65.1045 109.008 63.9999C109.008 62.8954 108.112 61.9999 107.008 61.9999L107.008 63.9999L107.008 65.9999ZM45 63.9999L45 65.9999L107.008 65.9999L107.008 63.9999L107.008 61.9999L45 61.9999L45 63.9999Z" fill="#700B55"/>
+<path d="M104.5 77.9595C105.605 77.9595 106.5 77.064 106.5 75.9595C106.5 74.8549 105.605 73.9595 104.5 73.9595L104.5 75.9595L104.5 77.9595ZM45 75.9595V77.9595L104.5 77.9595L104.5 75.9595L104.5 73.9595L45 73.9595V75.9595Z" fill="#700B55"/>
+</svg>
