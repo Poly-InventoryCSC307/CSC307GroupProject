@@ -10,6 +10,7 @@ mongoose
   .then(() => console.log("Connected to MongoDB Atlas"))
   .catch((error) => console.log(error));
 
+  // Get the inventory for the backend page 
 function getInventory(SKU, name){
     let promise;
     if (name === undefined && SKU === undefined){
@@ -24,25 +25,11 @@ function getInventory(SKU, name){
     return promise;
 }
 
-// function getStoreName(storeId){
-//     return inventoryModel.findOne(
-//         { _id: storeId},
-//         {name: 1, _id: 0}
-//     );
-// }
-
-// function getStoreLocation(storeId){
-//     return inventoryModel.findOne(
-//         { _id: storeId},
-//         {location: 1, _id: 0}
-//     );
-// }
-
 function getStoreData(storeId){
     return inventoryModel
     .findOne(
       { _id: storeId },
-      { name: 1, location: 1, _id: 0 }   // IMPORTANT: include fields you need
+      { name: 1, location: 1, _id: 0 }   
     )
 }
 

@@ -25,6 +25,7 @@ app.get("/inventory", (req, res) => {
     }); 
 });
 
+// Get the store name and and location data for a store
 app.get("/inventory/:storeId/", (req, res) => {
   const { storeId } = req.params;
 
@@ -40,40 +41,6 @@ app.get("/inventory/:storeId/", (req, res) => {
       res.status(500).json({ error: "Failed to load store meta" });
     });
 });
-
-// Find a given store
-// app.get("/inventory/:storeId", (req, res) => {
-//   const { storeId } = req.params;
-//   inventoryServices
-//     .getStoreName(storeId)
-//     .then((store) => {
-//       if (!store){
-//         return res.status(404).send("Store doesn't exist");
-//       }
-//       res.send({name: store.name});
-//     })
-//     .catch((err) => {
-//       console.error("Error fetching store name:", err);
-//       res.status(500).send({ error: "Failed to fetch store info" });
-//     })
-// })
-
-// Find a given store's location data
-// app.get("/inventory/:storeId", (req, res) => {
-//   const { storeId } = req.params;
-//   inventoryServices
-//     .getStoreLocation(storeId)
-//     .then((store) => {
-//       if (!store){
-//         return res.status(404).send("Store doesn't exist");
-//       }
-//       res.send({location: store.location});
-//     })
-//     .catch((err) => {
-//       console.error("Error fetching store location:", err);
-//       res.status(500).send({ error: "Failed to fetch store info" });
-//     })
-// })
 
 // Strictly the products for a store
 app.get("/inventory/:storeId/products", (req, res) => {
@@ -115,6 +82,7 @@ app.get("/inventory/:storeId/products", (req, res) => {
     });
 });
 
+// Add product to a inventory
 app.post("/inventory/:storeId/products", (req, res) => {
   const { storeId } = req.params;
   const body = req.body || {};
@@ -169,6 +137,7 @@ app.post("/inventory/:storeId/products", (req, res) => {
     });
 });
 
+// Remove products from a given inventory
 app.delete("/inventory/:storeId/products", (req, res) => {
   const { storeId } = req.params;
   const { SKU } = req.body || {};
@@ -198,9 +167,10 @@ app.delete("/inventory/:storeId/products", (req, res) => {
     });
 });
 
+// Update the price of a given product
 app.patch("/inventory/:storeId/products", (req, res) => {
   const { storeId } = req.params;
-  const { SKU, price, delta} = req.body;
+  const { SKU, price} = req.body;
 
   // basic validation + helpful messages
   if (!SKU) {
