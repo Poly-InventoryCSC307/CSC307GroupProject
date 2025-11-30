@@ -61,9 +61,7 @@ function App() {
         const zip = loc?.zip || "";
         const hasAny = [address, city, state, zip].some(Boolean);
 
-        setStoreLocation(
-          hasAny ? { address, city, state, zip } : null
-        );
+        setStoreLocation(hasAny ? { address, city, state, zip } : null);
       })
       .catch(() => {
         setStoreName("My Store");
@@ -96,9 +94,7 @@ function App() {
 
   const handleProductRemoved = (sku) => {
     setProducts((prev) =>
-      prev.filter(
-        (p) => (p.SKU || "").trim() !== (sku || "").trim()
-      )
+      prev.filter((p) => (p.SKU || "").trim() !== (sku || "").trim()),
     );
   };
 

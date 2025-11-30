@@ -1,17 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./PopUp.css";
 
-function RemoveProductPopUp({
-  open,
-  onClose,
-  onSubmit,
-  isSubmitting,
-}) {
+function RemoveProductPopUp({ open, onClose, onSubmit, isSubmitting }) {
   const overlayRef = useRef(null);
   const [form, setForm] = useState({
     SKU: "",
   });
-  // Use for opening and closing animations 
+  // Use for opening and closing animations
   const [show, setShow] = useState(open);
   const [closing, setClosing] = useState(false);
 
@@ -24,7 +19,7 @@ function RemoveProductPopUp({
 
   useEffect(() => {
     if (!open) return;
-    setForm({ SKU: ""});
+    setForm({ SKU: "" });
   }, [open]);
 
   useEffect(() => {
@@ -38,11 +33,11 @@ function RemoveProductPopUp({
       const t = setTimeout(() => {
         setShow(false);
         setClosing(false);
-      }, 250); 
+      }, 250);
       return () => clearTimeout(t);
     }
   }, [open, show]);
-    
+
   if (!show) return null;
 
   const handleOverlayClick = (e) => {
@@ -80,7 +75,6 @@ function RemoveProductPopUp({
         </header>
 
         <form className="modal-content" onSubmit={handleSubmit}>
-
           <div className="field">
             <label htmlFor="SKU">SKU</label>
             <input
@@ -102,7 +96,11 @@ function RemoveProductPopUp({
             >
               Cancel
             </button>
-            <button type="submit" className="btn primary" disabled={isSubmitting}>
+            <button
+              type="submit"
+              className="btn primary"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Removing..." : "Remove Product"}
             </button>
           </footer>
@@ -112,4 +110,4 @@ function RemoveProductPopUp({
   );
 }
 
-export default RemoveProductPopUp
+export default RemoveProductPopUp;

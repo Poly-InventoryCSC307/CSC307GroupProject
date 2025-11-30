@@ -1,12 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./PopUp.css";
 
-function AddProductPopUp({
-  open,
-  onClose,
-  onSubmit,
-  isSubmitting,
-}) {
+function AddProductPopUp({ open, onClose, onSubmit, isSubmitting }) {
   const overlayRef = useRef(null);
   const [form, setForm] = useState({
     name: "",
@@ -16,7 +11,7 @@ function AddProductPopUp({
     description: "",
   });
 
-  // Use for opening and closing animations 
+  // Use for opening and closing animations
   const [show, setShow] = useState(open);
   const [closing, setClosing] = useState(false);
 
@@ -33,7 +28,7 @@ function AddProductPopUp({
     setForm({ name: "", SKU: "", price: "", quantity: "", description: "" });
   }, [open]);
 
-  // Add transition between opening and closing 
+  // Add transition between opening and closing
   useEffect(() => {
     if (open) {
       setShow(true);
@@ -45,11 +40,11 @@ function AddProductPopUp({
       const t = setTimeout(() => {
         setShow(false);
         setClosing(false);
-      }, 250); 
+      }, 250);
       return () => clearTimeout(t);
     }
   }, [open, show]);
-  
+
   if (!show) return null;
 
   const handleOverlayClick = (e) => {
@@ -163,7 +158,11 @@ function AddProductPopUp({
             >
               Cancel
             </button>
-            <button type="submit" className="btn primary" disabled={isSubmitting}>
+            <button
+              type="submit"
+              className="btn primary"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Saving..." : "Save Product"}
             </button>
           </footer>
@@ -173,4 +172,4 @@ function AddProductPopUp({
   );
 }
 
-export default AddProductPopUp
+export default AddProductPopUp;

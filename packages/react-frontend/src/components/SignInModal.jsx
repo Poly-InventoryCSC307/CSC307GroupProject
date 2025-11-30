@@ -1,43 +1,38 @@
 import { useState } from "react";
-import { useAuth } from "../context/authContext"; 
-import "./SignInModal.css"
+import { useAuth } from "../context/authContext";
+import "./SignInModal.css";
+import logo from "../assets/logo-and-text.svg";
 
 export default function SignInModal({ onClose }) {
-  const {login, signup, signInWithGoogle } = useAuth();
+  const { login, signup, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
+    e.preventDefault();
+    setError("");
 
-  console.log("Submitting:", { email, password, isSignUp });
-
-  try {
-    let userCred;
-    if (isSignUp) {
-      userCred = await signup(email, password);
-      console.log("Signup success:", userCred.user);
-    } else {
-      userCred = await login(email, password);
-      console.log("Login success:", userCred.user);
+    try {
+      if (isSignUp) {
+        await signup(email, password);
+      } else {
+        await login(email, password);
+      }
+      onClose();
+    } catch (err) {
+      setError(err.message);
     }
-
-    onClose();
-  } catch (err) {
-    console.error("Firebase Auth error:", err);
-    setError(err.message);
-  }
-};
+  };
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h2>{isSignUp ? "Sign Up" : "Sign In"}</h2>
+        <img src={logo} alt="Logo" className="modal-logo" />
+
         {error && <p className="error">{error}</p>}
-        
+
         <form onSubmit={handleSubmit}>
           <input
             type="email"
@@ -55,15 +50,18 @@ export default function SignInModal({ onClose }) {
           />
           <button type="submit">{isSignUp ? "Sign Up" : "Sign In"}</button>
         </form>
+
         <button className="google-btn" onClick={signInWithGoogle}>
-          Sign in with Google
+          {isSignUp ? "Sign up with Google" : "Sign in with Google"}
         </button>
+
         <p>
           {isSignUp ? "Already have an account?" : "New user?"}{" "}
           <span onClick={() => setIsSignUp(!isSignUp)}>
             {isSignUp ? "Sign In" : "Sign Up"}
           </span>
         </p>
+
         <button className="close-btn" onClick={onClose}>
           Close
         </button>

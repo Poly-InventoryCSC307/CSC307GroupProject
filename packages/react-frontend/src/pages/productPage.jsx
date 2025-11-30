@@ -1,17 +1,16 @@
-import "./productPage.css"
+import "./productPage.css";
 import EditPricePopUp from "../components/EditPricePopUp";
 import UpdateQuantityPopUp from "../components/UpdateQuantityPopUp";
-import React, {useEffect, useMemo, useState} from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
-export default function ProductScreen({ 
-  initialProduct = null, 
+export default function ProductScreen({
+  initialProduct = null,
   overlay = false,
-  storeID =  "690aaa9be73854e0640a1927",     // Hard coded ID for one store
+  storeID = "690aaa9be73854e0640a1927", // Hard coded ID for one store
   onPriceUpdated,
   onQuantUpdated,
   onClose,
 }) {
-
   const [product, setProduct] = useState(() => initialProduct || {});
 
   // state for the edit-price modal
@@ -19,15 +18,17 @@ export default function ProductScreen({
   const [submittingEP, setSubmittingEP] = useState(false);
 
   // close the "Edit Price" dialog safely
-  const handleCloseEP = () => { if (!submittingEP) setOpenEP(false); };
+  const handleCloseEP = () => {
+    if (!submittingEP) setOpenEP(false);
+  };
 
-  const handleSubmitEP = async ({price}) => {
+  const handleSubmitEP = async ({ price }) => {
     try {
       setSubmittingEP(true);
 
       const newPrice = Number(price ?? 0);
 
-      if (newPrice < 0){
+      if (newPrice < 0) {
         throw new Error(`New Price is less than 0`);
       }
 
@@ -43,12 +44,20 @@ export default function ProductScreen({
             SKU: sku,
             price: Number(price),
           }),
-        }
+        },
       );
 
-      let data; try { data = await res.json(); } catch { data = {}; }
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
+      }
       if (!res.ok) {
-        const msg = data?.message || data?.error || `Request failed with status ${res.status}`;
+        const msg =
+          data?.message ||
+          data?.error ||
+          `Request failed with status ${res.status}`;
         throw new Error(msg);
       }
 
@@ -69,7 +78,9 @@ export default function ProductScreen({
   const [submittingUQ, setSubmittingUQ] = useState(false);
 
   // close the "Update Quantity" dialog safely
-  const handleCloseUQ = () => { if (!submittingUQ) setOpenUQ(false); };
+  const handleCloseUQ = () => {
+    if (!submittingUQ) setOpenUQ(false);
+  };
 
   const handleSubmitUQ = async ({ delta }) => {
     try {
@@ -78,19 +89,21 @@ export default function ProductScreen({
       const sku = String(product?.SKU || "").trim();
       if (!sku) throw new Error("Missing SKU for this product.");
 
-      const prevTotal = Number(product?.total_quantity ?? product?.quantity ?? 0);
+      const prevTotal = Number(
+        product?.total_quantity ?? product?.quantity ?? 0,
+      );
       const change = Number(delta);
       const nextTotal = prevTotal + change;
 
       if (!Number.isInteger(change)) {
-        throw new Error("Please enter a integer value")
+        throw new Error("Please enter a integer value");
       }
 
       if (!Number.isFinite(change) || change === 0) {
         throw new Error("Please enter a non-zero numeric value.");
       }
 
-      if (nextTotal < 0){
+      if (nextTotal < 0) {
         throw new Error(`Quantity Below Zero: Try -${prevTotal} or more`);
       }
 
@@ -102,16 +115,28 @@ export default function ProductScreen({
           body: JSON.stringify({
             delta: Number(delta),
           }),
-        }
+        },
       );
 
-      let data; try { data = await res.json(); } catch { data = {}; }
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
+      }
       if (!res.ok) {
-        const msg = data?.message || data?.error || `Request failed with status ${res.status}`;
+        const msg =
+          data?.message ||
+          data?.error ||
+          `Request failed with status ${res.status}`;
         throw new Error(msg);
       }
 
-      setProduct((p) => ({ ...p, quantity: nextTotal, total_quantity: nextTotal }));
+      setProduct((p) => ({
+        ...p,
+        quantity: nextTotal,
+        total_quantity: nextTotal,
+      }));
       onQuantUpdated?.(sku, nextTotal);
 
       setOpenUQ(false);
@@ -124,20 +149,20 @@ export default function ProductScreen({
 
   useEffect(() => {
     if (!overlay) return;
+
     const onKey = (e) => {
       if (e.key !== "Escape") return;
-      if (openEP || openUQ) return;     // If the edit or update is open 
+      if (openEP || openUQ) return;
       onClose?.();
     };
+
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, onClose, openEP, openUQ]);  
+  }, [overlay, openEP, openUQ, onClose]);
 
   const name = product?.name || "—";
   const sku = product?.SKU || "—";
-  const qtyTotal = Number(
-    product?.total_quantity ?? product?.quantity ?? 0
-  );
+  const qtyTotal = Number(product?.total_quantity ?? product?.quantity ?? 0);
   const qtyFloor = Number(product?.quantity_on_floor ?? 0);
   const qtyBack = Number(product?.quantity_in_back ?? 0);
   const priceNum = Number(product?.price ?? 0);
@@ -156,46 +181,86 @@ export default function ProductScreen({
         <div className="p-modal__grid">
           {/* Left: image */}
           <div className="p-modal__image">
-            {imageURL? (
+            {imageURL ? (
               <img
                 src={imageURL}
                 alt={name || "Product"}
-                onError={(e) => { e.currentTarget.style.display = "none"; }}
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
               />
             ) : (
-              <span className="p-modal__image-placeholder">Product Picture</span>
+              <span className="p-modal__image-placeholder">
+                Product Picture
+              </span>
             )}
           </div>
 
           {/* Right: details */}
           <aside className="p-modal__side">
-            <div className="p-row"><span className="p-label">Product Name:</span><span className="p-val">{name }</span></div>
-            <div className="p-row"><span className="p-label">SKU:</span><span className="p-val">{sku}</span></div>
-            <div className="p-row"><span className="p-label">Quantity Total:</span><span className="p-val">{qtyTotal}</span></div>
-            <div className="p-row"><span className="p-label">Quantity on Floor:</span><span className="p-val">{qtyFloor}</span></div>
-            <div className="p-row"><span className="p-label">Quantity in Back:</span><span className="p-val">{qtyBack}</span></div>
-            <div className="p-row"><span className="p-label">Price:</span><span className="p-val">${priceNum.toFixed(2)}</span></div>
+            <div className="p-row">
+              <span className="p-label">Product Name:</span>
+              <span className="p-val">{name}</span>
+            </div>
+            <div className="p-row">
+              <span className="p-label">SKU:</span>
+              <span className="p-val">{sku}</span>
+            </div>
+            <div className="p-row">
+              <span className="p-label">Quantity Total:</span>
+              <span className="p-val">{qtyTotal}</span>
+            </div>
+            <div className="p-row">
+              <span className="p-label">Quantity on Floor:</span>
+              <span className="p-val">{qtyFloor}</span>
+            </div>
+            <div className="p-row">
+              <span className="p-label">Quantity in Back:</span>
+              <span className="p-val">{qtyBack}</span>
+            </div>
+            <div className="p-row">
+              <span className="p-label">Price:</span>
+              <span className="p-val">${priceNum.toFixed(2)}</span>
+            </div>
 
             <div className="p-actions">
               <button className="btn-order">Order</button>
-              <button className="btn-edit-price" onClick={() => setOpenEP(true)}>
+              <button
+                className="btn-edit-price"
+                onClick={() => setOpenEP(true)}
+              >
                 Edit Price
               </button>
-              <button className="btn-update-quantity" onClick={() => setOpenUQ(true)}>
+              <button
+                className="btn-update-quantity"
+                onClick={() => setOpenUQ(true)}
+              >
                 Update Quantity
               </button>
             </div>
           </aside>
         </div>
 
-        <EditPricePopUp open={openEP} onClose={handleCloseEP} onSubmit={handleSubmitEP} isSubmitting={submittingEP} />
-        <UpdateQuantityPopUp open={openUQ} onClose={handleCloseUQ} onSubmit={handleSubmitUQ} isSubmitting={submittingUQ} />
+        <EditPricePopUp
+          open={openEP}
+          onClose={handleCloseEP}
+          onSubmit={handleSubmitEP}
+          isSubmitting={submittingEP}
+        />
+        <UpdateQuantityPopUp
+          open={openUQ}
+          onClose={handleCloseUQ}
+          onSubmit={handleSubmitUQ}
+          isSubmitting={submittingUQ}
+        />
 
         {/* Bottom: description */}
         <section className="p-modal__desc">
           <h3>Product Description:</h3>
-          <p>{(String(product?.description || "").trim() || "No description provided.")}</p>
-
+          <p>
+            {String(product?.description || "").trim() ||
+              "No description provided."}
+          </p>
         </section>
       </div>
     );

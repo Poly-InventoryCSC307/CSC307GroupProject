@@ -8,8 +8,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(46, 125, 104, 0.6); /* translucent green overlay to match hero */
-  backdrop-filter: blur(4px);           /* subtle blur for depth */
+  background: rgba(46, 125, 104, 0.6); 
+  backdrop-filter: blur(4px);          
   z-index: 1000;
   animation: fadeInOverlay 0.3s ease-in-out;
 }
@@ -18,6 +18,7 @@
 .modal-content {
   background: linear-gradient(180deg, #ffffff 0%, #f6fffa 100%);
   padding: 2.5rem;
+  padding-top: 3.5rem;
   border-radius: 16px;
   width: 420px;
   max-width: 90%;
@@ -30,7 +31,7 @@
 
 /* Header or title styling */
 .modal-content h2 {
-  color: #2e7d68; /* matches hero gradient end */
+  color: #757575; /* matches hero gradient end */
   font-size: 1.8rem;
   font-weight: 700;
   margin-bottom: 1rem;
@@ -38,8 +39,8 @@
 
 /* Buttons and input areas */
 .modal-content button {
-  background-color: #26a69a;
-  color: white;
+  background-color: #757575;
+  color: #B3B3B3;
   border: none;
   border-radius: 8px;
   padding: 0.75rem 1.5rem;
@@ -49,26 +50,10 @@
 }
 
 .modal-content button:hover {
-  background-color: #2e7d68;
+  background-color: #757575;
   transform: translateY(-2px);
 }
 
-/* Close button (X) */
-.modal-close {
-  position: absolute;
-  top: 12px;
-  right: 16px;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: #2e7d68;
-  cursor: pointer;
-  transition: color 0.2s ease-in-out;
-}
-
-.modal-close:hover {
-  color: #26a69a;
-}
 /* Input fields */
 .modal-content input,
 .modal-content textarea {
@@ -91,7 +76,7 @@
 .modal-content textarea:focus {
   font-size: 1rem; 
   font-weight: 400;
-  border-color: #26a69a;
+  border-color: #757575;
   box-shadow: 0 0 0 2px rgba(38, 166, 154, 0.3) inset;
 }
 
@@ -107,15 +92,18 @@
   to { transform: scale(1); opacity: 1; }
 }
 
-/* Hard-disable hover animation from global styles */
-.modal-content input:hover {
-  transform: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-  padding: 0.75rem 1rem !important;
-  border-width: 2px !important;
-}
-
 .modal-content input {
   transition: border-color 0.25s ease-in-out !important;
+}
+
+.modal-content button:hover {
+  color: #B3B3B3 !important;
+}
+
+.modal-logo {
+  width: 240px;
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 1.5rem;
+  Margin-top: 1rem;
 }

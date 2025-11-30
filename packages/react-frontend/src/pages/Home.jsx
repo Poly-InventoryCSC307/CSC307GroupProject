@@ -15,7 +15,11 @@ export default function Home() {
       <div className="card-stack">
         <img src={inventoryCard} alt="Inventory" className="stack-card card1" />
         <img src={capacityCard} alt="Capacity" className="stack-card card2" />
-        <img src={performanceCard} alt="Performance" className="stack-card card3" />
+        <img
+          src={performanceCard}
+          alt="Performance"
+          className="stack-card card3"
+        />
       </div>
     </section>
   );

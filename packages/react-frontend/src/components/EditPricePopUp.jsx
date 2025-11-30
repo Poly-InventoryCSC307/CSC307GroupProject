@@ -1,16 +1,11 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./PopUp.css";
 
-function EditPricePopUp({
-    open,
-    onClose,
-    onSubmit,
-    isSubmitting,
-}) {
+function EditPricePopUp({ open, onClose, onSubmit, isSubmitting }) {
   const overlayRef = useRef(null);
-  const [form, setForm] = useState({ price: "", });
-    
-  // Use for opening and closing animations 
+  const [form, setForm] = useState({ price: "" });
+
+  // Use for opening and closing animations
   const [show, setShow] = useState(open);
   const [closing, setClosing] = useState(false);
 
@@ -23,7 +18,7 @@ function EditPricePopUp({
 
   useEffect(() => {
     if (!open) return;
-    setForm({price: ""});
+    setForm({ price: "" });
   }, [open]);
 
   useEffect(() => {
@@ -37,7 +32,7 @@ function EditPricePopUp({
       const t = setTimeout(() => {
         setShow(false);
         setClosing(false);
-      }, 250); 
+      }, 250);
       return () => clearTimeout(t);
     }
   }, [open, show]);
@@ -62,54 +57,56 @@ function EditPricePopUp({
   };
 
   return (
-  <div
-    className={`modal-overlay ${closing ? "closing" : ""}`}
-    ref={overlayRef}
-    onMouseDown={handleOverlayClick}
-    aria-modal="true"
-    role="dialog"
-    aria-labelledby="edit-price-title"
-  >
-    <div className={`modal ${closing ? "closing" : ""}`} role="document">
-      <header className="modal-header">
-        <h3 id="edit-price-title">Edit Price</h3>
-        <button className="modal-close" onClick={onClose} aria-label="Close">
-          X
-        </button>
-      </header>
-
-      <form className="modal-content" onSubmit={handleSubmit}>
-        <div className="field">
-          <label htmlFor="price">Price</label>
-          <input
-            id="price"
-            name="price"
-            value={form.price}
-            onChange={handleChange}
-            placeholder="e.g., 10.99"
-            required
-          />
-        </div>
-
-        <footer className="modal-actions">
-          <button
-            type="button"
-            className="btn ghost"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
-            Cancel
+    <div
+      className={`modal-overlay ${closing ? "closing" : ""}`}
+      ref={overlayRef}
+      onMouseDown={handleOverlayClick}
+      aria-modal="true"
+      role="dialog"
+      aria-labelledby="edit-price-title"
+    >
+      <div className={`modal ${closing ? "closing" : ""}`} role="document">
+        <header className="modal-header">
+          <h3 id="edit-price-title">Edit Price</h3>
+          <button className="modal-close" onClick={onClose} aria-label="Close">
+            X
           </button>
-          <button type="submit" className="btn primary" disabled={isSubmitting}>
-            {isSubmitting ? "Updating Price..." : "Update Price"}
-          </button>
-        </footer>
-      </form>
+        </header>
+
+        <form className="modal-content" onSubmit={handleSubmit}>
+          <div className="field">
+            <label htmlFor="price">Price</label>
+            <input
+              id="price"
+              name="price"
+              value={form.price}
+              onChange={handleChange}
+              placeholder="e.g., 10.99"
+              required
+            />
+          </div>
+
+          <footer className="modal-actions">
+            <button
+              type="button"
+              className="btn ghost"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn primary"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Updating Price..." : "Update Price"}
+            </button>
+          </footer>
+        </form>
+      </div>
     </div>
-  </div>
   );
 }
 
-
-
-export default EditPricePopUp
+export default EditPricePopUp;
