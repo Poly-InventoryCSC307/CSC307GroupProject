@@ -33,11 +33,11 @@ export default function SignInModal({ onClose }) {
 };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
+    <div className="auth-modal-overlay">
+      <div className="auth-modal-content">
         <h2>{isSignUp ? "Sign Up" : "Sign In"}</h2>
         {error && <p className="error">{error}</p>}
-        
+
         <form onSubmit={handleSubmit}>
           <input
             type="email"
@@ -55,15 +55,18 @@ export default function SignInModal({ onClose }) {
           />
           <button type="submit">{isSignUp ? "Sign Up" : "Sign In"}</button>
         </form>
+
         <button className="google-btn" onClick={signInWithGoogle}>
           Sign in with Google
         </button>
+
         <p>
           {isSignUp ? "Already have an account?" : "New user?"}{" "}
           <span onClick={() => setIsSignUp(!isSignUp)}>
             {isSignUp ? "Sign In" : "Sign Up"}
           </span>
         </p>
+
         <button className="close-btn" onClick={onClose}>
           Close
         </button>

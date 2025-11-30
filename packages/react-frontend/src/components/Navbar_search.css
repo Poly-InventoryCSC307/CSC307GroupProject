@@ -9,7 +9,7 @@
   background: transparent;
   color: white;
   padding: 1rem 3rem;
-  z-index: 10;
+  z-index: 20;                  /* Needs to be larger than search bar */
 }
 
 /* Left */
@@ -36,6 +36,7 @@
   font-weight: 700;
   font-size: 1.1rem;
   color: white;
+  margin-right: 1rem;
 }
 
 /* Store tooltip wrapper */

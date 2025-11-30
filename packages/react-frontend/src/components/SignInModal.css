@@ -1,5 +1,5 @@
 /* Overlay dimming background */
-.modal-overlay {
+.auth-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -15,7 +15,7 @@
 }
 
 /* Popup content box */
-.modal-content {
+.auth-modal-content {
   background: linear-gradient(180deg, #ffffff 0%, #f6fffa 100%);
   padding: 2.5rem;
   border-radius: 16px;
@@ -29,7 +29,7 @@
 }
 
 /* Header or title styling */
-.modal-content h2 {
+.auth-modal-content h2 {
   color: #2e7d68; /* matches hero gradient end */
   font-size: 1.8rem;
   font-weight: 700;
@@ -37,7 +37,7 @@
 }
 
 /* Buttons and input areas */
-.modal-content button {
+.auth-modal-content button {
   background-color: #26a69a;
   color: white;
   border: none;
@@ -48,13 +48,13 @@
   transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
 
-.modal-content button:hover {
+.auth-modal-content button:hover {
   background-color: #2e7d68;
   transform: translateY(-2px);
 }
 
 /* Close button (X) */
-.modal-close {
+.auth-modal-close {
   position: absolute;
   top: 12px;
   right: 16px;
@@ -66,12 +66,12 @@
   transition: color 0.2s ease-in-out;
 }
 
-.modal-close:hover {
+.auth-modal-close:hover {
   color: #26a69a;
 }
 /* Input fields */
-.modal-content input,
-.modal-content textarea {
+.auth-modal-content input,
+.auth-modal-content textarea {
   width: 100%;
   height: 48px;
   font-size: 1rem; 
@@ -87,8 +87,8 @@
 }
 
 /* Green glow when focused */
-.modal-content input:focus,
-.modal-content textarea:focus {
+.auth-modal-content input:focus,
+.auth-modal-content textarea:focus {
   font-size: 1rem; 
   font-weight: 400;
   border-color: #26a69a;
@@ -108,7 +108,7 @@
 }
 
 /* Hard-disable hover animation from global styles */
-.modal-content input:hover {
+.auth-modal-content input:hover {
   transform: none !important;
   box-shadow: none !important;
   outline: none !important;
@@ -116,6 +116,6 @@
   border-width: 2px !important;
 }
 
-.modal-content input {
+.auth-modal-content input {
   transition: border-color 0.25s ease-in-out !important;
 }

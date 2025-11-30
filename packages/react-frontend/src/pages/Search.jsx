@@ -8,7 +8,7 @@ import ProductCard from "../components/ProductCard";
 import AddProductPopUp from "../components/AddProductPopUp";
 import RemoveProductPopUp from "../components/RemoveProductPopUp.jsx";
 
-import ProductScreen from "./productPage.jsx"; // <-- add this import
+import ProductScreen from "./productPage.jsx"; 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
