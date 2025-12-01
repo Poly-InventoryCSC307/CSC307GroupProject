@@ -16,6 +16,17 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
+  const [currentUser, setCurrentUser] = useState(null);       // Stores User id for store signup page 
+  const [authLoading, setAuthLoading] = useState(true);
+  
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user || null);
+      setAuthLoading(false);
+    });
+    return unsubscribe;
+  }, []);
+  
   const login = (email, password) =>
     signInWithEmailAndPassword(auth, email, password);
 
@@ -27,6 +38,14 @@ export function AuthProvider({ children }) {
     return signInWithPopup(auth, provider);
   };
 
-  const value = { login, signup, signInWithGoogle };
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  const logout = () => signOut(auth);
+
+  const value = { currentUser, authLoading, login, signup, signInWithGoogle, logout };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {/* Delay children until Firebase finishes first check */}
+      {!authLoading && children}
+    </AuthContext.Provider>
+  );
 }

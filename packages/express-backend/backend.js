@@ -9,6 +9,51 @@ const port = 8000;
 app.use(cors());
 app.use(express.json());
 
+// Create new store front 
+app.post("/stores", (req, res) => {
+  const { uid, name, location } = req.body || {};
+
+  if (!uid || !name) {
+    return res
+      .status(400)
+      .json({ error: "Missing required fields: uid and name" });
+  }
+
+  inventoryServices
+    .createStoreForUser(uid, name, location)
+    .then((store) => {
+      res.json(store);
+    })
+    .catch((err) => {
+      console.error("Create store failed:", err);
+
+      if (err.code === "STORE_EXISTS") {
+        return res.status(400).json({ error: "Store already exists" });
+      }
+
+      res.status(500).json({ error: "Failed to create store" });
+    });
+});
+
+
+// Get the data for new store
+app.get("/stores/by-user/:uid", (req, res) => {
+  const { uid } = req.params;
+
+  inventoryServices
+    .getStoreByUserUid(uid)
+    .then((store) => {
+      if (!store) {
+        return res.status(404).json({ error: "No store for this user" });
+      }
+      res.json(store);
+    })
+    .catch((err) => {
+      console.error("Lookup store failed:", err);
+      res.status(500).json({ error: "Failed to fetch store" });
+    });
+});
+
 // Entire store page including name and location
 app.get("/inventory", (req, res) => {
   const name = req.query.name;

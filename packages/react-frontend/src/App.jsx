@@ -2,131 +2,179 @@ import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-
 import NavbarSearch from "./components/Navbar_search";
-import Search from "./pages/Search";
 
+import Home from "./pages/Home";
+import Search from "./pages/Search";
 import About from "./pages/About";
 import Features from "./pages/Features";
+import StoreSetup from "./pages/StoreSetup";
 
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "./firebase/firebase";
+import { useAuth } from "./context/authContext";
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [storeName, setStoreName] = useState("");
-  const [storeLocation, setStoreLocation] = useState(null);
+  const { currentUser, authLoading } = useAuth();
+  const [store, setStore] = useState(null);
+  const [storeChecked, setStoreChecked] = useState(false);
 
-  const storeID = "690aaa9be73854e0640a1927";
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
 
+  // When auth state changes, figure out if user has a store
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
+    if (authLoading) return;
 
-  useEffect(() => {
-    if (user) {
+    // Logged out: clear store + products, push to home if on protected routes
+    if (!currentUser) {
+      setStore(null);
+      setStoreChecked(false);
+      setProducts([]);
+
       if (
-        location.pathname === "/" ||
-        location.pathname === "/about" ||
-        location.pathname === "/features"
+        location.pathname === "/products" ||
+        location.pathname === "/store-setup"
       ) {
-        navigate("/products");
-      }
-    } else {
-      if (location.pathname === "/products") {
         navigate("/");
       }
+      return;
     }
-  }, [user, navigate, location.pathname]);
 
-  useEffect(() => {
-    fetch(`http://localhost:8000/inventory/${storeID}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setStoreName(data?.name || "My Store");
-
-        const locArray = data?.location || [];
-        const loc = Array.isArray(locArray) ? locArray[0] || {} : locArray;
-
-        const address = loc?.address || loc?.street || "";
-        const city = loc?.city || "";
-        const state = loc?.state || "";
-        const zip = loc?.zip || "";
-        const hasAny = [address, city, state, zip].some(Boolean);
-
-        setStoreLocation(
-          hasAny ? { address, city, state, zip } : null
+    // Logged in: check if this user already has a store
+    (async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:8000/stores/by-user/${currentUser.uid}`
         );
-      })
-      .catch(() => {
-        setStoreName("My Store");
-        setStoreLocation(null);
-      });
-  }, [storeID]);
 
+        if (res.status === 404) {
+          // no store yet → first-time setup
+          setStore(null);
+          setStoreChecked(true);
+          if (location.pathname !== "/store-setup") {
+            navigate("/store-setup");
+          }
+          return;
+        }
+
+        if (!res.ok) {
+          console.error("Failed to fetch store");
+          return;
+        }
+
+        const data = await res.json();
+        setStore(data);
+        setStoreChecked(true);
+
+        // If user is on home or setup, send them to products
+        if (
+          location.pathname === "/" ||
+          location.pathname === "/store-setup"
+        ) {
+          navigate("/products");
+        }
+      } catch (err) {
+        console.error("Error looking up store:", err);
+      }
+    })();
+  }, [currentUser, authLoading, navigate, location.pathname]);
+
+  // When we have a store, load its products
   useEffect(() => {
-    if (!user) return;
+    if (!store?._id) return;
 
-    fetch(`http://localhost:8000/inventory/${storeID}/products`)
-      .then((res) => res.json())
-      .then((data) => {
-        const cardData = (data || []).map((p) => ({
-          name: p.name ?? "",
-          imageURL: p.imageURL ?? p.product_photo ?? "",
-          SKU: p.SKU ?? p.sku ?? "",
-          price: Number(p.price ?? 0),
-          quantity: Number(p.quantity ?? p.total_quantity ?? 0),
-          description: p.description ?? "",
-        }));
-        setProducts(cardData);
-      })
-      .catch((err) => console.log("Fetch error:", err));
-  }, [user, storeID]);
+    setLoadingProducts(true);
+    (async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:8000/inventory/${store._id}/products`
+        );
+        if (!res.ok) throw new Error("Failed to fetch products");
+        const data = await res.json();
 
-  const handleProductAdded = (cardData) => {
-    setProducts((prev) => [cardData, ...prev]);
+        // whatever shape your backend uses; assuming:
+        // { products: [...] } OR just [ ... ]
+        const list = Array.isArray(data) ? data : data.products || [];
+        setProducts(list);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingProducts(false);
+      }
+    })();
+  }, [store?._id]);
+
+  // Keep products in sync when child components add/remove
+  const handleProductAdded = (newProduct) => {
+    setProducts((prev) => {
+      const exists = prev.some((p) => p.SKU === newProduct.SKU);
+      if (exists) {
+        return prev.map((p) => (p.SKU === newProduct.SKU ? newProduct : p));
+      }
+      return [newProduct, ...prev];
+    });
   };
 
   const handleProductRemoved = (sku) => {
-    setProducts((prev) =>
-      prev.filter(
-        (p) => (p.SKU || "").trim() !== (sku || "").trim()
-      )
-    );
+    setProducts((prev) => prev.filter((p) => p.SKU !== sku));
   };
+
+  // Decide which navbar to render
+  const isProductRoute = location.pathname === "/products";
+
+  const storeLocation = store?.location || null;
+
+  const userName =
+    currentUser?.displayName || currentUser?.email.split("@")[0] || "";
 
   return (
     <>
-      {!user ? (
-        <Navbar />
-      ) : (
+      {isProductRoute ? (
         <NavbarSearch
-          userName={user?.displayName || user?.email?.split("@")[0]}
-          storeName={storeName}
+          userName={userName}
+          storeName={store?.name || ""}
           storeLocation={storeLocation}
         />
+      ) : (
+        <Navbar isLoggedIn={!!currentUser} showSearch={false} />
       )}
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/features" element={<Features />} />
+
+        <Route
+          path="/store-setup"
+          element={
+            <StoreSetup
+              onStoreCreated={(s) => {
+                setStore(s);
+                setStoreChecked(true);
+              }}
+            />
+          }
+        />
+
         <Route
           path="/products"
           element={
-            <Search
-              productsData={products}
-              onProductAdded={handleProductAdded}
-              onProductRemoved={handleProductRemoved}
-              storeID={storeID}
-            />
+            storeChecked && store ? (
+              <Search
+                productsData={products}
+                onProductAdded={handleProductAdded}
+                onProductRemoved={handleProductRemoved}
+                storeID={store._id}
+              />
+            ) : (
+              <div style={{ padding: "2rem" }}>
+                {authLoading || !currentUser
+                  ? "Please sign in..."
+                  : "Loading store..."}
+              </div>
+            )
           }
         />
       </Routes>

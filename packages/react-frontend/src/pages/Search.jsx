@@ -16,7 +16,7 @@ function Search({
   productsData, 
   onProductAdded, 
   onProductRemoved, 
-  storeID =  "690aaa9be73854e0640a1927", 
+  storeID ,           // "690aaa9be73854e0640a1927"
 }) {
   const [term, setTerm] = useState("");
 

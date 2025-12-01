@@ -10,7 +10,7 @@ mongoose
   .then(() => console.log("Connected to MongoDB Atlas"))
   .catch((error) => console.log(error));
 
-  // Get the inventory for the backend page 
+// Get the inventory for the backend page 
 function getInventory(SKU, name){
     let promise;
     if (name === undefined && SKU === undefined){
@@ -31,6 +31,56 @@ function getStoreData(storeId){
       { _id: storeId },
       { name: 1, location: 1, _id: 0 }   
     )
+}
+
+function getStoreByUserUid(uid) {
+  const cleanUid = String(uid || "").trim();
+  if (!cleanUid) return Promise.resolve(null);
+
+  return inventoryModel
+    .findOne({ owner_uid: cleanUid })
+    .lean()
+    .exec();
+}
+
+// Create a store for a Firebase UID (if not already present)
+function createStoreForUser(uid, name, location) {
+  const cleanUid = String(uid || "").trim();
+  const cleanName = String(name || "").trim();
+
+  if (!cleanUid || !cleanName) {
+    return Promise.reject(
+      new Error("Both uid and name are required to create a store")
+    );
+  }
+
+  // Normalize location into [ { street, city, state, zip } ]
+  const locObject =
+    location && typeof location === "object"
+        ? {
+          street: location.street || "",
+          city: location.city || "",
+          state: location.state || "",
+          zip: location.zip || "",
+        }
+      : undefined;
+
+  return inventoryModel
+    .findOne({ owner_uid: cleanUid })
+    .then((existing) => {
+      if (existing) {
+        const err = new Error("Store already exists for this user");
+        err.code = "STORE_EXISTS";
+        throw err;
+      }
+
+      return inventoryModel.create({
+        owner_uid: cleanUid,
+        name: cleanName,
+        location: locObject,
+        inventory: [],
+      });
+    });
 }
 
 // Filter via a given product name
@@ -144,8 +194,8 @@ function removeProductBySKU(storeID, SKU){
 export default{
     getInventory,
     getStoreData,
-    // getStoreName,
-    // getStoreLocation,
+    getStoreByUserUid,
+    createStoreForUser,
     findProductByName,
     findProductBySKU,
     // updateQuantityFloor,

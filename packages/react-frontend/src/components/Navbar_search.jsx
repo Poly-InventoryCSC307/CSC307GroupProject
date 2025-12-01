@@ -63,9 +63,9 @@ export default function NavbarSearch({
                     Store Location
                   </div>
 
-                  {storeLocation.address && (
+                  {storeLocation.street && (
                     <div className="addr-line">
-                      {storeLocation.address}
+                      {storeLocation.street}
                     </div>
                   )}
 

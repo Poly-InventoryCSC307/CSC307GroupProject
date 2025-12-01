@@ -6,7 +6,7 @@ import React, {useEffect, useMemo, useState} from "react";
 export default function ProductScreen({ 
   initialProduct = null, 
   overlay = false,
-  storeID =  "690aaa9be73854e0640a1927",     // Hard coded ID for one store
+  storeID,           //=  "690aaa9be73854e0640a1927",    
   onPriceUpdated,
   onQuantUpdated,
   onClose,
