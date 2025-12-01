@@ -104,6 +104,8 @@
   background: #eef2f6;
   border-radius: 12px;
   padding: 16px 20px;
+  max-width: min(1080px, 95vw);
+  word-wrap: break-word;
 }
 .p-modal__desc h3 { margin: 0 0 8px; font-size: 1.05rem; font-weight: 800; }
 

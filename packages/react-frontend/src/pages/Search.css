@@ -16,7 +16,7 @@ section.hero {
 
   /* placement */
   max-width: 175vh;         /* adjust search bar based on screen size*/
-  margin: 20px auto 20px;   /* align search with filter bar */
+  margin: 10px auto 20px;   /* align search with filter bar */
   padding: 10px 12px;       /* add extra space between clear background and search bar */
 
   /* “frosted” look like in your background */
