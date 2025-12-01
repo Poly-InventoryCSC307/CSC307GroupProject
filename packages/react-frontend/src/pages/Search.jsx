@@ -12,6 +12,12 @@ import ProductScreen from "./productPage.jsx"; // <-- add this import
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
+const PRICE_MIN = 0;
+const PRICE_MAX = 1000;
+
+const QTY_MIN = 0;
+const QTY_MAX = 200;
+
 function Search({ 
   productsData, 
   onProductAdded, 
@@ -145,11 +151,21 @@ function Search({
   //starter filters
   const [filters, setFilters] = useState({
     inStockOnly: false,
-    priceMin: Infinity,
-    priceMax: Infinity
+    priceMin: PRICE_MIN,
+    priceMax: PRICE_MAX,
+    minQty: Infinity,
+    maxQty: Infinity
   });
+  const priceMinVal = Number.isFinite(filters.priceMin) ? filters.priceMin : PRICE_MIN;
+  const priceMaxVal = Number.isFinite(filters.priceMax) ? filters.priceMax : PRICE_MAX;
+  const priceMinPercent = ((priceMinVal - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
+  const priceMaxPercent = ((priceMaxVal - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
   const [sortBy, setSortBy] = useState("name-asc");
 
+  const qtyMinVal = Number.isFinite(filters.minQty) ? filters.minQty : QTY_MIN;
+  const qtyMaxVal = Number.isFinite(filters.maxQty) ? filters.maxQty : QTY_MAX;
+  const qtyMinPercent = ((qtyMinVal - QTY_MIN) / (QTY_MAX - QTY_MIN)) * 100;
+  const qtyMaxPercent = ((qtyMaxVal - QTY_MIN) / (QTY_MAX - QTY_MIN)) * 100;
 
   const filtered = useMemo(() => {
     const q = term.trim().toLowerCase();
@@ -169,6 +185,12 @@ function Search({
         return false;
       }
       if(Number.isFinite(filters.priceMax) && (Number(p.price ?? 0) > filters.priceMax)) {
+        return false;
+      }
+      if(Number.isFinite(filters.minQty) && (Number(p.quantity ?? p.total_quantity ?? 0) < filters.minQty)) {
+        return false;
+      }
+      if(Number.isFinite(filters.maxQty) && (Number(p.quantity ?? p.total_quantity ?? 0) > filters.maxQty)) {
         return false;
       }
       return true;  
@@ -280,6 +302,7 @@ function Search({
         {/* GRID */}
         <div className="content-wrap">
           <aside className="filters-panel">
+            {/* adding sort by to the filters column, dropdown */}
              <div className="sort-body">
               <label htmlFor="sortSelect">Sort By</label>
               <select
@@ -303,32 +326,168 @@ function Search({
                 onChange={e => setFilters(f => ({ ...f, inStockOnly: e.target.checked }))}
               />
               In Stock Only
-              
             </label>
-            <h3>Price Range</h3>
+
+            {/* filter for price with range sliders */}
             <div className="filter-row">
               <div className="filter-label">
-                <label htmlFor="minPrice">Min Price</label>
-              <input
-                type="number"
-                placeholder = "Min Price"
-                value = {Number.isFinite(filters.priceMin) ? filters.priceMin : ""}
-                onChange={e => setFilters(f => ({ ...f, priceMin: e.target.valueAsNumber }))}
-                className="price-input"
+                <label> Price Range</label>
+                <div style={{display:"flex", gap:"8px", marginTop: "6px"}}>
+                  <input
+                    type="number"
+                    placeholder = "Min Price"
+                    className="price-input"
+                    value = {Number.isFinite(filters.priceMin) ? filters.priceMin : ""}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === "") {
+                        setFilters((f) => ({ ...f, priceMin: PRICE_MIN }));
+                        return;
+                      }
+                      const val = Number(raw);
+                      setFilters((f) => ({ ...f, priceMin: Math.min(val, Number.isFinite(f.priceMax) ? f.priceMax : PRICE_MAX),
+                      }));
+                    }}
+                    />
+                    <input
+                    type="number"
+                    placeholder = "Max Price"
+                    className="price-input"
+                    value = {Number.isFinite(filters.priceMax) ? filters.priceMax: ""}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === "") {
+                        setFilters((f) => ({ ...f, priceMax: PRICE_MAX }));
+                        return;
+                      }
+                      const val = Number(raw);
+                      setFilters((f) => ({ ...f, priceMax: Math.max(val, Number.isFinite(f.priceMin) ? f.priceMin : PRICE_MIN),
+                      }));
+                    }}
+                    />
+                    </div>
+                    <div className="range-slider">
+                      <div className="range-slider__track"/>
+                      <div
+                        className="range-slider__range"
+                        style={{
+                          left: `${priceMinPercent}%`,
+                          right: `${100 - priceMaxPercent}%`,
+                        }}
+                    />
+                  <input
+                    type="range"
+                    min="0"
+                    max="1000"
+                    value={priceMinVal}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setFilters((f) => {
+                        const newMin = Math.min(val, Number.isFinite(f.priceMax) ? f.priceMax : PRICE_MAX);
+                        return { ...f, priceMin: newMin };
+                      });
+                    }}
+                    className="range-slider__thumb"
+                    />
+                  <input
+                    type="range"
+                    min="0" 
+                    max="1000"
+                    value={priceMaxVal}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setFilters((f) => {
+                        const newMax = Math.max(val, Number.isFinite(f.priceMin) ? f.priceMin : 0);
+                        return { ...f, priceMax: newMax };
+                      });
+                    }}
+                    className="range-slider__thumb"
+                    />
+                    </div>
+                    </div>
+            </div>
+
+            {/* filter for quantity with range sliders */}
+            <div className="filter-row">
+              <div className="filter-label" style={{gridColumn:"1/-1"}}>
+                <label> Quantity Range</label>
+                <div style={{display:"flex", gap:"8px", marginTop: "6px"}}>
+                  <input
+                    type="number"
+                    placeholder = "Min Qty"
+                    className="price-input"
+                    value = {Number.isFinite(filters.minQty) ? filters.minQty : ""}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === "") {
+                        setFilters((f) => ({ ...f, minQty: QTY_MIN }));
+                        return;
+                      }
+                      const val = Number(raw);
+                      setFilters((f) => ({ ...f, minQty: Math.min(val, Number.isFinite(f.maxQty) ? f.maxQty : QTY_MAX),
+                      }));
+                    }}
+                  />
+                  <input
+                    type="number"
+                    placeholder = "Max Qty"
+                    className="price-input"
+                    value = {Number.isFinite(filters.maxQty) ? filters.maxQty: ""}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === "") {
+                        setFilters((f) => ({ ...f, maxQty: QTY_MAX }));
+                        return;
+                      }
+                      const val = Number(raw);
+                      setFilters((f) => ({ ...f, maxQty: Math.max(val, Number.isFinite(f.minQty) ? f.minQty : QTY_MIN),
+                      }));
+                    }}
+                  />
+                </div>
+                <div className="range-slider">
+              <div className="range-slider__track"/>
+              <div
+                className="range-slider__range"
+                style={{
+                  left: `${qtyMinPercent}%`,
+                  right: `${100 - qtyMaxPercent}%`,
+                }}
               />
-              </div>
-              <div className="filter-label">
-                <label htmlFor="maxPrice">Max Price</label>
+              {/* min */}
               <input
-                type="number"
-                placeholder = "Max Price"
-                value = {Number.isFinite(filters.priceMax) && filters.priceMax !== Infinity ? filters.priceMax: ""}
-                onChange={(e) => setFilters((f) => ({...f, priceMax: Number(e.target.value) || Infinity}))}
-                className="price-input"
-            />
+                type="range"
+                min={QTY_MIN}
+                max={QTY_MAX}
+                value={qtyMinVal} 
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setFilters((f) => {
+                    const newMin = Math.min(val, Number.isFinite(f.maxQty) ? f.maxQty : QTY_MAX);
+                    return { ...f, minQty: newMin };
+                  });
+                }}
+                className="range-slider__thumb"
+              />
+              {/* max */}
+              <input
+                type="range"
+                min={QTY_MIN} 
+                max={QTY_MAX}
+                value={qtyMaxVal}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setFilters((f) => {
+                    const newMax = Math.max(val, Number.isFinite(f.minQty) ? f.minQty : QTY_MIN);
+                    return { ...f, maxQty: newMax };
+                  });
+                }}
+                className="range-slider__thumb"
+              />
             </div>
             </div>
-              </div>           
+            </div>
+            </div>           
             <button
               type="button"
               onClick={() => {
