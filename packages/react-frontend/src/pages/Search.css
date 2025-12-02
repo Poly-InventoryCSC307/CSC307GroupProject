@@ -154,8 +154,6 @@ section.hero {
   background: rgba(255, 255, 255, 0.16);
   border-radius: 12px;
   padding: 18px;
-  height: 100%;
-  align-self: stretch;
   gap: 12px;
   display: flex;
   flex-direction: column;
@@ -179,7 +177,7 @@ section.hero {
 }
 .filter-label{
   white-space: nowrap;
-  font-size: 14px;
+  font-size: 16px;
 }
 .filter-checkbox{
   display: flex;
