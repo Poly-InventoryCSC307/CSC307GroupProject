@@ -166,7 +166,7 @@ section.hero {
   color:aliceblue;
 }
 
-.filters-panel .price-input{
+.filters-panel .range-input{
   width: 80px;
   padding: 0px 2px;
   height: 30px;
@@ -228,22 +228,42 @@ section.hero {
 }
 .sort-body select{
   width: 100%;
-  height: 30px;
+  height: 34px;
   border-radius: 8px;
-  padding: 4px;
-  font-size: 13px;
-  border: 1px solid #ccc;
-  background: rgba(0, 63, 70, 0.16);
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.16);
   color: rgb(255, 255, 255);
+  cursor: pointer;
+  outline: none;
+
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
 }
 
-.sort-body select option{
-  background-color: rgba(52, 50, 50, 0.18);
-  color: white;
+.sort-body select:hover{
+  border-color: #cff7d3;
+  background: rgba(255, 255, 255, 0.25);
 }
-.sort-body select option:hover{
-  background-color: #cff7d3;
-  color: #608c88;
+
+/* .sort-body select:focus{
+  border-color: #cff7d3;
+} */
+
+.sort-body select option{
+  background-color: rgba(40,120,110,0.95);
+  padding: 8px;
+  color: white;
+  font-size: 14px;
+}
+.sort-body select option:hover, .sort-body select option:checked{
+  background: rgba(56, 210, 175, 0.7);
+  color: #003f34 !important;
 }
 .range-slider {
   position: relative;
@@ -302,5 +322,10 @@ section.hero {
   border: 1px solid rgba(0, 0, 0, 0.25);
   pointer-events: auto;
   cursor: pointer;
+}
+
+.sort-body select:hover{
+  border-color: #cff7d3;
+  background: rgba(255, 255, 255, 0.25);
 }
 

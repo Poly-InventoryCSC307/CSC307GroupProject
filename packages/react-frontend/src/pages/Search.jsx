@@ -11,6 +11,7 @@ import RemoveProductPopUp from "../components/RemoveProductPopUp.jsx";
 import ProductScreen from "./productPage.jsx"; // <-- add this import
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { set } from "mongoose";
 
 const PRICE_MIN = 0;
 const PRICE_MAX = 1000;
@@ -151,11 +152,12 @@ function Search({
   //starter filters
   const [filters, setFilters] = useState({
     inStockOnly: false,
-    priceMin: PRICE_MIN,
-    priceMax: PRICE_MAX,
+    priceMin: Infinity,
+    priceMax: Infinity,
     minQty: Infinity,
     maxQty: Infinity
   });
+
   const priceMinVal = Number.isFinite(filters.priceMin) ? filters.priceMin : PRICE_MIN;
   const priceMaxVal = Number.isFinite(filters.priceMax) ? filters.priceMax : PRICE_MAX;
   const priceMinPercent = ((priceMinVal - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
@@ -167,16 +169,23 @@ function Search({
   const qtyMinPercent = ((qtyMinVal - QTY_MIN) / (QTY_MAX - QTY_MIN)) * 100;
   const qtyMaxPercent = ((qtyMaxVal - QTY_MIN) / (QTY_MAX - QTY_MIN)) * 100;
 
+  const [priceMinInput, setPriceMinInput] = useState("");
+  const [priceMaxInput, setPriceMaxInput] = useState("");
+  const [qtyMaxInput, setQtyMaxInput] = useState("");
+  const [qtyMinInput, setQtyMinInput] = useState("");
+
+  useEffect(() => {
+    setPriceMinInput(Number.isFinite(filters.priceMin) ? String(filters.priceMin) : "");
+    setPriceMaxInput(Number.isFinite(filters.priceMax) ? String(filters.priceMax) : "");
+    setQtyMinInput(Number.isFinite(filters.minQty) ? String(filters.minQty) : "");
+    setQtyMaxInput(Number.isFinite(filters.maxQty) ? String(filters.maxQty) : "");
+  }, [filters.priceMin, filters.priceMax, filters.minQty, filters.maxQty]);
+
   const filtered = useMemo(() => {
     const q = term.trim().toLowerCase();
     const withBoth = applyOverrides(productsData ?? []);
     const bySearch = !q ? withBoth: withBoth.filter((p) => [p.name, p.SKU].some((v) => String(v || "").toLowerCase().includes(q)));
-    // if (!q) return withBoth;
-    // return withBoth.filter((p) =>
-    //   [p.name, p.SKU].some((v) => 
-    //     String(v || "").toLowerCase().includes(q)
-    //   )
-    // );
+    
     return bySearch.filter((p) => {
       if(filters.inStockOnly && (Number(p.quantity ?? p.total_quantity ?? 0) <= 0)) {
         return false;
@@ -302,6 +311,7 @@ function Search({
         {/* GRID */}
         <div className="content-wrap">
           <aside className="filters-panel">
+
             {/* adding sort by to the filters column, dropdown */}
              <div className="sort-body">
               <label htmlFor="sortSelect">Sort By</label>
@@ -336,33 +346,42 @@ function Search({
                   <input
                     type="number"
                     placeholder = "Min Price"
-                    className="price-input"
-                    value = {Number.isFinite(filters.priceMin) ? filters.priceMin : ""}
+                    className="range-input"
+                    value = {priceMinInput}
                     onChange={(e) => {
                       const raw = e.target.value;
+                      setPriceMinInput(raw);
                       if (raw === "") {
-                        setFilters((f) => ({ ...f, priceMin: PRICE_MIN }));
+                        setFilters((f) => ({ ...f, priceMin: Infinity}));
                         return;
                       }
                       const val = Number(raw);
-                      setFilters((f) => ({ ...f, priceMin: Math.min(val, Number.isFinite(f.priceMax) ? f.priceMax : PRICE_MAX),
-                      }));
-                    }}
+                      if (Number.isNaN(val)) return;
+                      setFilters((f) => {
+                        const clamped = Math.max(PRICE_MIN, Math.min(val, PRICE_MAX));
+                        return {...f, priceMin: clamped};
+                    });
+                  }}
                     />
                     <input
                     type="number"
                     placeholder = "Max Price"
-                    className="price-input"
-                    value = {Number.isFinite(filters.priceMax) ? filters.priceMax: ""}
+                    className="range-input"
+                    value = {priceMaxInput}
                     onChange={(e) => {
                       const raw = e.target.value;
+                      setPriceMaxInput(raw);
                       if (raw === "") {
-                        setFilters((f) => ({ ...f, priceMax: PRICE_MAX }));
+                        setFilters((f) => ({ ...f, priceMax: Infinity }));
                         return;
                       }
                       const val = Number(raw);
-                      setFilters((f) => ({ ...f, priceMax: Math.max(val, Number.isFinite(f.priceMin) ? f.priceMin : PRICE_MIN),
-                      }));
+                      if( Number.isNaN(val)) return;
+
+                      setFilters((f) => {
+                        const clamped = Math.min(PRICE_MAX, Math.min(val, PRICE_MAX));
+                        return { ...f, priceMax: clamped };
+                      });
                     }}
                     />
                     </div>
@@ -383,7 +402,7 @@ function Search({
                     onChange={(e) => {
                       const val = Number(e.target.value);
                       setFilters((f) => {
-                        const newMin = Math.min(val, Number.isFinite(f.priceMax) ? f.priceMax : PRICE_MAX);
+                        const newMin = Math.max(PRICE_MIN, Math.min(val, f.priceMax ?? PRICE_MAX));
                         return { ...f, priceMin: newMin };
                       });
                     }}
@@ -397,7 +416,7 @@ function Search({
                     onChange={(e) => {
                       const val = Number(e.target.value);
                       setFilters((f) => {
-                        const newMax = Math.max(val, Number.isFinite(f.priceMin) ? f.priceMin : 0);
+                        const newMax = Math.min(PRICE_MAX, Math.max(val, f.priceMin ?? PRICE_MIN));
                         return { ...f, priceMax: newMax };
                       });
                     }}
@@ -415,34 +434,45 @@ function Search({
                   <input
                     type="number"
                     placeholder = "Min Qty"
-                    className="price-input"
-                    value = {Number.isFinite(filters.minQty) ? filters.minQty : ""}
+                    className="range-input"
+                    value = {qtyMinInput}
                     onChange={(e) => {
                       const raw = e.target.value;
+                      setQtyMinInput(raw);
                       if (raw === "") {
-                        setFilters((f) => ({ ...f, minQty: QTY_MIN }));
+                        setFilters((f) => ({ ...f, minQty: Infinity }));
                         return;
                       }
                       const val = Number(raw);
-                      setFilters((f) => ({ ...f, minQty: Math.min(val, Number.isFinite(f.maxQty) ? f.maxQty : QTY_MAX),
-                      }));
+                      if (Number.isNaN(val)) return;
+                      setFilters((f) => {
+                        const clamped = Math.max(QTY_MIN, Math.min(val, QTY_MAX));
+                        return {...f, minQty: clamped};
+                      });
                     }}
                   />
                   <input
                     type="number"
                     placeholder = "Max Qty"
-                    className="price-input"
-                    value = {Number.isFinite(filters.maxQty) ? filters.maxQty: ""}
+                    className="range-input"
+                    value = {qtyMaxInput}
                     onChange={(e) => {
                       const raw = e.target.value;
+                      setQtyMaxInput(raw);
+
                       if (raw === "") {
-                        setFilters((f) => ({ ...f, maxQty: QTY_MAX }));
+                        setFilters((f) => ({ ...f, maxQty: Infinity }));
                         return;
                       }
+
                       const val = Number(raw);
-                      setFilters((f) => ({ ...f, maxQty: Math.max(val, Number.isFinite(f.minQty) ? f.minQty : QTY_MIN),
-                      }));
+                      if( Number.isNaN(val)) return;
+                      setFilters((f) => {
+                        const clamped = Math.max(QTY_MIN, Math.min(val, QTY_MAX));
+                        return { ...f, maxQty: clamped};
+                      });
                     }}
+                  
                   />
                 </div>
                 <div className="range-slider">
@@ -463,7 +493,7 @@ function Search({
                 onChange={(e) => {
                   const val = Number(e.target.value);
                   setFilters((f) => {
-                    const newMin = Math.min(val, Number.isFinite(f.maxQty) ? f.maxQty : QTY_MAX);
+                    const newMin = Math.max(QTY_MIN, Math.min(val, f.maxQty ?? QTY_MAX));
                     return { ...f, minQty: newMin };
                   });
                 }}
@@ -478,7 +508,7 @@ function Search({
                 onChange={(e) => {
                   const val = Number(e.target.value);
                   setFilters((f) => {
-                    const newMax = Math.max(val, Number.isFinite(f.minQty) ? f.minQty : QTY_MIN);
+                    const newMax = Math.min(QTY_MAX, Math.max(val, f.minQty ?? QTY_MIN));
                     return { ...f, maxQty: newMax };
                   });
                 }}
