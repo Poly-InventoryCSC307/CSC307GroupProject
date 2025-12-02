@@ -69,29 +69,25 @@
   margin-top: 12px; 
   gap: 25px;
 }
-.btn-update-quantity,
-.btn-edit-price,
+.btn-edit-product,
 .btn-order {
-  height: 50%;
-  width: 30%;
+  height: 70%;
+  width: 100%;
   border: 1px solid #0f5132;
   background: #2e7d68;
-  color: #fff; font-weight: 700; font-size: larger;
+  color: #fff; font-weight: 700; font-size:x-large;
   padding: 8px 16px; border-radius: 8px; cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.btn-update-quantity:hover,
-.btn-edit-price:hover,
+.btn-edit-product:hover,
 .btn-order:hover {
   background-color: #cff7d3;
   color: #26a69a;
 }
 
-.btn-update-quantity:focus,
-.btn-update-quantity:active,
-.btn-edit-price:focus,
-.btn-edit-price:active,
+.btn-edit-product:focus,
+.btn-edit-product:active,
 .btn-order:focus,
 .btn-order:active {
   outline: none;

@@ -35,7 +35,6 @@ app.post("/stores", (req, res) => {
     });
 });
 
-
 // Get the data for new store
 app.get("/stores/by-user/:uid", (req, res) => {
   const { uid } = req.params;
@@ -246,6 +245,41 @@ app.patch("/inventory/:storeId/products", (req, res) => {
       res.status(500).json({ error: err?.message || "Failed to update price" });
     });
 });
+
+// Update the product with new edits
+app.patch("/inventory/:storeId/products/:sku", (req, res) => {
+  const { storeId, sku } = req.params;
+  const updates = req.body || {};
+
+  console.log("PATCH /inventory/:storeId/products/:sku", {
+    storeId,
+    sku,
+    updates,
+  });
+
+  inventoryServices
+    .updateProductBySKU(storeId, sku, updates)
+    .then((p) => {
+      if (!p) return res.status(404).json({ error: "Product not found" });
+      // send the full updated product or a subset
+      res.json({
+        SKU: p.SKU,
+        name: p.name,
+        price: p.price,
+        total_quantity: p.total_quantity,
+        quantity_on_floor: p.quantity_on_floor,
+        quantity_in_back: p.quantity_in_back,
+        incoming_quantity: p.incoming_quantity,
+        description: p.description,
+        product_photo: p.product_photo,
+      });
+    })
+    .catch((err) => {
+      console.error("Update product failed:", err);
+      res.status(500).json({ error: "Failed to update product" });
+    });
+});
+
 
 // Used to increase or decrease the quantity of a given product 
 app.patch("/inventory/:storeId/products/:sku/quantity", (req, res) => {

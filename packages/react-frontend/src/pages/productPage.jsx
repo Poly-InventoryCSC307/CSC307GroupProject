@@ -1,60 +1,107 @@
 import "./productPage.css"
-import EditPricePopUp from "../components/EditPricePopUp";
-import UpdateQuantityPopUp from "../components/UpdateQuantityPopUp";
-import React, {useEffect, useMemo, useState} from "react";
+
+import EditProductPopUp from "../components/EditProductPopUp";
+
+import React, {useEffect, useMemo, useRef, useState} from "react";
 
 export default function ProductScreen({ 
   initialProduct = null, 
+  baseSKU, 
   overlay = false,
   storeID,           
-  onPriceUpdated,
-  onQuantUpdated,
   onClose,
+  onProductUpdated,
 }) {
 
   const [product, setProduct] = useState(() => initialProduct || {});
 
-  // state for the edit-price modal
+  const originalSkuRef = useRef(initialProduct?.SKU || "");
+
+  // state for the Edit Product modal
   const [openEP, setOpenEP] = useState(false);
   const [submittingEP, setSubmittingEP] = useState(false);
 
-  // close the "Edit Price" dialog safely
+  // close the "Edit Product" dialog safely
   const handleCloseEP = () => { if (!submittingEP) setOpenEP(false); };
-
-  const handleSubmitEP = async ({price}) => {
+  const handleSubmitEP = async (payload) => {
     try {
       setSubmittingEP(true);
 
-      const newPrice = Number(price ?? 0);
+      const oldSkuForDB = String(product?.SKU || "").trim();      
+      if (!oldSkuForDB) throw new Error("Missing SKU for this product.");
 
-      if (newPrice < 0){
-        throw new Error(`New Price is less than 0`);
+      const originalSku = originalSkuRef.current || oldSkuForDB;
+
+      const newName = payload.name.trim();
+      const newSku = payload.SKU.trim();
+      const newPrice = Number(payload.price ?? 0);
+      const newQty = Number(payload.quantity ?? 0);
+      const newDesc = payload.description.trim();
+
+      if (!newName) throw new Error("Product name is required.");
+      if (!newSku) throw new Error("SKU is required.");
+      if (!Number.isFinite(newPrice) || newPrice < 0) {
+        throw new Error("Price must be a non-negative number.");
+      }
+      if (!Number.isInteger(newQty) || newQty < 0) {
+        throw new Error("Quantity must be an integer ≥ 0.");
       }
 
-      const sku = String(product?.SKU || "").trim();
-      if (!sku) throw new Error("Missing SKU for this product.");
+      const updates = {
+        name: newName,
+        SKU: newSku,
+        description: newDesc,
+        price: newPrice,
+        total_quantity: newQty,
+        quantity_on_floor: Number(product?.quantity_on_floor ?? 0),
+        quantity_in_back: Number(product?.quantity_in_back ?? 0),
+        incoming_quantity: Number(product?.incoming_quantity ?? 0),
+      };
 
+      
       const res = await fetch(
-        `http://localhost:8000/inventory/${storeID}/products`,
+        `http://localhost:8000/inventory/${storeID}/products/${encodeURIComponent(
+          oldSkuForDB
+        )}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            SKU: sku,
-            price: Number(price),
-          }),
+          body: JSON.stringify(updates),
         }
       );
 
-      let data; try { data = await res.json(); } catch { data = {}; }
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
+      }
+
       if (!res.ok) {
-        const msg = data?.message || data?.error || `Request failed with status ${res.status}`;
+        const msg =
+          data?.message ||
+          data?.error ||
+          `Update failed with status ${res.status}`;
         throw new Error(msg);
       }
 
-      setProduct((p) => ({ ...p, price: newPrice }));
+      // data is the updated product from backend.js
+      const saved = data;
 
-      onPriceUpdated?.(sku, newPrice);
+      // update local overlay product
+      setProduct((prev) => ({
+        ...prev,
+        ...saved,
+        quantity: saved.total_quantity ?? newQty,
+      }));
+
+      onProductUpdated?.(baseSKU ?? product.SKU, {
+        name: saved.name,
+        SKU: saved.SKU,
+        price: saved.price,
+        total_quantity: saved.total_quantity,
+        description: saved.description,
+      });
 
       setOpenEP(false);
     } catch (e) {
@@ -64,74 +111,16 @@ export default function ProductScreen({
     }
   };
 
-  // state for the update-quantity modal
-  const [openUQ, setOpenUQ] = useState(false);
-  const [submittingUQ, setSubmittingUQ] = useState(false);
-
-  // close the "Update Quantity" dialog safely
-  const handleCloseUQ = () => { if (!submittingUQ) setOpenUQ(false); };
-
-  const handleSubmitUQ = async ({ delta }) => {
-    try {
-      setSubmittingUQ(true);
-
-      const sku = String(product?.SKU || "").trim();
-      if (!sku) throw new Error("Missing SKU for this product.");
-
-      const prevTotal = Number(product?.total_quantity ?? product?.quantity ?? 0);
-      const change = Number(delta);
-      const nextTotal = prevTotal + change;
-
-      if (!Number.isInteger(change)) {
-        throw new Error("Please enter a integer value")
-      }
-
-      if (!Number.isFinite(change) || change === 0) {
-        throw new Error("Please enter a non-zero numeric value.");
-      }
-
-      if (nextTotal < 0){
-        throw new Error(`Quantity Below Zero: Try -${prevTotal} or more`);
-      }
-
-      const res = await fetch(
-        `http://localhost:8000/inventory/${storeID}/products/${encodeURIComponent(sku)}/quantity`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            delta: Number(delta),
-          }),
-        }
-      );
-
-      let data; try { data = await res.json(); } catch { data = {}; }
-      if (!res.ok) {
-        const msg = data?.message || data?.error || `Request failed with status ${res.status}`;
-        throw new Error(msg);
-      }
-
-      setProduct((p) => ({ ...p, quantity: nextTotal, total_quantity: nextTotal }));
-      onQuantUpdated?.(sku, nextTotal);
-
-      setOpenUQ(false);
-    } catch (e) {
-      alert(`Failed to save product (ProductPage): ${e.message}`);
-    } finally {
-      setSubmittingUQ(false);
-    }
-  };
-
   useEffect(() => {
     if (!overlay) return;
     const onKey = (e) => {
       if (e.key !== "Escape") return;
-      if (openEP || openUQ) return;     // If the edit or update is open 
+      if (openEP) return;     // If the edit or update is open 
       onClose?.();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, onClose, openEP, openUQ]);  
+  }, [overlay, onClose, openEP]);  
 
   const name = product?.name || "—";
   const sku = product?.SKU || "—";
@@ -178,18 +167,20 @@ export default function ProductScreen({
 
             <div className="p-actions">
               <button className="btn-order">Order</button>
-              <button className="btn-edit-price" onClick={() => setOpenEP(true)}>
-                Edit Price
-              </button>
-              <button className="btn-update-quantity" onClick={() => setOpenUQ(true)}>
-                Update Quantity
+              <button className="btn-edit-product" onClick={() => setOpenEP(true)}>
+                Edit Product
               </button>
             </div>
           </aside>
         </div>
 
-        <EditPricePopUp open={openEP} onClose={handleCloseEP} onSubmit={handleSubmitEP} isSubmitting={submittingEP} />
-        <UpdateQuantityPopUp open={openUQ} onClose={handleCloseUQ} onSubmit={handleSubmitUQ} isSubmitting={submittingUQ} />
+        <EditProductPopUp
+          open={openEP}
+          onClose={handleCloseEP}
+          onSubmit={handleSubmitEP}
+          isSubmitting={submittingEP}
+          initialProduct={product}
+        />
 
         {/* Bottom: description */}
         <section className="p-modal__desc">

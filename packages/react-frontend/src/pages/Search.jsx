@@ -16,7 +16,7 @@ function Search({
   productsData, 
   onProductAdded, 
   onProductRemoved, 
-  storeID ,           // "690aaa9be73854e0640a1927"
+  storeID ,           
 }) {
   const [term, setTerm] = useState("");
 
@@ -37,15 +37,32 @@ function Search({
   // state for the product overlay
   const [selected, setSelected] = useState(null);
 
-  // update the price and quantity
-  const [priceOverrides, setPriceOverrides] = useState({});
-  const [quantOverrides, setQuanOverrides] = useState({});
+  // update the main search grid with any new changes 
+  const [overrides, setOverrides] = useState({});
+
   const applyOverrides = (list) =>
-    (list ?? []).map(p => ({
-      ...p,
-      ...(priceOverrides[p.SKU] != null ? { price: priceOverrides[p.SKU] } : null),
-      ...(quantOverrides[p.SKU] != null ? { quantity: quantOverrides[p.SKU] } : null),
+    (list ?? []).map((p) => {
+      const base = p._baseSKU ?? p.SKU;     // pick stable key
+      const ov = overrides[base];
+      // always keep _baseSKU on the object
+      return ov ? { ...p, ...ov, _baseSKU: base } : { ...p, _baseSKU: base };
+    });
+
+  const handleProductUpdated = (originalSku, patch) => {
+    // update the product in the overlay
+    setSelected((prev) => {
+      if (!prev) return prev;
+      const base = prev._baseSKU ?? prev.SKU;
+      if (base !== originalSku) return prev;
+      return { ...prev, ...patch, _baseSKU: base };
+    });
+
+    // update the overrides used by the grid
+    setOverrides((prev) => ({
+      ...prev,
+      [originalSku]: { ...(prev[originalSku] || {}), ...patch },
     }));
+  };
 
   // lock page scroll when overlay is open
   useEffect(() => {
@@ -150,11 +167,16 @@ function Search({
   });
   const [sortBy, setSortBy] = useState("name-asc");
 
-
   const filtered = useMemo(() => {
     const q = term.trim().toLowerCase();
-    const withBoth = applyOverrides(productsData ?? []);
-    const bySearch = !q ? withBoth: withBoth.filter((p) => [p.name, p.SKU].some((v) => String(v || "").toLowerCase().includes(q)));
+    const withAll = applyOverrides(productsData ?? []);
+    const bySearch = !q 
+      ? withAll
+      : withAll.filter((p) => 
+        [p.name, p.SKU].some((v) => 
+          String(v || "").toLowerCase().includes(q)
+        )
+      );
     // if (!q) return withBoth;
     // return withBoth.filter((p) =>
     //   [p.name, p.SKU].some((v) => 
@@ -173,7 +195,7 @@ function Search({
       }
       return true;  
     });
-  }, [productsData, term, priceOverrides, quantOverrides, filters]);
+}, [productsData, term, filters, sortBy, overrides]);  
 
   const sorted = useMemo(() => {
     const sortedList = [...filtered];
@@ -352,7 +374,12 @@ function Search({
                 <button
                   key={p.SKU}
                   className="product-card-button"
-                  onClick={() => setSelected(p)}
+                  onClick={() => 
+                    setSelected({
+                      ...p,
+                      _baseSKU: p._baseSKU ?? p.SKU,   // remember the original SKU
+                    })
+                  }
                   aria-label={`Open ${p.name}`}
                   title={`Open ${p.name}`}
                 >
@@ -363,7 +390,7 @@ function Search({
             {/* sentinel for infinite scroll */}
             {visible < filtered.length && <div ref={loaderRef} className="grid-sentinel" />}
           </div>
-          </div>
+        </div>
 
         <AddProductPopUp open={openAdd} onClose={handleCloseAdd} onSubmit={handleSubmitAdd} isSubmitting={submittingAdd} />
 
@@ -441,24 +468,11 @@ function Search({
                 <div className={`p-modal ${overlayClosing ? "closing" : ""}`}>
                   <ProductScreen
                     initialProduct={selected}
+                    baseSKU={selected?._baseSKU ?? selected?.SKU}
                     overlay
+                    storeID={storeID}
                     onClose={closeOverlay}
-                    onPriceUpdated={(sku, newPrice) => {
-                      // Update overlay immediately
-                      setSelected((prev) =>
-                        prev && prev.SKU === sku ? { ...prev, price: newPrice } : prev
-                      );
-                      // Update product grid too
-                      setPriceOverrides((prev) => ({ ...prev, [sku]: newPrice }));
-                    }}
-                    onQuantUpdated={(sku, newQuantity) => {
-                      // Update overlay immediately
-                      setSelected((prev) =>
-                        prev && prev.SKU === sku ? { ...prev, quantity: newQuantity } : prev
-                      );
-                      // Update product grid too
-                      setQuanOverrides((prev) => ({ ...prev, [sku]: newQuantity }));
-                    }}
+                    onProductUpdated={handleProductUpdated}
                   />
                 </div>
               </div>
