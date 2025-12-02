@@ -173,14 +173,6 @@ section.hero {
   color:aliceblue;
 }
 
-.filters-panel h3{
-  margin: 2px 2px;
-  font-size: 16px;
-  margin-top: 12px;
-  color: aliceblue;
-  text-align: center;
-}
-
 .filters-panel .price-input{
   width: 80px;
   padding: 0px 2px;
@@ -191,10 +183,16 @@ section.hero {
   border: 1px solid #ccc;
   display: inline-block;
 }
+
+.filter-label{
+  white-space: nowrap;
+  font-size: 14px;
+}
+
 .filter-checkbox{
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: 5px;
   margin-top: 10px;
   color:aliceblue;
   white-space: nowrap;
@@ -254,4 +252,63 @@ section.hero {
 .sort-body select option:hover{
   background-color: #cff7d3;
   color: #608c88;
+}
+
+.range-slider {
+  position: relative;
+  height: 28px;
+  margin-top: 10px;
+}
+
+.range-slider__track,
+.range-slider__range {
+  position: absolute;
+  height: 4px;
+  border-radius: 999px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.range-slider__track {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.range-slider__range {
+  background: #cff7d3;
+}
+
+.range-slider__thumb {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  background: none;
+  pointer-events: none;              
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.range-slider__thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  pointer-events: auto;              
+  cursor: pointer;
+}
+
+.range-slider__thumb::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  pointer-events: auto;
+  cursor: pointer;
 }
