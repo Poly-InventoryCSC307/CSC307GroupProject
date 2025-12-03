@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import logo from "../assets/logo.svg";
 import logoutIcon from "../assets/logout-button.svg";
 import searchIcon from "../assets/search-button.svg";
 import "./Navbar_search.css";
+
+import LogOutPopUp from "../components/LogOutPopUp";
 
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase/firebase";
@@ -13,14 +15,32 @@ export default function NavbarSearch({
   storeName = "",
   storeLocation = null,
 }) {
-  const handleLogout = () => {
-    signOut(auth)
-      .then(() => {
-        console.log("User signed out");
-      })
-      .catch((error) => {
-        console.error("Logout error:", error);
-      });
+
+  // state for the logout-popup modal
+  const [openLogout, setOpenLogout] = useState(false);
+  const [submittingLogout, setSubmittingLogout] = useState(false);
+  
+  const handleOpenLogout = () => {
+    if (!submittingLogout) setOpenLogout(true);
+  };
+
+  // close the "Confirm Logout Popup" dialog safely
+  const handleCloseLogout = () => { 
+    if (!submittingLogout) setOpenLogout(false); 
+  };
+
+  const handleConfirmLogout = async () => {
+    try {
+      setSubmittingLogout(true);
+      await signOut(auth);
+      console.log("User signed out");
+    } catch (error) {
+      console.error("Logout error:", error);
+      alert("Failed to log out. Please try again.");
+    } finally {
+      setSubmittingLogout(false);
+      setOpenLogout(false);
+    }
   };
 
   return (
@@ -88,13 +108,22 @@ export default function NavbarSearch({
         )}
 
         {/* Logout wrapper */}
-        <div className="logout-wrap" onClick={handleLogout}>
+        <div className="logout-wrap" onClick={handleOpenLogout}>
           <img
             src={logoutIcon}
             alt="Logout"
             className="logout-product"
           />
         </div>
+
+        {/* Logout confirmation popup */}
+        <LogOutPopUp
+          open={openLogout}
+          onClose={handleCloseLogout}
+          onConfirm={handleConfirmLogout}
+          isSubmitting={submittingLogout}
+        />
+
       </div>
     </nav>
   );

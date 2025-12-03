@@ -76,7 +76,7 @@ function Search({
     return () => { document.body.style.overflow = ""; };
   }, [selected, openAdd, openRem]);
 
-  // submit handler (reuse existing POST; simplified here)
+  // submit handler (reuse existing POST)
   const handleSubmitAdd = async (payload) => {
     try {
       setSubmittingAdd(true);
@@ -182,8 +182,8 @@ function Search({
   // Trying to fix only limiting the price to 1000
   const priceMaxPercent = (PRICE_MAX === Infinity) ? 100 : ((priceMaxVal - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
 
-  // console.log(`Price Max: ${priceMaxVal}`);
-  // console.log(`Price Percent: ${priceMaxPercent}`);
+  console.log(`Price Max: ${priceMaxVal}`);
+  console.log(`Price Percent: ${priceMaxPercent}`);
   
   const [sortBy, setSortBy] = useState("name-asc");
 
@@ -194,7 +194,6 @@ function Search({
 
   // Trying to fix only limiting the quantity to 100
   const qtyMaxPercent = (QTY_MAX === Infinity) ? 100 : ((qtyMaxVal - QTY_MIN) / (QTY_MAX - QTY_MIN)) * 100;
-
 
   const withOverrides = useMemo(
     () => applyOverrides(productsData ?? []),

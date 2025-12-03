@@ -68,6 +68,7 @@ function EditProductPopUp({
 
   if (!show) return null;
 
+  // If you click outside the overlay, close it
   const handleOverlayClick = (e) => {
     if (e.target === overlayRef.current) onClose?.();
   };
@@ -171,6 +172,10 @@ function EditProductPopUp({
         </div>
 
         <footer className="modal-actions">
+          <button type="submit" className="btn primary" disabled={isSubmitting}>
+            {isSubmitting ? "Updating Product..." : "Update Product"}
+          </button>
+          
           <button
             type="button"
             className="btn ghost"
@@ -178,9 +183,6 @@ function EditProductPopUp({
             disabled={isSubmitting}
           >
             Cancel
-          </button>
-          <button type="submit" className="btn primary" disabled={isSubmitting}>
-            {isSubmitting ? "Updating Product..." : "Update Product"}
           </button>
         </footer>
       </form>
