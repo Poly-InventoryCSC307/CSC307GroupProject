@@ -1,0 +1,42 @@
+.signup-background {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(180deg, #26a69a 0%, #2e7d68 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  position: relative;
+}
+
+/* this just constrains width; visual style comes from .modal in PopUp.css */
+.signup-container {
+  max-width: 600px;
+  width: 100%;
+}
+
+/* header text inside the modal header */
+.signup-header {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+/* small description line under the header */
+.signup-info {
+  font-size: 0.95rem;
+  color: #0f0f0f;
+}
+
+/* form layout tweaks */
+.store-setup-form {
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* ensure inputs stretch full width inside fields */
+.store-setup-form input {
+  width: 100%;
+  box-sizing: border-box;
+}

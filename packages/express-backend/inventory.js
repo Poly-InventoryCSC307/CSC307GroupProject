@@ -7,7 +7,6 @@ const ProductSchema = new mongoose.Schema(
       total_quantity: { type: Number, required: true, min: 0, default: 0},
       quantity_on_floor: { type: Number, min: 0, default: 0 },
       quantity_in_back:  { type: Number, min: 0, default: 0 },
-      incoming_quantity: { type: Number, min: 0, default: 0 },        // Incoming products 
       product_photo: { type: String, required: true },
       price: { type: Number, min: 0, default: 0, required: true },
       description: {type: String, trim: true},

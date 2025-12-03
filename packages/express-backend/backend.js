@@ -1,4 +1,7 @@
-// backend.js
+import dotenv from "dotenv";
+dotenv.config();
+console.log("MONGODB_URI:", process.env.MONGODB_URI);
+
 import inventoryServices from "./inventory-services.js";
 import express from "express";
 import cors from "cors";
@@ -310,5 +313,6 @@ app.patch("/inventory/:storeId/products/:sku/quantity", (req, res) => {
 //   );
 // });
 app.listen(process.env.PORT || port, () => {
+  console.log("Running on port:", process.env.PORT || port);
   console.log("REST API is listening.");
 });

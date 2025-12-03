@@ -1,9 +1,13 @@
+// StoreSetup.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext/index"; 
 
+import "./StoreSetup.css";
+import "../components/PopUp.css";   
+
 export default function StoreSetup({ onStoreCreated }) {
-  const { currentUser } = useAuth();        // Get the loggged in user ID
+  const { currentUser } = useAuth();        // Get the logged in user ID
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
@@ -63,69 +67,86 @@ export default function StoreSetup({ onStoreCreated }) {
   };
 
   return (
-    <div className="store-setup-page">
-      <h1>Set up your store</h1>
-      <p>Tell us about your location so we can store your inventory.</p>
+    <section className="signup-background">
+      {/* reuse popup "modal" styling for the card */}
+      <div className="signup-container modal">
+        <header className="modal-header">
+          <h3 className="signup-header">Set up your store</h3>
+        </header>
 
-      <form className="store-setup-form" onSubmit={handleSubmit}>
-        <label>
-          Store name
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            required
-          />
-        </label>
+        <form className="store-setup-form modal-content" onSubmit={handleSubmit}>
+          <div className="signup-info">
+            Tell us about your location so we can store your inventory.
+          </div>
 
-        <label>
-          Street
-          <input
-            name="street"
-            value={form.street}
-            onChange={handleChange}
-            required
-          />
-        </label>
-
-        <label>
-          City
-          <input
-            name="city"
-            value={form.city}
-            onChange={handleChange}
-            required
-          />
-        </label>
-
-        <div className="store-setup-row">
-          <label>
-            State
+          <div className="field">
+            <label htmlFor="name">Store name</label>
             <input
+              id="name"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="field">
+            <label htmlFor="street">Street</label>
+            <input
+              id="street"
+              name="street"
+              value={form.street}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="field">
+            <label htmlFor="city">City</label>
+            <input
+              id="city"
+              name="city"
+              value={form.city}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="field">
+            <label htmlFor="state">State</label>
+            <input
+              id="state"
               name="state"
               value={form.state}
               onChange={handleChange}
               required
             />
-          </label>
+          </div>
 
-          <label>
-            ZIP
+          <div className="field">
+            <label htmlFor="zip">ZIP</label>
             <input
+              id="zip"
               name="zip"
               value={form.zip}
               onChange={handleChange}
               required
             />
-          </label>
-        </div>
+          </div>
 
-        {error && <p className="error">{error}</p>}
+          {error && <p className="error">{error}</p>}
 
-        <button type="submit" disabled={submitting}>
-          {submitting ? "Saving..." : "Create store"}
-        </button>
-      </form>
-    </div>
+          <footer className="modal-actions">
+            <button
+              className="btn primary"
+              type="submit"
+              disabled={submitting}
+            >
+              {submitting ? "Saving..." : "Create store"}
+            </button>
+          </footer>
+        </form>
+      </div>
+    </section>
   );
 }

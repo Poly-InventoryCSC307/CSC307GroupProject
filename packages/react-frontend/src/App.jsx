@@ -42,6 +42,17 @@ function App() {
       return;
     }
 
+    // Logged in but not verified: dont auto-redirect
+    if (!currentUser.emailVerified) {
+      if (
+        location.pathname === "/products" ||
+        location.pathname === "/store-setup"
+      ) {
+        navigate("/");
+      }
+      return;
+    }
+
     // Logged in: check if this user already has a store
     (async () => {
       try {
@@ -50,7 +61,7 @@ function App() {
         );
 
         if (res.status === 404) {
-          // no store yet → first-time setup
+          // no store yet, first-time setup
           setStore(null);
           setStoreChecked(true);
           if (location.pathname !== "/store-setup") {
@@ -94,8 +105,6 @@ function App() {
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
 
-        // whatever shape your backend uses; assuming:
-        // { products: [...] } OR just [ ... ]
         const list = Array.isArray(data) ? data : data.products || [];
         setProducts(list);
       } catch (err) {
@@ -123,6 +132,7 @@ function App() {
 
   // Decide which navbar to render
   const isProductRoute = location.pathname === "/products";
+  const isStoreSetupRoute = location.pathname === "/store-setup";
 
   const storeLocation = store?.location || null;
 
@@ -131,7 +141,7 @@ function App() {
 
   return (
     <>
-      {isProductRoute ? (
+      {(isProductRoute || isStoreSetupRoute) ? (
         <NavbarSearch
           userName={userName}
           storeName={store?.name || ""}

@@ -166,7 +166,6 @@ export default function ProductScreen({
             <div className="p-row"><span className="p-label">Price:</span><span className="p-val">${priceNum.toFixed(2)}</span></div>
 
             <div className="p-actions">
-              <button className="btn-order">Order</button>
               <button className="btn-edit-product" onClick={() => setOpenEP(true)}>
                 Edit Product
               </button>

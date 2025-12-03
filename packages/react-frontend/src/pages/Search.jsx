@@ -170,28 +170,43 @@ function Search({
     inStockOnly: false,
     priceMin: PRICE_MIN,
     priceMax: PRICE_MAX,
-    minQty: Infinity,
-    maxQty: Infinity
+    minQty: QTY_MIN,
+    maxQty: QTY_MAX,
   });
+
   const priceMinVal = Number.isFinite(filters.priceMin) ? filters.priceMin : PRICE_MIN;
   const priceMaxVal = Number.isFinite(filters.priceMax) ? filters.priceMax : PRICE_MAX;
   const priceMinPercent = ((priceMinVal - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
-  const priceMaxPercent = ((priceMaxVal - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
+  // const priceMaxPercent = ((priceMaxVal - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
+
+  // Trying to fix only limiting the price to 1000
+  const priceMaxPercent = (PRICE_MAX === Infinity) ? 100 : ((priceMaxVal - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
+
+  // console.log(`Price Max: ${priceMaxVal}`);
+  // console.log(`Price Percent: ${priceMaxPercent}`);
   
   const [sortBy, setSortBy] = useState("name-asc");
 
   const qtyMinVal = Number.isFinite(filters.minQty) ? filters.minQty : QTY_MIN;
   const qtyMaxVal = Number.isFinite(filters.maxQty) ? filters.maxQty : QTY_MAX;
   const qtyMinPercent = ((qtyMinVal - QTY_MIN) / (QTY_MAX - QTY_MIN)) * 100;
-  const qtyMaxPercent = ((qtyMaxVal - QTY_MIN) / (QTY_MAX - QTY_MIN)) * 100;
+  // const qtyMaxPercent = ((qtyMaxVal - QTY_MIN) / (QTY_MAX - QTY_MIN)) * 100;
+
+  // Trying to fix only limiting the quantity to 100
+  const qtyMaxPercent = (QTY_MAX === Infinity) ? 100 : ((qtyMaxVal - QTY_MIN) / (QTY_MAX - QTY_MIN)) * 100;
+
+
+  const withOverrides = useMemo(
+    () => applyOverrides(productsData ?? []),
+    [productsData, overrides]
+  );
 
   // Removes products that don't fit with the given filters 
   const filtered = useMemo(() => {
     const q = term.trim().toLowerCase();
-    const withAll = applyOverrides(productsData ?? []);
     const bySearch = !q 
-      ? withAll
-      : withAll.filter((p) => 
+      ? withOverrides
+      : withOverrides.filter((p) => 
         [p.name, p.SKU].some((v) => 
           String(v || "").toLowerCase().includes(q)
         )
@@ -216,7 +231,7 @@ function Search({
 
       return true;  
     });
-}, [productsData, term, filters, sortBy, overrides]);  
+}, [withOverrides, term, filters]);  
 
   // Sorts the products cards based on the given filters
   const sorted = useMemo(() => {
@@ -517,7 +532,9 @@ function Search({
                 setFilters({
                   inStockOnly: false, 
                   priceMin: Infinity, 
-                  priceMax: Infinity
+                  priceMax: Infinity,
+                  minQty: QTY_MIN,
+                  maxQty: QTY_MAX,
               });
               setSortBy("name-asc");
             }
