@@ -10,6 +10,7 @@ mongoose
   .then(() => console.log("Connected to MongoDB Atlas"))
   .catch((error) => console.log(error));
 
+// Get the inventory for the backend page 
 function getInventory(SKU, name){
     let promise;
     if (name === undefined && SKU === undefined){
@@ -24,26 +25,62 @@ function getInventory(SKU, name){
     return promise;
 }
 
-// function getStoreName(storeId){
-//     return inventoryModel.findOne(
-//         { _id: storeId},
-//         {name: 1, _id: 0}
-//     );
-// }
-
-// function getStoreLocation(storeId){
-//     return inventoryModel.findOne(
-//         { _id: storeId},
-//         {location: 1, _id: 0}
-//     );
-// }
-
 function getStoreData(storeId){
     return inventoryModel
     .findOne(
       { _id: storeId },
-      { name: 1, location: 1, _id: 0 }   // IMPORTANT: include fields you need
+      { name: 1, location: 1, _id: 0 }   
     )
+}
+
+function getStoreByUserUid(uid) {
+  const cleanUid = String(uid || "").trim();
+  if (!cleanUid) return Promise.resolve(null);
+
+  return inventoryModel
+    .findOne({ owner_uid: cleanUid })
+    .lean()
+    .exec();
+}
+
+// Create a store for a Firebase UID (if not already present)
+function createStoreForUser(uid, name, location) {
+  const cleanUid = String(uid || "").trim();
+  const cleanName = String(name || "").trim();
+
+  if (!cleanUid || !cleanName) {
+    return Promise.reject(
+      new Error("Both uid and name are required to create a store")
+    );
+  }
+
+  // Normalize location into [ { street, city, state, zip } ]
+  const locObject =
+    location && typeof location === "object"
+        ? {
+          street: location.street || "",
+          city: location.city || "",
+          state: location.state || "",
+          zip: location.zip || "",
+        }
+      : undefined;
+
+  return inventoryModel
+    .findOne({ owner_uid: cleanUid })
+    .then((existing) => {
+      if (existing) {
+        const err = new Error("Store already exists for this user");
+        err.code = "STORE_EXISTS";
+        throw err;
+      }
+
+      return inventoryModel.create({
+        owner_uid: cleanUid,
+        name: cleanName,
+        location: locObject,
+        inventory: [],
+      });
+    });
 }
 
 // Filter via a given product name
@@ -80,48 +117,100 @@ function findProductBySKU(storeID, SKU){
 // }
 
 // The user should press the button to update the quantity and based on the number increase for decrease the amount by that much. 
-function updateQuantityBy(storeID, SKU, delta){
-    const cleanSKU = String(SKU || "").trim();
-    const incBy = Number(delta) || 0;
-    
-    return inventoryModel
-        .findOneAndUpdate(
-            { _id: storeID, "inventory.SKU": cleanSKU },
-            { $inc: { "inventory.$.total_quantity": incBy } },
-            { new: true, }
-        )
-        .then((doc) => {
-            if (!doc || !doc.inventory) return null;
-            const p = doc.inventory.find((it) => it.SKU === cleanSKU);
-            return p ? { SKU: p.SKU, total_quantity: p.total_quantity } : null;
-        })
-        .catch((err) => {
-            console.log("Error updating quantity:", err);
-            throw err; // let backend send the real message
-        });
-}
 
-function updatePriceBySKU(storeID, SKU, newPrice) {
-  const cleanSKU = String(SKU || "").trim();
-  const priceNum = Number(newPrice);
+function updateProductBySKU(storeID, oldSKU, updates = {}) {
+  const cleanStoreId = String(storeID || "").trim();
+  const cleanOldSKU = String(oldSKU || "").trim();
+
+  if (!cleanStoreId) {
+    return Promise.reject(new Error("storeID is required"));
+  }
+  if (!cleanOldSKU) {
+    return Promise.reject(new Error("SKU is required"));
+  }
+
+  // Build $set only for fields actually provided
+  const setOps = {};
+
+  if (updates.name != null) {
+    setOps["inventory.$.name"] = String(updates.name).trim();
+  }
+
+  if (updates.SKU != null) {
+    setOps["inventory.$.SKU"] = String(updates.SKU).trim();
+  }
+
+  if (updates.description != null) {
+    setOps["inventory.$.description"] = String(updates.description).trim();
+  }
+
+  if (updates.product_photo != null) {
+    setOps["inventory.$.product_photo"] = String(
+      updates.product_photo
+    ).trim();
+  }
+
+  if (updates.price != null) {
+    setOps["inventory.$.price"] = Number(updates.price);
+  }
+
+  // allow total_quantity OR quantity alias
+  if (updates.total_quantity != null) {
+    setOps["inventory.$.total_quantity"] = Number(updates.total_quantity);
+  } else if (updates.quantity != null) {
+    setOps["inventory.$.total_quantity"] = Number(updates.quantity);
+  }
+
+  if (updates.quantity_on_floor != null) {
+    setOps["inventory.$.quantity_on_floor"] = Number(
+      updates.quantity_on_floor
+    );
+  }
+
+  if (updates.quantity_in_back != null) {
+    setOps["inventory.$.quantity_in_back"] = Number(
+      updates.quantity_in_back
+    );
+  }
+
+  if (updates.incoming_quantity != null) {
+    setOps["inventory.$.incoming_quantity"] = Number(
+      updates.incoming_quantity
+    );
+  }
+
+  if (Object.keys(setOps).length === 0) {
+    // nothing to update
+    return Promise.resolve(null);
+  }
 
   return inventoryModel
     .findOneAndUpdate(
-      { _id: storeID, "inventory.SKU": cleanSKU },
-      { $set: { "inventory.$[elem].price": priceNum } },
+      // use OLD SKU from params to match the product
+      { _id: cleanStoreId, "inventory.SKU": cleanOldSKU },
+      { $set: setOps },
       {
-        new: true,                          // return updated doc
-        arrayFilters: [{ "elem.SKU": cleanSKU }],
+        new: true,
+        runValidators: true,
       }
     )
     .then((doc) => {
       if (!doc || !doc.inventory) return null;
-      const p = doc.inventory.find((it) => it.SKU === cleanSKU);
-      return p ? { SKU: p.SKU, price: p.price } : null;
+
+      const newSku =
+        updates.SKU != null ? String(updates.SKU).trim() : null;
+      const finalSku = newSku || cleanOldSKU;
+
+      // try by new SKU first, then old SKU just in case
+      const p =
+        doc.inventory.find((it) => it.SKU === finalSku) ||
+        doc.inventory.find((it) => it.SKU === cleanOldSKU);
+
+      return p || null;
     })
     .catch((err) => {
-      console.log("Error updating price:", err);
-      throw err; // let backend send the real message
+      console.error("Error updating product:", err);
+      throw err;
     });
 }
 
@@ -157,14 +246,13 @@ function removeProductBySKU(storeID, SKU){
 export default{
     getInventory,
     getStoreData,
-    // getStoreName,
-    // getStoreLocation,
+    getStoreByUserUid,
+    createStoreForUser,
     findProductByName,
     findProductBySKU,
     // updateQuantityFloor,
     // updateQuantityBack,
     addProduct,
     removeProductBySKU,
-    updatePriceBySKU,
-    updateQuantityBy
+    updateProductBySKU,
 };

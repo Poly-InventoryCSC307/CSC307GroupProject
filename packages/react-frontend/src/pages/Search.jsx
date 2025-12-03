@@ -8,15 +8,21 @@ import ProductCard from "../components/ProductCard";
 import AddProductPopUp from "../components/AddProductPopUp";
 import RemoveProductPopUp from "../components/RemoveProductPopUp.jsx";
 
-import ProductScreen from "./productPage.jsx"; // <-- add this import
+import ProductScreen from "./productPage.jsx"; 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+
+const PRICE_MIN = 0;
+const PRICE_MAX = Infinity;   // Subject to change
+
+const QTY_MIN = 0;
+const QTY_MAX = Infinity;     // Subject to change
 
 function Search({ 
   productsData, 
   onProductAdded, 
   onProductRemoved, 
-  storeID =  "690aaa9be73854e0640a1927", 
+  storeID ,           
 }) {
   const [term, setTerm] = useState("");
 
@@ -37,15 +43,32 @@ function Search({
   // state for the product overlay
   const [selected, setSelected] = useState(null);
 
-  // update the price and quantity
-  const [priceOverrides, setPriceOverrides] = useState({});
-  const [quantOverrides, setQuanOverrides] = useState({});
+  // update the main search grid with any new changes 
+  const [overrides, setOverrides] = useState({});
+
   const applyOverrides = (list) =>
-    (list ?? []).map(p => ({
-      ...p,
-      ...(priceOverrides[p.SKU] != null ? { price: priceOverrides[p.SKU] } : null),
-      ...(quantOverrides[p.SKU] != null ? { quantity: quantOverrides[p.SKU] } : null),
+    (list ?? []).map((p) => {
+      const base = p._baseSKU ?? p.SKU;     // pick stable key
+      const ov = overrides[base];
+      // always keep _baseSKU on the object
+      return ov ? { ...p, ...ov, _baseSKU: base } : { ...p, _baseSKU: base };
+    });
+
+  const handleProductUpdated = (originalSku, patch) => {
+    // update the product in the overlay
+    setSelected((prev) => {
+      if (!prev) return prev;
+      const base = prev._baseSKU ?? prev.SKU;
+      if (base !== originalSku) return prev;
+      return { ...prev, ...patch, _baseSKU: base };
+    });
+
+    // update the overrides used by the grid
+    setOverrides((prev) => ({
+      ...prev,
+      [originalSku]: { ...(prev[originalSku] || {}), ...patch },
     }));
+  };
 
   // lock page scroll when overlay is open
   useEffect(() => {
@@ -145,22 +168,50 @@ function Search({
   //starter filters
   const [filters, setFilters] = useState({
     inStockOnly: false,
-    priceMin: Infinity,
-    priceMax: Infinity
+    priceMin: PRICE_MIN,
+    priceMax: PRICE_MAX,
+    minQty: QTY_MIN,
+    maxQty: QTY_MAX,
   });
+
+  const priceMinVal = Number.isFinite(filters.priceMin) ? filters.priceMin : PRICE_MIN;
+  const priceMaxVal = Number.isFinite(filters.priceMax) ? filters.priceMax : PRICE_MAX;
+  const priceMinPercent = ((priceMinVal - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
+  // const priceMaxPercent = ((priceMaxVal - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
+
+  // Trying to fix only limiting the price to 1000
+  const priceMaxPercent = (PRICE_MAX === Infinity) ? 100 : ((priceMaxVal - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
+
+  // console.log(`Price Max: ${priceMaxVal}`);
+  // console.log(`Price Percent: ${priceMaxPercent}`);
+  
   const [sortBy, setSortBy] = useState("name-asc");
 
+  const qtyMinVal = Number.isFinite(filters.minQty) ? filters.minQty : QTY_MIN;
+  const qtyMaxVal = Number.isFinite(filters.maxQty) ? filters.maxQty : QTY_MAX;
+  const qtyMinPercent = ((qtyMinVal - QTY_MIN) / (QTY_MAX - QTY_MIN)) * 100;
+  // const qtyMaxPercent = ((qtyMaxVal - QTY_MIN) / (QTY_MAX - QTY_MIN)) * 100;
 
+  // Trying to fix only limiting the quantity to 100
+  const qtyMaxPercent = (QTY_MAX === Infinity) ? 100 : ((qtyMaxVal - QTY_MIN) / (QTY_MAX - QTY_MIN)) * 100;
+
+
+  const withOverrides = useMemo(
+    () => applyOverrides(productsData ?? []),
+    [productsData, overrides]
+  );
+
+  // Removes products that don't fit with the given filters 
   const filtered = useMemo(() => {
     const q = term.trim().toLowerCase();
-    const withBoth = applyOverrides(productsData ?? []);
-    const bySearch = !q ? withBoth: withBoth.filter((p) => [p.name, p.SKU].some((v) => String(v || "").toLowerCase().includes(q)));
-    // if (!q) return withBoth;
-    // return withBoth.filter((p) =>
-    //   [p.name, p.SKU].some((v) => 
-    //     String(v || "").toLowerCase().includes(q)
-    //   )
-    // );
+    const bySearch = !q 
+      ? withOverrides
+      : withOverrides.filter((p) => 
+        [p.name, p.SKU].some((v) => 
+          String(v || "").toLowerCase().includes(q)
+        )
+      );
+
     return bySearch.filter((p) => {
       if(filters.inStockOnly && (Number(p.quantity ?? p.total_quantity ?? 0) <= 0)) {
         return false;
@@ -171,10 +222,18 @@ function Search({
       if(Number.isFinite(filters.priceMax) && (Number(p.price ?? 0) > filters.priceMax)) {
         return false;
       }
+      if(Number.isFinite(filters.minQty) && (Number(p.quantity ?? p.total_quantity ?? 0) < filters.minQty)) {
+        return false;
+      }
+      if(Number.isFinite(filters.maxQty) && (Number(p.quantity ?? p.total_quantity ?? 0) > filters.maxQty)) {
+        return false;
+      }
+
       return true;  
     });
-  }, [productsData, term, priceOverrides, quantOverrides, filters]);
+}, [withOverrides, term, filters]);  
 
+  // Sorts the products cards based on the given filters
   const sorted = useMemo(() => {
     const sortedList = [...filtered];
     const cmpStr = (a, b, key) => 
@@ -197,8 +256,9 @@ function Search({
         sortedList.sort((a, b) => cmpStr(a, b, "SKU"));
         break;
       case "name-asc":
-      default:
         sortedList.sort((a, b) => cmpStr(a, b, "name"));
+        break;
+      default:
         break;
     }
     return sortedList;
@@ -211,8 +271,8 @@ function Search({
 
   // grow when new products come in (keep showing all that were visible)
   useEffect(() => {
-    setVisible(v => Math.max(v, Math.min(PAGE, filtered.length)));
-  }, [filtered.length]);
+    setVisible(v => Math.max(v, Math.min(PAGE, sorted.length)));
+  }, [sorted.length]);
 
   // intersection observer for the sentinel
   const loaderRef = useRef(null);
@@ -221,12 +281,12 @@ function Search({
     const io = new IntersectionObserver((entries) => {
       const entry = entries[0];
       if (entry.isIntersecting) {
-        setVisible(v => Math.min(v + PAGE, filtered.length));
+        setVisible(v => Math.min(v + PAGE, sorted.length));
       }
     }, { rootMargin: "800px 0px" }); // pre-load ahead
     io.observe(loaderRef.current);
     return () => io.disconnect();
-  }, [filtered.length]);
+  }, [sorted.length]);
 
   const [portalProduct, setPortalProduct] = useState(null);
   const [overlayClosing, setOverlayClosing] = useState(false);
@@ -280,6 +340,7 @@ function Search({
         {/* GRID */}
         <div className="content-wrap">
           <aside className="filters-panel">
+            {/* adding sort by to the filters column, dropdown */}
              <div className="sort-body">
               <label htmlFor="sortSelect">Sort By</label>
               <select
@@ -303,39 +364,177 @@ function Search({
                 onChange={e => setFilters(f => ({ ...f, inStockOnly: e.target.checked }))}
               />
               In Stock Only
-              
             </label>
-            <h3>Price Range</h3>
+
+            {/* filter for price with range sliders */}
             <div className="filter-row">
               <div className="filter-label">
-                <label htmlFor="minPrice">Min Price</label>
-              <input
-                type="number"
-                placeholder = "Min Price"
-                value = {Number.isFinite(filters.priceMin) ? filters.priceMin : ""}
-                onChange={e => setFilters(f => ({ ...f, priceMin: e.target.valueAsNumber }))}
-                className="price-input"
+                <label> Price Range</label>
+                <div style={{display:"flex", gap:"8px", marginTop: "6px"}}>
+                  <input
+                    type="number"
+                    placeholder = "Min Price"
+                    className="price-input"
+                    value = {Number.isFinite(filters.priceMin) ? filters.priceMin : ""}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === "") {
+                        setFilters((f) => ({ ...f, priceMin: PRICE_MIN }));
+                        return;
+                      }
+                      const val = Number(raw);
+                      setFilters((f) => ({ ...f, priceMin: Math.min(val, Number.isFinite(f.priceMax) ? f.priceMax : PRICE_MAX),
+                      }));
+                    }}
+                    />
+                    <input
+                    type="number"
+                    placeholder = "Max Price"
+                    className="price-input"
+                    value = {Number.isFinite(filters.priceMax) ? filters.priceMax: ""}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === "") {
+                        setFilters((f) => ({ ...f, priceMax: PRICE_MAX }));
+                        return;
+                      }
+                      const val = Number(raw);
+                      setFilters((f) => ({ ...f, priceMax: Math.max(val, Number.isFinite(f.priceMin) ? f.priceMin : PRICE_MIN),
+                      }));
+                    }}
+                    />
+                    </div>
+                    <div className="range-slider">
+                      <div className="range-slider__track"/>
+                      <div
+                        className="range-slider__range"
+                        style={{
+                          left: `${priceMinPercent}%`,
+                          right: `${100 - priceMaxPercent}%`,
+                        }}
+                    />
+                  <input
+                    type="range"
+                    min="0"
+                    max="1000"
+                    value={priceMinVal}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setFilters((f) => {
+                        const newMin = Math.min(val, Number.isFinite(f.priceMax) ? f.priceMax : PRICE_MAX);
+                        return { ...f, priceMin: newMin };
+                      });
+                    }}
+                    className="range-slider__thumb"
+                    />
+                  <input
+                    type="range"
+                    min="0" 
+                    max="1000"
+                    value={priceMaxVal}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setFilters((f) => {
+                        const newMax = Math.max(val, Number.isFinite(f.priceMin) ? f.priceMin : 0);
+                        return { ...f, priceMax: newMax };
+                      });
+                    }}
+                    className="range-slider__thumb"
+                    />
+                    </div>
+                    </div>
+            </div>
+
+            {/* filter for quantity with range sliders */}
+            <div className="filter-row">
+              <div className="filter-label" style={{gridColumn:"1/-1"}}>
+                <label> Quantity Range</label>
+                <div style={{display:"flex", gap:"8px", marginTop: "6px"}}>
+                  <input
+                    type="number"
+                    placeholder = "Min Qty"
+                    className="price-input"
+                    value = {Number.isFinite(filters.minQty) ? filters.minQty : ""}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === "") {
+                        setFilters((f) => ({ ...f, minQty: QTY_MIN }));
+                        return;
+                      }
+                      const val = Number(raw);
+                      setFilters((f) => ({ ...f, minQty: Math.min(val, Number.isFinite(f.maxQty) ? f.maxQty : QTY_MAX),
+                      }));
+                    }}
+                  />
+                  <input
+                    type="number"
+                    placeholder = "Max Qty"
+                    className="price-input"
+                    value = {Number.isFinite(filters.maxQty) ? filters.maxQty: ""}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === "") {
+                        setFilters((f) => ({ ...f, maxQty: QTY_MAX }));
+                        return;
+                      }
+                      const val = Number(raw);
+                      setFilters((f) => ({ ...f, maxQty: Math.max(val, Number.isFinite(f.minQty) ? f.minQty : QTY_MIN),
+                      }));
+                    }}
+                  />
+                </div>
+                <div className="range-slider">
+              <div className="range-slider__track"/>
+              <div
+                className="range-slider__range"
+                style={{
+                  left: `${qtyMinPercent}%`,
+                  right: `${100 - qtyMaxPercent}%`,
+                }}
               />
-              </div>
-              <div className="filter-label">
-                <label htmlFor="maxPrice">Max Price</label>
+              {/* min */}
               <input
-                type="number"
-                placeholder = "Max Price"
-                value = {Number.isFinite(filters.priceMax) && filters.priceMax !== Infinity ? filters.priceMax: ""}
-                onChange={(e) => setFilters((f) => ({...f, priceMax: Number(e.target.value) || Infinity}))}
-                className="price-input"
-            />
+                type="range"
+                min={QTY_MIN}
+                max={QTY_MAX}
+                value={qtyMinVal} 
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setFilters((f) => {
+                    const newMin = Math.min(val, Number.isFinite(f.maxQty) ? f.maxQty : QTY_MAX);
+                    return { ...f, minQty: newMin };
+                  });
+                }}
+                className="range-slider__thumb"
+              />
+              {/* max */}
+              <input
+                type="range"
+                min={QTY_MIN} 
+                max={QTY_MAX}
+                value={qtyMaxVal}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setFilters((f) => {
+                    const newMax = Math.max(val, Number.isFinite(f.minQty) ? f.minQty : QTY_MIN);
+                    return { ...f, maxQty: newMax };
+                  });
+                }}
+                className="range-slider__thumb"
+              />
             </div>
             </div>
-              </div>           
+            </div>
+            </div>           
             <button
               type="button"
               onClick={() => {
                 setFilters({
                   inStockOnly: false, 
                   priceMin: Infinity, 
-                  priceMax: Infinity
+                  priceMax: Infinity,
+                  minQty: QTY_MIN,
+                  maxQty: QTY_MAX,
               });
               setSortBy("name-asc");
             }
@@ -348,11 +547,16 @@ function Search({
 
           <div className="results-wrap">
             <div className="results-grid">
-              {(filtered.slice(0, visible)).map((p) => (
+              {(sorted.slice(0, visible)).map((p) => (
                 <button
                   key={p.SKU}
                   className="product-card-button"
-                  onClick={() => setSelected(p)}
+                  onClick={() => 
+                    setSelected({
+                      ...p,
+                      _baseSKU: p._baseSKU ?? p.SKU,   // remember the original SKU
+                    })
+                  }
                   aria-label={`Open ${p.name}`}
                   title={`Open ${p.name}`}
                 >
@@ -361,9 +565,9 @@ function Search({
               ))}
             </div>
             {/* sentinel for infinite scroll */}
-            {visible < filtered.length && <div ref={loaderRef} className="grid-sentinel" />}
+            {visible < sorted.length && <div ref={loaderRef} className="grid-sentinel" />}
           </div>
-          </div>
+        </div>
 
         <AddProductPopUp open={openAdd} onClose={handleCloseAdd} onSubmit={handleSubmitAdd} isSubmitting={submittingAdd} />
 
@@ -441,24 +645,11 @@ function Search({
                 <div className={`p-modal ${overlayClosing ? "closing" : ""}`}>
                   <ProductScreen
                     initialProduct={selected}
+                    baseSKU={selected?._baseSKU ?? selected?.SKU}
                     overlay
+                    storeID={storeID}
                     onClose={closeOverlay}
-                    onPriceUpdated={(sku, newPrice) => {
-                      // Update overlay immediately
-                      setSelected((prev) =>
-                        prev && prev.SKU === sku ? { ...prev, price: newPrice } : prev
-                      );
-                      // Update product grid too
-                      setPriceOverrides((prev) => ({ ...prev, [sku]: newPrice }));
-                    }}
-                    onQuantUpdated={(sku, newQuantity) => {
-                      // Update overlay immediately
-                      setSelected((prev) =>
-                        prev && prev.SKU === sku ? { ...prev, quantity: newQuantity } : prev
-                      );
-                      // Update product grid too
-                      setQuanOverrides((prev) => ({ ...prev, [sku]: newQuantity }));
-                    }}
+                    onProductUpdated={handleProductUpdated}
                   />
                 </div>
               </div>

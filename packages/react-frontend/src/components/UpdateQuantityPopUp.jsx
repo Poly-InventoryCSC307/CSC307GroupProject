@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useEffect, useRef, useState } from "react";
 import "./PopUp.css";
 
@@ -10,13 +11,45 @@ function UpdateQuantityPopUp({ open, onClose, onSubmit, isSubmitting }) {
   const [closing, setClosing] = useState(false);
 
   // When open allow the user to press esc to exit out
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e) => e.key === "Escape" && onClose?.();
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+=======
+import { createContext, useState, useContext, useEffect } from "react";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  sendEmailVerification,
+  signOut as firebaseSignOut,
+} from "firebase/auth";
+import { auth } from "../../firebase/firebase";
 
+const AuthContext = createContext();
+
+export function useAuth() {
+  return useContext(AuthContext);
+}
+
+export function AuthProvider({ children }) {
+  const [currentUser, setCurrentUser] = useState(null);       // Stores User id for store signup page 
+  const [authLoading, setAuthLoading] = useState(true);
+  
+>>>>>>> ff7df4ea462862f5079b204ed44da0a6bc61e336
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user || null);
+      setAuthLoading(false);
+    });
+    return unsubscribe;
+  }, []);
+  
+  // Login with email + password, but require verified email
+  const login = async (email, password) => {
+    //Talking to firebase: Attempt to login user with email/password    
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    const user = result.user;
+
+<<<<<<< HEAD
   useEffect(() => {
     if (!open) return;
     setForm({ delta: "" });
@@ -39,25 +72,54 @@ function UpdateQuantityPopUp({ open, onClose, onSubmit, isSubmitting }) {
   }, [open, show]);
 
   if (!show) return null;
+=======
+    // Refresh user data
+    await user.reload();
 
-  const handleOverlayClick = (e) => {
-    if (e.target === overlayRef.current) onClose?.();
+    //User attempts to login, but has not yet verified email
+    if (!user.emailVerified) {
+      await firebaseSignOut(auth);
+      throw new Error("Please verify your email before signing in.");
+    }
+>>>>>>> ff7df4ea462862f5079b204ed44da0a6bc61e336
+
+    return user;
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((f) => ({ ...f, [name]: value }));
+  const signup = async (email, password) => {
+    //Talking to firebase: Attempt to create user with email/password
+    const userCred = await createUserWithEmailAndPassword(auth, email, password);
+    //retreive infromation (copies reference to user firebase made)
+    const user = userCred.user;
+
+    //the default is to automatically sign the user in
+    //Important: signout immediately to prevent redirection
+
+    await sendEmailVerification(user);
+    await firebaseSignOut(auth);
+
+    //display error, keep signup/signin popup open, but change the message
+    throw new Error("A verification email has been sent. Please verify your email.");
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const payload = {
-      delta: Number(form.delta || 0),
-    };
-    onSubmit?.(payload);
+  const signInWithGoogle = () => {
+    const provider = new GoogleAuthProvider();
+    return signInWithPopup(auth, provider);
+  };
+
+  const logout = () => signOut(auth);
+
+  const value = { 
+    currentUser, 
+    authLoading, 
+    login, 
+    signup, 
+    signInWithGoogle, 
+    logout 
   };
 
   return (
+<<<<<<< HEAD
     <div
       className={`modal-overlay ${closing ? "closing" : ""}`}
       ref={overlayRef}
@@ -113,3 +175,11 @@ function UpdateQuantityPopUp({ open, onClose, onSubmit, isSubmitting }) {
 }
 
 export default UpdateQuantityPopUp;
+=======
+    <AuthContext.Provider value={value}>
+      {/* Delay children until Firebase finishes first check */}
+      {!authLoading && children}
+    </AuthContext.Provider>
+  );
+}
+>>>>>>> ff7df4ea462862f5079b204ed44da0a6bc61e336

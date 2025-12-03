@@ -1,4 +1,7 @@
-// backend.js
+import dotenv from "dotenv";
+dotenv.config();
+console.log("MONGODB_URI:", process.env.MONGODB_URI);
+
 import inventoryServices from "./inventory-services.js";
 import express from "express";
 import cors from "cors";
@@ -8,6 +11,50 @@ const port = 8000;
 
 app.use(cors());
 app.use(express.json());
+
+// Create new store front 
+app.post("/stores", (req, res) => {
+  const { uid, name, location } = req.body || {};
+
+  if (!uid || !name) {
+    return res
+      .status(400)
+      .json({ error: "Missing required fields: uid and name" });
+  }
+
+  inventoryServices
+    .createStoreForUser(uid, name, location)
+    .then((store) => {
+      res.json(store);
+    })
+    .catch((err) => {
+      console.error("Create store failed:", err);
+
+      if (err.code === "STORE_EXISTS") {
+        return res.status(400).json({ error: "Store already exists" });
+      }
+
+      res.status(500).json({ error: "Failed to create store" });
+    });
+});
+
+// Get the data for new store
+app.get("/stores/by-user/:uid", (req, res) => {
+  const { uid } = req.params;
+
+  inventoryServices
+    .getStoreByUserUid(uid)
+    .then((store) => {
+      if (!store) {
+        return res.status(404).json({ error: "No store for this user" });
+      }
+      res.json(store);
+    })
+    .catch((err) => {
+      console.error("Lookup store failed:", err);
+      res.status(500).json({ error: "Failed to fetch store" });
+    });
+});
 
 // Entire store page including name and location
 app.get("/inventory", (req, res) => {
@@ -25,6 +72,7 @@ app.get("/inventory", (req, res) => {
     }); 
 });
 
+// Get the store name and and location data for a store
 app.get("/inventory/:storeId/", (req, res) => {
   const { storeId } = req.params;
 
@@ -40,40 +88,6 @@ app.get("/inventory/:storeId/", (req, res) => {
       res.status(500).json({ error: "Failed to load store meta" });
     });
 });
-
-// Find a given store
-// app.get("/inventory/:storeId", (req, res) => {
-//   const { storeId } = req.params;
-//   inventoryServices
-//     .getStoreName(storeId)
-//     .then((store) => {
-//       if (!store){
-//         return res.status(404).send("Store doesn't exist");
-//       }
-//       res.send({name: store.name});
-//     })
-//     .catch((err) => {
-//       console.error("Error fetching store name:", err);
-//       res.status(500).send({ error: "Failed to fetch store info" });
-//     })
-// })
-
-// Find a given store's location data
-// app.get("/inventory/:storeId", (req, res) => {
-//   const { storeId } = req.params;
-//   inventoryServices
-//     .getStoreLocation(storeId)
-//     .then((store) => {
-//       if (!store){
-//         return res.status(404).send("Store doesn't exist");
-//       }
-//       res.send({location: store.location});
-//     })
-//     .catch((err) => {
-//       console.error("Error fetching store location:", err);
-//       res.status(500).send({ error: "Failed to fetch store info" });
-//     })
-// })
 
 // Strictly the products for a store
 app.get("/inventory/:storeId/products", (req, res) => {
@@ -115,6 +129,7 @@ app.get("/inventory/:storeId/products", (req, res) => {
     });
 });
 
+// Add product to a inventory
 app.post("/inventory/:storeId/products", (req, res) => {
   const { storeId } = req.params;
   const body = req.body || {};
@@ -169,6 +184,7 @@ app.post("/inventory/:storeId/products", (req, res) => {
     });
 });
 
+// Remove products from a given inventory
 app.delete("/inventory/:storeId/products", (req, res) => {
   const { storeId } = req.params;
   const { SKU } = req.body || {};
@@ -198,9 +214,10 @@ app.delete("/inventory/:storeId/products", (req, res) => {
     });
 });
 
+// Update the price of a given product
 app.patch("/inventory/:storeId/products", (req, res) => {
   const { storeId } = req.params;
-  const { SKU, price, delta} = req.body;
+  const { SKU, price} = req.body;
 
   // basic validation + helpful messages
   if (!SKU) {
@@ -232,6 +249,41 @@ app.patch("/inventory/:storeId/products", (req, res) => {
     });
 });
 
+// Update the product with new edits
+app.patch("/inventory/:storeId/products/:sku", (req, res) => {
+  const { storeId, sku } = req.params;
+  const updates = req.body || {};
+
+  console.log("PATCH /inventory/:storeId/products/:sku", {
+    storeId,
+    sku,
+    updates,
+  });
+
+  inventoryServices
+    .updateProductBySKU(storeId, sku, updates)
+    .then((p) => {
+      if (!p) return res.status(404).json({ error: "Product not found" });
+      // send the full updated product or a subset
+      res.json({
+        SKU: p.SKU,
+        name: p.name,
+        price: p.price,
+        total_quantity: p.total_quantity,
+        quantity_on_floor: p.quantity_on_floor,
+        quantity_in_back: p.quantity_in_back,
+        incoming_quantity: p.incoming_quantity,
+        description: p.description,
+        product_photo: p.product_photo,
+      });
+    })
+    .catch((err) => {
+      console.error("Update product failed:", err);
+      res.status(500).json({ error: "Failed to update product" });
+    });
+});
+
+
 // Used to increase or decrease the quantity of a given product 
 app.patch("/inventory/:storeId/products/:sku/quantity", (req, res) => {
   const { storeId, sku } = req.params;
@@ -261,5 +313,6 @@ app.patch("/inventory/:storeId/products/:sku/quantity", (req, res) => {
 //   );
 // });
 app.listen(process.env.PORT || port, () => {
+  console.log("Running on port:", process.env.PORT || port);
   console.log("REST API is listening.");
 });

@@ -2,7 +2,7 @@ section.hero {
   height: auto;        /* allow the inventory page to grow with content */
   min-height: 100vh;   /* still fill tall screens */
   display: block;      /* remove flex centering from Home */
-  padding: 2rem 4rem;  /* optional: match your spacing */
+  padding: 2rem 4rem;  /* match  spacing */
   background: linear-gradient(180deg, #26a69a 0%, #2e7d68 100%);
   position: relative;     /* ensures stacking respects z-index */
   padding-top: 90px;      /* gives space for navbar height */
@@ -15,22 +15,25 @@ section.hero {
   justify-content: space-between;
 
   /* placement */
-  max-width: 1300px;
-  margin: 12px auto 20px;   /* centers the row and gives bottom gap */
-  padding: 10px 12px;
+  max-width: 175vh;         /* adjust search bar based on screen size*/
+  margin: 10px auto 20px;   /* align search with filter bar */
+  padding: 10px 12px;       /* add extra space between clear background and search bar */
 
   /* “frosted” look like in your background */
   background: rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(6px);
   border: 1px solid rgba(255,255,255,.18);
   border-radius: 12px;
-  position: sticky; top: 12px; z-index: 10;
+  position: sticky;         /* allows for the search to stay when scrolling */
+  top: 12px; 
+  z-index: 10;
 }
 
 .search-bar-container {
   flex: 1;                 /* grow to fill left side */
 }
 
+/* product buttons in the search bar */
 .remove-product,
 .add-product {
   margin-left: 16px;
@@ -38,7 +41,7 @@ section.hero {
   display: inline-grid;
   place-items: center;
   border-radius: 10px;
-  padding: 0;              /* you already render it as an <img> button */
+  padding: 0;              
   background-color: transparent;
   transition: all 0.3s ease;
 }
@@ -49,6 +52,7 @@ section.hero {
   color: #26a69a;
 }
 
+/* removes outline when overlap is open */
 .remove-product:focus,
 .remove-product:active,
 .add-product:focus,
@@ -58,19 +62,19 @@ section.hero {
   box-shadow: none;
 }
 
+/*Containter for the product cards */
 .results-wrap {
-  max-width: 1200px;
-  margin: 20px auto 64px;
+  max-width: 175vh;;
 }
 
 .results-grid {
-  display: grid;
+  display:grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
+  gap: 16px;                    /* gap between each row of products */
   align-items: start;
 }
 
-/* Optional: make cards a consistent height so the grid looks tidy */
+/* make cards a consistent height so the grid looks tidy */
 .product-card-button {
   display: inline-block;       /* shrink-wraps around its child */
   padding: 0;                  /* remove inner space */
@@ -82,7 +86,7 @@ section.hero {
 }
 
 .product-card-button .product-card {
-  width: 260px;                /* same width as your .product-card definition */
+  width: 260px;                /* same width as .product-card definition */
   height: 340px;
   display: block;
 }
@@ -130,7 +134,7 @@ section.hero {
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 2000;            /* was 1000 */
+  z-index: 2000;           
   display: flex;
   align-items: center;
   justify-content: center;
@@ -151,10 +155,13 @@ section.hero {
   min-height: calc(100vh - 120px);
 }
 .filters-panel{
+  position: sticky;
+  top: 125px; 
+  z-index: 10;
   background: rgba(255, 255, 255, 0.16);
   border-radius: 12px;
   padding: 18px;
-  height: 100%;
+  height: 70vh; 
   align-self: stretch;
   gap: 12px;
   display: flex;
@@ -164,14 +171,6 @@ section.hero {
   margin: 2px 0;
   font-size: 20px;
   color:aliceblue;
-  
-}
-.filters-panel h3{
-  margin: 2px 2px;
-  font-size: 16px;
-  margin-top: 12px;
-  color: aliceblue;
-  text-align: center;
 }
 
 .filters-panel .price-input{
@@ -184,10 +183,16 @@ section.hero {
   border: 1px solid #ccc;
   display: inline-block;
 }
+
+.filter-label{
+  white-space: nowrap;
+  font-size: 14px;
+}
+
 .filter-checkbox{
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: 5px;
   margin-top: 10px;
   color:aliceblue;
   white-space: nowrap;
@@ -247,4 +252,63 @@ section.hero {
 .sort-body select option:hover{
   background-color: #cff7d3;
   color: #608c88;
+}
+
+.range-slider {
+  position: relative;
+  height: 28px;
+  margin-top: 10px;
+}
+
+.range-slider__track,
+.range-slider__range {
+  position: absolute;
+  height: 4px;
+  border-radius: 999px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.range-slider__track {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.range-slider__range {
+  background: #cff7d3;
+}
+
+.range-slider__thumb {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  background: none;
+  pointer-events: none;              
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.range-slider__thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  pointer-events: auto;              
+  cursor: pointer;
+}
+
+.range-slider__thumb::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  pointer-events: auto;
+  cursor: pointer;
 }

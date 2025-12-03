@@ -1,9 +1,12 @@
-import { createContext, useContext } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
+  onAuthStateChanged,
+  sendEmailVerification,
+  signOut as firebaseSignOut,
 } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 
@@ -14,17 +17,65 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
-  const login = (email, password) =>
-    signInWithEmailAndPassword(auth, email, password);
+  const [currentUser, setCurrentUser] = useState(null); // Stores user
+  const [authLoading, setAuthLoading] = useState(true);
 
-  const signup = (email, password) =>
-    createUserWithEmailAndPassword(auth, email, password);
+  // Monitor Firebase auth state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user || null);
+      setAuthLoading(false);
+    });
+    return unsubscribe;
+  }, []);
 
+  // Login with email + password (requires email verification)
+  const login = async (email, password) => {
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    const user = result.user;
+
+    await user.reload();
+
+    if (!user.emailVerified) {
+      await firebaseSignOut(auth);
+      throw new Error("Please verify your email before signing in.");
+    }
+
+    return user;
+  };
+
+  // Signup + send verification email
+  const signup = async (email, password) => {
+    const userCred = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCred.user;
+
+    await sendEmailVerification(user);
+    await firebaseSignOut(auth);
+
+    throw new Error("A verification email has been sent. Please verify your email.");
+  };
+
+  // Google sign-in
   const signInWithGoogle = () => {
     const provider = new GoogleAuthProvider();
     return signInWithPopup(auth, provider);
   };
 
-  const value = { login, signup, signInWithGoogle };
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  const logout = () => firebaseSignOut(auth);
+
+  const value = {
+    currentUser,
+    authLoading,
+    login,
+    signup,
+    signInWithGoogle,
+    logout,
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {/* Delay children until Firebase finishes first check */}
+      {!authLoading && children}
+    </AuthContext.Provider>
+  );
 }

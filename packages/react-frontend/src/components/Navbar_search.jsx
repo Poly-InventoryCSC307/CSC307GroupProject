@@ -54,8 +54,10 @@ export default function NavbarSearch({
                 <>
                   <div className="addr-line addr-title">Store Location</div>
 
-                  {storeLocation.address && (
-                    <div className="addr-line">{storeLocation.address}</div>
+                  {storeLocation.street && (
+                    <div className="addr-line">
+                      {storeLocation.street}
+                    </div>
                   )}
 
                   {/* city, state, zip */}
