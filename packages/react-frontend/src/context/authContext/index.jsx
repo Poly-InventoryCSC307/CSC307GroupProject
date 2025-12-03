@@ -17,9 +17,10 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(null);       // Stores User id for store signup page 
+  const [currentUser, setCurrentUser] = useState(null);       // Stores User 
   const [authLoading, setAuthLoading] = useState(true);
   
+  // Monitor Firebase auth state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user || null);
@@ -28,16 +29,14 @@ export function AuthProvider({ children }) {
     return unsubscribe;
   }, []);
   
-  // Login with email + password, but require verified email
+  // Login with email + password (requires email verification)
   const login = async (email, password) => {
-    //Talking to firebase: Attempt to login user with email/password    
+
     const result = await signInWithEmailAndPassword(auth, email, password);
     const user = result.user;
 
-    // Refresh user data
     await user.reload();
 
-    //User attempts to login, but has not yet verified email
     if (!user.emailVerified) {
       await firebaseSignOut(auth);
       throw new Error("Please verify your email before signing in.");
@@ -46,28 +45,24 @@ export function AuthProvider({ children }) {
     return user;
   };
 
+  // Signup + send verification email
   const signup = async (email, password) => {
-    //Talking to firebase: Attempt to create user with email/password
     const userCred = await createUserWithEmailAndPassword(auth, email, password);
-    //retreive infromation (copies reference to user firebase made)
     const user = userCred.user;
-
-    //the default is to automatically sign the user in
-    //Important: signout immediately to prevent redirection
 
     await sendEmailVerification(user);
     await firebaseSignOut(auth);
 
-    //display error, keep signup/signin popup open, but change the message
     throw new Error("A verification email has been sent. Please verify your email.");
   };
 
+  // Google sign-in
   const signInWithGoogle = () => {
     const provider = new GoogleAuthProvider();
     return signInWithPopup(auth, provider);
   };
 
-  const logout = () => signOut(auth);
+  const logout = () => firebaseSignOut(auth);
 
   const value = { 
     currentUser, 
@@ -75,7 +70,7 @@ export function AuthProvider({ children }) {
     login, 
     signup, 
     signInWithGoogle, 
-    logout 
+    logout, 
   };
 
   return (
