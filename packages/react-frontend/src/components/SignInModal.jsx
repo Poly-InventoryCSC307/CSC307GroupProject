@@ -57,21 +57,26 @@ export default function SignInModal({ onClose }) {
           </p>
         ) : (
           <form onSubmit={handleSubmit}>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="withAsterisk">
+              <span className="asterisk">*</span>
+              <input
+                type="email"
+                placeholder=" Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="withAsterisk">
+              <span className="asterisk">*</span>
+              <input
+                type="password"
+                placeholder=" Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
             <button type="submit">
               {isSignUp ? "Sign Up" : "Sign In"}
