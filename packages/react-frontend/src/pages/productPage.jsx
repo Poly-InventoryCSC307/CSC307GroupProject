@@ -12,7 +12,6 @@ export default function ProductScreen({
   onClose,
   onProductUpdated,
 }) {
-
   const [product, setProduct] = useState(() => initialProduct || {});
 
   const originalSkuRef = useRef(initialProduct?.SKU || "");
@@ -76,7 +75,6 @@ export default function ProductScreen({
       } catch {
         data = {};
       }
-
       if (!res.ok) {
         const msg =
           data?.message ||
@@ -113,20 +111,20 @@ export default function ProductScreen({
 
   useEffect(() => {
     if (!overlay) return;
+
     const onKey = (e) => {
       if (e.key !== "Escape") return;
       if (openEP) return;     // If the edit or update is open 
       onClose?.();
     };
+
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [overlay, onClose, openEP]);  
 
   const name = product?.name || "—";
   const sku = product?.SKU || "—";
-  const qtyTotal = Number(
-    product?.total_quantity ?? product?.quantity ?? 0
-  );
+  const qtyTotal = Number(product?.total_quantity ?? product?.quantity ?? 0);
   const qtyFloor = Number(product?.quantity_on_floor ?? 0);
   const qtyBack = Number(product?.quantity_in_back ?? 0);
   const priceNum = Number(product?.price ?? 0);
@@ -145,25 +143,47 @@ export default function ProductScreen({
         <div className="p-modal__grid">
           {/* Left: image */}
           <div className="p-modal__image">
-            {imageURL? (
+            {imageURL ? (
               <img
                 src={imageURL}
                 alt={name || "Product"}
-                onError={(e) => { e.currentTarget.style.display = "none"; }}
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
               />
             ) : (
-              <span className="p-modal__image-placeholder">Product Picture</span>
+              <span className="p-modal__image-placeholder">
+                Product Picture
+              </span>
             )}
           </div>
 
           {/* Right: details */}
           <aside className="p-modal__side">
-            <div className="p-row"><span className="p-label">Product Name:</span><span className="p-val">{name }</span></div>
-            <div className="p-row"><span className="p-label">SKU:</span><span className="p-val">{sku}</span></div>
-            <div className="p-row"><span className="p-label">Quantity Total:</span><span className="p-val">{qtyTotal}</span></div>
-            <div className="p-row"><span className="p-label">Quantity on Floor:</span><span className="p-val">{qtyFloor}</span></div>
-            <div className="p-row"><span className="p-label">Quantity in Back:</span><span className="p-val">{qtyBack}</span></div>
-            <div className="p-row"><span className="p-label">Price:</span><span className="p-val">${priceNum.toFixed(2)}</span></div>
+            <div className="p-row">
+              <span className="p-label">Product Name:</span>
+              <span className="p-val">{name}</span>
+            </div>
+            <div className="p-row">
+              <span className="p-label">SKU:</span>
+              <span className="p-val">{sku}</span>
+            </div>
+            <div className="p-row">
+              <span className="p-label">Quantity Total:</span>
+              <span className="p-val">{qtyTotal}</span>
+            </div>
+            <div className="p-row">
+              <span className="p-label">Quantity on Floor:</span>
+              <span className="p-val">{qtyFloor}</span>
+            </div>
+            <div className="p-row">
+              <span className="p-label">Quantity in Back:</span>
+              <span className="p-val">{qtyBack}</span>
+            </div>
+            <div className="p-row">
+              <span className="p-label">Price:</span>
+              <span className="p-val">${priceNum.toFixed(2)}</span>
+            </div>
 
             <div className="p-actions">
               <button className="btn-edit-product" onClick={() => setOpenEP(true)}>
@@ -184,8 +204,10 @@ export default function ProductScreen({
         {/* Bottom: description */}
         <section className="p-modal__desc">
           <h3>Product Description:</h3>
-          <p>{(String(product?.description || "").trim() || "No description provided.")}</p>
-
+          <p>
+            {String(product?.description || "").trim() ||
+              "No description provided."}
+          </p>
         </section>
       </div>
     );

@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -9,7 +9,6 @@ import {
   signOut as firebaseSignOut,
 } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
-import { sendEmailVerification } from "firebase/auth";
 
 const AuthContext = createContext();
 
@@ -63,30 +62,6 @@ export function AuthProvider({ children }) {
     throw new Error("A verification email has been sent. Please verify your email.");
   };
 
-    //User attempts to login, but has not yet verified email
-    if(!user.emailVerified){
-      throw new Error("Please verify your email before signing in.");
-    }
-    return user;
-  }
-  //signup
-  const signup = async (email, password) => {
-    //Talking to firebase: Attempt to create user with email/password
-    const userCred = await createUserWithEmailAndPassword(auth, email, password);
-    //retreive infromation (copies reference to user firebase made)
-    const user = userCred.user;
-    
-    //the default is to automatically sign the user in
-    //Important: signout immediately to prevent redirection
-    await auth.signOut();
-    //send email verification link
-    await sendEmailVerification(user);
-
-    //display error, keep signup/signin popup open, but change the message
-    throw new Error("A verification email has been sent. Please verify your email.")
-  };
-
-  //Google sign in 
   const signInWithGoogle = () => {
     const provider = new GoogleAuthProvider();
     return signInWithPopup(auth, provider);
@@ -109,4 +84,4 @@ export function AuthProvider({ children }) {
       {!authLoading && children}
     </AuthContext.Provider>
   );
-
+}
