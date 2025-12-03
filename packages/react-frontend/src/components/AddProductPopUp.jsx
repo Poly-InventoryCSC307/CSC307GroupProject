@@ -20,7 +20,7 @@ function AddProductPopUp({
   const [show, setShow] = useState(open);
   const [closing, setClosing] = useState(false);
 
-  // Close the popup with escape key
+  // Pressing the escape key closes the overlay
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === "Escape" && onClose?.();

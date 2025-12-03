@@ -51,6 +51,7 @@
 .auth-modal-content button:hover {
   background-color: #2e7d68;
   transform: translateY(-2px);
+  border: none;
 }
 
 /* Close button (X) */
@@ -107,15 +108,59 @@
   to { transform: scale(1); opacity: 1; }
 }
 
+@keyframes fadeOutOverlay {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes scaleDown {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(0.9); opacity: 0; }
+}
+
+.auth-modal-overlay.closing {
+  animation: fadeOutOverlay 0.25s ease-in-out forwards;
+}
+
+.auth-modal-content.closing {
+  animation: scaleDown 0.25s ease-in-out forwards;
+}
+
 /* Hard-disable hover animation from global styles */
 .auth-modal-content input:hover {
   transform: none !important;
   box-shadow: none !important;
   outline: none !important;
   padding: 0.75rem 1rem !important;
+  padding-left: 1.5rem !important;
   border-width: 2px !important;
 }
 
 .auth-modal-content input {
   transition: border-color 0.25s ease-in-out !important;
+}
+
+/* red asterisk */
+.withAsterisk {
+  position: relative;
+}
+
+.withAsterisk .asterisk {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  color: red;
+  transform: translateY(-30%);
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.withAsterisk input {
+  width: 100%;
+  padding-left: 0.5rem;
+  transform: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0.75rem 1rem !important;
+  border-width: 2px !important;
 }

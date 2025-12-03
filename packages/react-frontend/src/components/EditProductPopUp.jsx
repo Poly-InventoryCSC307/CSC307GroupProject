@@ -21,6 +21,7 @@ function EditProductPopUp({
   const [show, setShow] = useState(open);
   const [closing, setClosing] = useState(false);
 
+  // Pressing the escape key closes the overlay
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === "Escape" && onClose?.();

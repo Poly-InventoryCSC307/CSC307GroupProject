@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/authContext"; 
 import "./SignInModal.css";
 import logo from "../assets/logo-and-text.svg";
@@ -15,16 +15,47 @@ export default function SignInModal({ onClose }) {
   const [error, setError] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
 
+  // used to determine where click has happened
+  const overlayRef = useRef(null);
+  const [closing, setClosing] = useState(false);
+
   //error if user needs to verify email
-  const isVerifyMessage =
-    error && error.toLowerCase().includes("verify");
+  const isVerifyMessage = error && error.toLowerCase().includes("verify");
+
+  // smooth transition on close
+  const handleRequestClose = () => {
+    if (closing) return;           
+    setClosing(true);
+
+    // wait for CSS animation to finish, then unmount
+    setTimeout(() => {
+      onClose?.();
+    }, 250); 
+  };
+
+
+  // pressing the escape key closes the overlay
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        handleRequestClose();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [handleRequestClose]);
+
+  // if you click outside the overlay, close it
+  const handleOverlayClick = (e) => {
+    if (e.target === overlayRef.current) {
+      handleRequestClose();
+    }
+  };
 
   //login and sign up submit 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    // console.log("Submitting:", { email, password, isSignUp });
 
     try {
       //SignUp: send email verification and throw error to trigger verif message
@@ -34,15 +65,19 @@ export default function SignInModal({ onClose }) {
       } 
       await login(email, password);
 
-      onClose?.();
+      handleRequestClose();
     } catch (err) {
       setError(err.message);
     }
   };
 
   return (
-    <div className="auth-modal-overlay">
-      <div className="auth-modal-content">
+    <div
+      className={`auth-modal-overlay ${closing ? "closing" : ""}`}
+      ref={overlayRef}
+      onMouseDown={handleOverlayClick}
+    >
+      <div className={`auth-modal-content ${closing ? "closing" : ""}`}>
         <img src={logo} alt="Logo" className="modal-logo" />
 
         {/* Error or verification message */}
@@ -57,23 +92,34 @@ export default function SignInModal({ onClose }) {
           </p>
         ) : (
           <form onSubmit={handleSubmit}>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <div className="withAsterisk">
+              <span className="asterisk">*</span>
+              <input
+                type="email"
+                placeholder=" Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="withAsterisk">
+              <span className="asterisk">*</span>
+              <input
+                type="password"
+                placeholder=" Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-
-            <button type="submit">
+            <button 
+              type="submit" 
+              style={{
+                // Add a little gap between sign in and sign in with google
+                marginBottom:"15px",      
+              }}
+            >
               {isSignUp ? "Sign Up" : "Sign In"}
             </button>
           </form>
@@ -94,7 +140,7 @@ export default function SignInModal({ onClose }) {
           </>
         )}
 
-        <button className="close-btn" onClick={onClose}>
+        <button className="close-btn" onClick={handleRequestClose}>
           Close
         </button>
       </div>
