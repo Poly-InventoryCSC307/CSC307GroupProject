@@ -7,7 +7,6 @@
 - [About](#about)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
-- [Screenshots](#screenshots)
 - [Demo / Live URL](#demo)
 - [Getting Started](#getting-started)
   - [Installation](#installation)
@@ -47,20 +46,6 @@ The following tools were used:
 - Express.js / Node
 - MongoDB Atlas
 
-## Screenshots
-
-### Home 
-![Home Screenshot](packages/react-frontend/src/assets/home-screenshot.png)
-
-### Features
-![Features Screenshot 1](packages/react-frontend/src/assets/features-screenshot-1.png)
-
-![Features Screenshot 2](packages/react-frontend/src/assets/features-screenshot-2.png)
-
-### About
-![About Screenshot 1](packages/react-frontend/src/assets/about-screenshot-1.png)
-![About Screenshot 2](packages/react-frontend/src/assets/about-screenshot-2.png)
-
 ## Demo / Live URL 
 
 Please click here to access our website: https://victorious-ocean-026f9ee1e.3.azurestaticapps.net
@@ -76,20 +61,60 @@ Follow the steps bellow to set up the project locally:
 git clone https://github.com/Poly-InventoryCSC307/CSC307GroupProject.git
 
 cd CSC307GroupProject
+```
 
 2. Install dependencies 
 ```bash
-cd packages/react-frontend
-npm install
+cd packages/react-frontend 
 
-cd ../backend
 npm install
+```
+
+```bash
+cd ../express-backend
+npm install
+```
 
 3. Configure environment variables
 Create a .env file inside the backend folder with your personal settings. 
 ```bash
-PORT=3000
 MONGO_URI=your-database-url
+```
+
+### Running the Website
+1. Start backend
+```bash
+cd ../express-backend
+
+npm start
+```
+
+2. Start frontend (in a separate terminal) 
+```bash
+cd ../react-frontend
+
+npm run dev
+```
+3. Visit the website
+Open your browser and navigate to the url displayed in terminal running frontend. The url will appear similar to the following: 
+```bash
+http://localhost:1111
+```
+
+## Contributors 
+
+<div align="center">
+
+| Name | Role | GitHub |
+|------|------|--------|
+| Alyssa Gerardo | UI/UX & Frontend Developer | [@alyssagerardo](https://github.com/alyssagerardo) |
+| Edgard Aviles | Backend Developer | [@Edgarddragde](https://github.com/Edgarddragde) |
+| Priscilla Garcia | Frontend Developer | [@pgarci40](https://github.com/pgarci40) |
+| Troy Renner | Frontend/Backend Developer & Database Manager | [@legorockband](https://github.com/legorockband) |
+| Valerie Lucatero | Backend Developer | [@valerieponce](https://github.com/valerieponce) |
+
+</div>
+
 
 
 
