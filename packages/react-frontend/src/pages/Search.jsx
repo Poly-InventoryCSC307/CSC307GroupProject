@@ -21,12 +21,12 @@ import React, {
 import { createPortal } from "react-dom";
 
 const PRICE_MIN = 0;
-const PRICE_MAX = Infinity;       // The user can enter any amount into the price max
-const PRICE_MAX_SLIDER = 1000;    // Display only up to 1000 with the slider
+const PRICE_MAX = Infinity; // The user can enter any amount into the price max
+const PRICE_MAX_SLIDER = 1000; // Display only up to 1000 with the slider
 
 const QTY_MIN = 0;
-const QTY_MAX = Infinity;         // The user can enter any amount into the quantity max
-const QTY_MAX_SLIDER = 1000;      // Display only up to 1000 with the slider
+const QTY_MAX = Infinity; // The user can enter any amount into the quantity max
+const QTY_MAX_SLIDER = 1000; // Display only up to 1000 with the slider
 
 function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
   const [term, setTerm] = useState("");
@@ -112,20 +112,17 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
         return;
       }
 
-      const res = await fetch(
-        `${API_BASE_URL}/inventory/${storeID}/products`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: payload.name?.trim(),
-            SKU: payload.SKU?.trim(),
-            quantity: Number(payload.quantity ?? 0),
-            description: payload.description?.trim() ?? "",
-            price: Number(payload.price ?? 0),
-          }),
-        },
-      );
+      const res = await fetch(`${API_BASE_URL}/inventory/${storeID}/products`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: payload.name?.trim(),
+          SKU: payload.SKU?.trim(),
+          quantity: Number(payload.quantity ?? 0),
+          description: payload.description?.trim() ?? "",
+          price: Number(payload.price ?? 0),
+        }),
+      });
 
       let data;
       try {
@@ -170,16 +167,13 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
   const handleSubmitRem = async (payload) => {
     try {
       setSubmittingRem(true);
-      const res = await fetch(
-        `${API_BASE_URL}/inventory/${storeID}/products`,
-        {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            SKU: payload.SKU?.trim(),
-          }),
-        },
-      );
+      const res = await fetch(`${API_BASE_URL}/inventory/${storeID}/products`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          SKU: payload.SKU?.trim(),
+        }),
+      });
 
       let data;
       try {
@@ -216,22 +210,22 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
   // filter states
   const [sortBy, setSortBy] = useState("name-asc");
 
-  // where the filter slider should be 
+  // where the filter slider should be
   const priceMinVal = Number.isFinite(filters.priceMin)
     ? Math.min(filters.priceMin, PRICE_MAX_SLIDER)
     : PRICE_MIN;
   const priceMaxVal = Number.isFinite(filters.priceMax)
     ? Math.min(filters.priceMax, PRICE_MAX_SLIDER)
     : PRICE_MAX_SLIDER;
-  
+
   // how full the slider bar should be
   const priceMinPercent =
-    ((priceMinVal - PRICE_MIN) / (PRICE_MAX_SLIDER  - PRICE_MIN)) * 100;
+    ((priceMinVal - PRICE_MIN) / (PRICE_MAX_SLIDER - PRICE_MIN)) * 100;
 
   const priceMaxPercent =
     ((priceMaxVal - PRICE_MIN) / (PRICE_MAX_SLIDER - PRICE_MIN)) * 100;
 
-  // where the filter slider should be 
+  // where the filter slider should be
   const qtyMinVal = Number.isFinite(filters.qtMin)
     ? Math.min(filters.qtyMin, QTY_MAX_SLIDER)
     : QTY_MIN;
@@ -241,11 +235,11 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
     : QTY_MAX_SLIDER;
 
   // how full the slider bar should be
-  const qtyMinPercent = 
-    ((qtyMinVal - QTY_MIN) / (QTY_MAX_SLIDER  - QTY_MIN)) * 100;
+  const qtyMinPercent =
+    ((qtyMinVal - QTY_MIN) / (QTY_MAX_SLIDER - QTY_MIN)) * 100;
 
   const qtyMaxPercent =
-    ((qtyMaxVal - QTY_MIN) / (QTY_MAX_SLIDER  - QTY_MIN)) * 100;
+    ((qtyMaxVal - QTY_MIN) / (QTY_MAX_SLIDER - QTY_MIN)) * 100;
 
   const withOverrides = useMemo(
     () => applyOverrides(productsData ?? []),

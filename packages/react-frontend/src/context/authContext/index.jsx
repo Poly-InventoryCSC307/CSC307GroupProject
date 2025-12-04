@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useState, useContext, useEffect } from "react";
 import {
   signInWithEmailAndPassword,
@@ -43,12 +44,11 @@ export function AuthProvider({ children }) {
       }
 
       return user;
-    }
-    catch (error) {
+    } catch (error) {
       // Email or Password is incorrect
       // For security, website will not disclose which, if any, are correct
-      if (error.code === "auth/invalid-credential"){
-        throw new Error("Incorrect email or password.")
+      if (error.code === "auth/invalid-credential") {
+        throw new Error("Incorrect email or password.");
       }
       throw error;
     }
@@ -70,21 +70,20 @@ export function AuthProvider({ children }) {
       throw new Error(
         "A verification email has been sent. Please verify your email.",
       );
-    }
-    catch (error) {
+    } catch (error) {
       //Email already registered
-      if(error.code === "auth/email-already-in-use"){
-        throw new Error("Email is already registered.")
+      if (error.code === "auth/email-already-in-use") {
+        throw new Error("Email is already registered.");
       }
       //Password not in valid format
-      if (error.code === "auth/weak-password"){
-        throw new Error("Password does not meet minimum requirements.")
+      if (error.code === "auth/weak-password") {
+        throw new Error("Password does not meet minimum requirements.");
       }
-      if(error instanceof Error){
+      if (error instanceof Error) {
         throw error;
       }
 
-      throw new Error ("Unexpected error occured during sign up")
+      throw new Error("Unexpected error occured during sign up");
     }
   };
 

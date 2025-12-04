@@ -37,7 +37,7 @@ export default function StoreSetup({ onStoreCreated }) {
     setError("");
 
     try {
-      const res = await fetch(`${API_BASE_URL}/stores`, {        
+      const res = await fetch(`${API_BASE_URL}/stores`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

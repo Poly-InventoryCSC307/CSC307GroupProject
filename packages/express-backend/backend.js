@@ -11,18 +11,18 @@ const port = 8000;
 
 app.use(
   cors({
-    origin: true,          // reflect request origin
+    origin: true,
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("PolyPlus Inventory API is running ✅");
+  res.send("PolyPlus Inventory API is running");
 });
 
-// Create new store front 
+// Create new store front
 app.post("/stores", (req, res) => {
   const { uid, name, location } = req.body || {};
 
@@ -70,16 +70,16 @@ app.get("/stores/by-user/:uid", (req, res) => {
 app.get("/inventory", (req, res) => {
   const name = req.query.name;
   const SKU = req.query.SKU;
-  
+
   const result = inventoryServices.getInventory(SKU, name);
   result
     .then((result) => {
-      res.send({store_list:result});  
+      res.send({ store_list: result });
     })
     .catch((error) => {
       console.log(error);
       res.status(500).send("Can't Find Inventory from Database");
-    }); 
+    });
 });
 
 // Get the store name and and location data for a store
@@ -90,7 +90,7 @@ app.get("/inventory/:storeId/", (req, res) => {
     .getStoreData(storeId)
     .then((doc) => {
       if (!doc) return res.status(404).json({ error: "Store not found" });
-      
+
       res.json({ name: doc.name || "", location: doc.location || null });
     })
     .catch((err) => {
@@ -108,8 +108,9 @@ app.get("/inventory/:storeId/products", (req, res) => {
     .getInventory(undefined, undefined) // <- required per your request
     .then((docs) => {
       // docs can be one or many store documents depending on your data
-      const storeDoc =
-        Array.isArray(docs) ? docs.find((d) => d._id?.toString() === storeId) : null;
+      const storeDoc = Array.isArray(docs)
+        ? docs.find((d) => d._id?.toString() === storeId)
+        : null;
 
       if (!storeDoc) {
         return res.status(404).json({ message: "Store not found" });
@@ -198,7 +199,7 @@ app.post("/inventory/:storeId/products", (req, res) => {
 app.delete("/inventory/:storeId/products", (req, res) => {
   const { storeId } = req.params;
   const { SKU } = req.body || {};
-  if (!SKU || !SKU.trim()){
+  if (!SKU || !SKU.trim()) {
     return res.status(400).json({ error: "SKU is required" });
   }
 
@@ -211,9 +212,13 @@ app.delete("/inventory/:storeId/products", (req, res) => {
 
       // Check if a product was actually removed
       const inventoryAfter = result.inventory || [];
-      const stillExists = inventoryAfter.some((item) => item.SKU === SKU.trim());
+      const stillExists = inventoryAfter.some(
+        (item) => item.SKU === SKU.trim(),
+      );
       if (stillExists) {
-        return res.status(404).json({ error: "Product SKU not found in this store" });
+        return res
+          .status(404)
+          .json({ error: "Product SKU not found in this store" });
       }
 
       res.json({ ok: true, removedSKU: SKU.trim() });
@@ -257,7 +262,6 @@ app.patch("/inventory/:storeId/products/:sku", (req, res) => {
       res.status(500).json({ error: "Failed to update product" });
     });
 });
-
 
 // app.listen(port, () => {
 //   console.log(
