@@ -268,6 +268,7 @@ app.patch("/inventory/:storeId/products/:sku", (req, res) => {
 //     `Example app listening at http://polyplus-inventory-febhaeaah4a2a9ht.westus3-01.azurewebsites.net`
 //   );
 // });
+
 app.listen(process.env.PORT || port, () => {
   console.log("Running on port:", process.env.PORT || port);
   console.log("REST API is listening.");
