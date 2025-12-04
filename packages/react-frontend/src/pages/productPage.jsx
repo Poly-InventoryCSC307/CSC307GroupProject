@@ -3,6 +3,7 @@ import "./productPage.css";
 import EditProductPopUp from "../components/EditProductPopUp";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { useProductImage } from "../components/useProductImage";
 
 export default function ProductScreen({
   initialProduct = null,
@@ -14,6 +15,11 @@ export default function ProductScreen({
 }) {
   const [product, setProduct] = useState(() => initialProduct || {});
 
+  useEffect(() => {
+    if (initialProduct) {
+      setProduct(initialProduct);
+    }
+  }, [initialProduct]);
   // state for the Edit Product modal
   const [openEP, setOpenEP] = useState(false);
   const [submittingEP, setSubmittingEP] = useState(false);
@@ -34,6 +40,32 @@ export default function ProductScreen({
       const newPrice = Number(payload.price ?? 0);
       const newQty = Number(payload.quantity ?? 0);
       const newDesc = payload.description.trim();
+      // upload image to polyproducts (name of s3 bucket)
+      const oldimageURL = product?.image || product?.imageURL || "";
+      let newimageURL = oldimageURL
+
+      if (payload.imageFile) {
+        const formData = new FormData();
+        formData.append("image", payload.imageFile);
+        
+        const uploadRes = await fetch(`http://localhost:8000/images/upload/${storeID}`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          const errText = await uploadRes.text();
+          throw new Error(`Image upload failed: ${errText || uploadRes.status}`)
+        }
+
+        const uploadData = await uploadRes.json();
+        // adjust the property to whatever the api returns
+        newimageURL = uploadData.imageURL || uploadData.url || uploadData.location || "";
+        if (!newimageURL) {
+          throw new Error("Image upload did not return an imageURL");
+        }
+      }
+
 
       if (!newName) throw new Error("Product name is required.");
       if (!newSku) throw new Error("SKU is required.");
@@ -44,6 +76,9 @@ export default function ProductScreen({
         throw new Error("Quantity must be an integer ≥ 0.");
       }
 
+      if (!newimageURL && !oldimageURL) throw Error("You must tag an image to the product");
+      const finalImageURL = newimageURL || oldimageURL;
+
       const updates = {
         name: newName,
         SKU: newSku,
@@ -53,6 +88,7 @@ export default function ProductScreen({
         quantity_on_floor: Number(product?.quantity_on_floor ?? 0),
         quantity_in_back: Number(product?.quantity_in_back ?? 0),
         incoming_quantity: Number(product?.incoming_quantity ?? 0),
+        product_photo: finalImageURL,
       };
 
       const res = await fetch(
@@ -82,12 +118,17 @@ export default function ProductScreen({
 
       // data is the updated product from backend.js
       const saved = data;
+      const newImage = 
+        saved.product_photo || newimageURL || product.product_photo || product.imageURL || "";
 
       // update local overlay product
       setProduct((prev) => ({
         ...prev,
         ...saved,
         quantity: saved.total_quantity ?? newQty,
+        product_photo: newImage,
+        image: newImage,
+        imageURL: newImage,
       }));
 
       onProductUpdated?.(baseSKU ?? product.SKU, {
@@ -96,7 +137,22 @@ export default function ProductScreen({
         price: saved.price,
         total_quantity: saved.total_quantity,
         description: saved.description,
+        image: newImage,
+        product_photo: newImage,
       });
+
+      if (payload.imageFile && oldimageURL && oldimageURL !=- finalImageURL) {
+        try {
+          await fetch(
+            `http://localhost:8000/images/file/${storeID}`,
+            {
+              method: "DELETE",
+            },
+          );
+        } catch (err) {
+          console.err("Failed to delete old image:", err);
+        }
+      }
 
       setOpenEP(false);
     } catch (e) {
@@ -126,13 +182,7 @@ export default function ProductScreen({
   const qtyBack = Number(product?.quantity_in_back ?? 0);
   const priceNum = Number(product?.price ?? 0);
 
-  const imageURL = useMemo(() => {
-    const raw =
-      (product?.product_photo && String(product.product_photo)) ||
-      (product?.imageURL && String(product.imageURL)) ||
-      "";
-    return raw.trim();
-  }, [product]);
+  const imageURL = useProductImage(product);
 
   if (overlay) {
     return (

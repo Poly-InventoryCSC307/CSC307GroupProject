@@ -1,4 +1,5 @@
 import "./ProductCard.css";
+import { useProductImage } from "./useProductImage";
 
 function trimText(text, max = 30) {
   const s = typeof text === "string" ? text : String(text ?? "");
@@ -6,13 +7,14 @@ function trimText(text, max = 30) {
   return s.slice(0, Math.max(0, max - 3)) + "...";
 }
 
-function ProductCard({ name, imageURL, SKU, price, quantity }) {
+function ProductCard({ name, image, imageURL, product_photo, SKU, price, quantity }) {
+  const imgSrc = useProductImage({ image, imageURL, product_photo});
   return (
     <article className="product-card">
       <h3 className="pc-title">{trimText(name, 20)}</h3>
       <div className="pc-image">
-        {imageURL ? (
-          <img src={imageURL} alt={name} />
+        {imgSrc ? (
+          <img src={imgSrc} alt={name} />
         ) : (
           <span>Product Picture</span>
         )}
