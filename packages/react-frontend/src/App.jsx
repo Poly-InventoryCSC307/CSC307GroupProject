@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 
-import { API_BASE_URL } from "../apiConfig";
+import { API_BASE_URL } from "./apiConfig";
 
 import Navbar from "./components/Navbar";
 import NavbarSearch from "./components/Navbar_search";
