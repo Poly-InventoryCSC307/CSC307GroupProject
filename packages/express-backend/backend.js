@@ -3,6 +3,7 @@ dotenv.config();
 console.log("MONGODB_URI:", process.env.MONGODB_URI);
 
 import inventoryServices from "./inventory-services.js";
+import uploadRoutes from "./uploadRoutes.js";
 import express from "express";
 import cors from "cors";
 
@@ -11,6 +12,7 @@ const port = 8000;
 
 app.use(cors());
 app.use(express.json());
+app.use("/images", uploadRoutes);
 
 // Create new store front 
 app.post("/stores", (req, res) => {
@@ -118,6 +120,7 @@ app.get("/inventory/:storeId/products", (req, res) => {
         quantity_in_back: Number(p.quantity_in_back ?? 0),
         incoming_quantity: Number(p.incoming_quantity ?? 0),
         product_photo: p.product_photo ?? "",
+        imageURL: p.product_photo ?? "",
         description: p.description ?? "",
       }));
 
