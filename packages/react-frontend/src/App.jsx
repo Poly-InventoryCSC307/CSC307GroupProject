@@ -59,7 +59,7 @@ function App() {
     (async () => {
       try {
         const res = await fetch(
-          `${API_BASE_URL}/inventory/690aaa9be73854e0640a1927/products`
+          `${API_BASE_URL}/stores/by-user/${currentUser.uid}`
         );
 
         if (res.status === 404) {
@@ -104,7 +104,7 @@ function App() {
     (async () => {
       try {
         const res = await fetch(
-          `${API_BASE_URL}/inventory/690aaa9be73854e0640a1927/products`
+          `${API_BASE_URL}/inventory/${store._id}/products`
         );
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
