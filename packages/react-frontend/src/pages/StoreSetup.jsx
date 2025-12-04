@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext/index";
 
+import { API_BASE_URL } from "../apiConfig";
+
 import "./StoreSetup.css";
 import "../components/PopUp.css";
 
@@ -35,7 +37,7 @@ export default function StoreSetup({ onStoreCreated }) {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:8000/stores", {
+      const res = await fetch(`${API_BASE_URL}/stores`, {        
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

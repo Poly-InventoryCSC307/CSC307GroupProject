@@ -1,5 +1,7 @@
 import "./productPage.css";
 
+import { API_BASE_URL } from "../apiConfig";
+
 import EditProductPopUp from "../components/EditProductPopUp";
 
 import React, { useEffect, useMemo, useState } from "react";
@@ -56,7 +58,7 @@ export default function ProductScreen({
       };
 
       const res = await fetch(
-        `http://localhost:8000/inventory/${storeID}/products/${encodeURIComponent(
+        `${API_BASE_URL}/inventory/${storeID}/products/${encodeURIComponent(
           oldSkuForDB,
         )}`,
         {

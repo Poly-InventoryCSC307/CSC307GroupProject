@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 
+import { API_BASE_URL } from "../apiConfig";
+
 import Navbar from "./components/Navbar";
 import NavbarSearch from "./components/Navbar_search";
 
@@ -57,7 +59,7 @@ function App() {
     (async () => {
       try {
         const res = await fetch(
-          `http://localhost:8000/stores/by-user/${currentUser.uid}`,
+          `${API_BASE_URL}/inventory/690aaa9be73854e0640a1927/products`
         );
 
         if (res.status === 404) {
@@ -102,7 +104,7 @@ function App() {
     (async () => {
       try {
         const res = await fetch(
-          `http://localhost:8000/inventory/${store._id}/products`,
+          `${API_BASE_URL}/inventory/690aaa9be73854e0640a1927/products`
         );
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();

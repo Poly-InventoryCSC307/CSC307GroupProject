@@ -9,8 +9,18 @@ import cors from "cors";
 const app = express();
 const port = 8000;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: true,          // reflect request origin
+    credentials: true,
+  })
+);
+
 app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("PolyPlus Inventory API is running ✅");
+});
 
 // Create new store front 
 app.post("/stores", (req, res) => {
@@ -214,41 +224,6 @@ app.delete("/inventory/:storeId/products", (req, res) => {
     });
 });
 
-// Update the price of a given product
-app.patch("/inventory/:storeId/products", (req, res) => {
-  const { storeId } = req.params;
-  const { SKU, price} = req.body;
-
-  // basic validation + helpful messages
-  if (!SKU) {
-    return res.status(400).json({ error: "SKU is required" });
-  }
-  if ((price) && typeof price !== "number" || Number.isNaN(price)) {
-    return res.status(400).json({ error: "price must be a number" });
-  }
-
-  inventoryServices
-    .updatePriceBySKU(storeId, SKU, price)
-    // .updateProduct(storeId, SKU, quantity, price)
-    .then((updated) => {
-      if (!updated) {
-        // no matched product for this store/SKU
-        return res.status(404).json({ error: "No product found for that SKU in this store" });
-      }
-      return res.json(updated); // { SKU, price }
-    })
-    .catch((err) => {
-      console.error("PATCH /inventory/:storeId/products error:", {
-        storeId,
-        SKU,
-        price,
-        message: err?.message,
-      });
-      // propagate a specific message if present, otherwise generic 500
-      res.status(500).json({ error: err?.message || "Failed to update price" });
-    });
-});
-
 // Update the product with new edits
 app.patch("/inventory/:storeId/products/:sku", (req, res) => {
   const { storeId, sku } = req.params;
@@ -283,29 +258,6 @@ app.patch("/inventory/:storeId/products/:sku", (req, res) => {
     });
 });
 
-
-// Used to increase or decrease the quantity of a given product 
-app.patch("/inventory/:storeId/products/:sku/quantity", (req, res) => {
-  const { storeId, sku } = req.params;
-  const { delta } = req.body || {};
-  const n = Number(delta);
-
-  if (!Number.isFinite(n) || n === 0) {
-    return res.status(400).json({ error: "Provide a non-zero numeric `delta`" });
-  }
-
-  inventoryServices
-    .updateQuantityBy(storeId, sku, n)
-    .then((p) => {
-      if (!p) return res.status(404).json({ error: "Product not found" });
-      // send only what the client needs
-      res.json({ SKU: p.SKU, total_quantity: p.total_quantity, price: p.price });
-    })
-    .catch((err) => {
-      console.error("Adjust quantity failed:", err);
-      res.status(500).json({ error: "Failed to adjust quantity" });
-    });
-});
 
 // app.listen(port, () => {
 //   console.log(

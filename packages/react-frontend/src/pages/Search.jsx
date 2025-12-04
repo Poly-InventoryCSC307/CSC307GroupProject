@@ -3,6 +3,8 @@ import "./Search.css";
 import addProductIcon from "../assets/add-product-button.svg";
 import removeProductIcon from "../assets/remove-product-button.svg";
 
+import { API_BASE_URL } from "../apiConfig";
+
 import SearchBar from "../components/SearchBar";
 import ProductCard from "../components/ProductCard";
 import AddProductPopUp from "../components/AddProductPopUp";
@@ -111,7 +113,7 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
       }
 
       const res = await fetch(
-        `http://localhost:8000/inventory/${storeID}/products`,
+        `${API_BASE_URL}/inventory/${storeID}/products`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -169,7 +171,7 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
     try {
       setSubmittingRem(true);
       const res = await fetch(
-        `http://localhost:8000/inventory/${storeID}/products`,
+        `${API_BASE_URL}/inventory/${storeID}/products`,
         {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
