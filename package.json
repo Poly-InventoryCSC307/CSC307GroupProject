@@ -21,7 +21,8 @@
     "packages/*"
   ],
   "dependencies": {
-    "mongoose": "^8.19.2"
+    "mongoose": "^8.19.2",
+    "dotenv": "^16.4.5"
   },
   "devDependencies": {
     "eslint-config-prettier": "^10.1.8",
