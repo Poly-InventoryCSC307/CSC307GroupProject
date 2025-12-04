@@ -2,7 +2,7 @@ import "./productPage.css";
 
 import EditProductPopUp from "../components/EditProductPopUp";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 export default function ProductScreen({
   initialProduct = null,
@@ -13,8 +13,6 @@ export default function ProductScreen({
   onProductUpdated,
 }) {
   const [product, setProduct] = useState(() => initialProduct || {});
-
-  const originalSkuRef = useRef(initialProduct?.SKU || "");
 
   // state for the Edit Product modal
   const [openEP, setOpenEP] = useState(false);
@@ -139,6 +137,14 @@ export default function ProductScreen({
   if (overlay) {
     return (
       <div className="p-modal">
+        <button
+          type="button"
+          className="p-modal__close"
+          onClick={onClose}
+          aria-label="Close product details"
+        >
+          X
+        </button>
         <div className="p-modal__grid">
           {/* Left: image */}
           <div className="p-modal__image">

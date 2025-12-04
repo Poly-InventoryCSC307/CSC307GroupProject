@@ -96,7 +96,6 @@
   box-shadow: 0 0 0 2px rgba(38, 166, 154, 0.3) inset;
 }
 
-
 /* --- Animations --- */
 @keyframes fadeInOverlay {
   from { opacity: 0; }

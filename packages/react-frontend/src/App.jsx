@@ -18,7 +18,7 @@ function App() {
   const [storeChecked, setStoreChecked] = useState(false);
 
   const [products, setProducts] = useState([]);
-  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [_loadingProducts, setLoadingProducts] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -80,7 +80,12 @@ function App() {
         setStoreChecked(true);
 
         // If user is on home or setup, send them to products
-        if (location.pathname === "/" || location.pathname === "/store-setup" || location.pathname === "/about" || location.pathname === "/features") {
+        if (
+          location.pathname === "/" ||
+          location.pathname === "/store-setup" ||
+          location.pathname === "/about" ||
+          location.pathname === "/features"
+        ) {
           navigate("/products");
         }
       } catch (err) {

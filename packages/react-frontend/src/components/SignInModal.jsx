@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useAuth } from "../context/authContext";
 import "./SignInModal.css";
 import logo from "../assets/logo-and-text.svg";
@@ -23,7 +23,7 @@ export default function SignInModal({ onClose }) {
   const isVerifyMessage = error && error.toLowerCase().includes("verify");
 
   // smooth transition on close
-  const handleRequestClose = () => {
+  const handleRequestClose = useCallback(() => {
     if (closing) return;
     setClosing(true);
 
@@ -31,7 +31,7 @@ export default function SignInModal({ onClose }) {
     setTimeout(() => {
       onClose?.();
     }, 250);
-  };
+  }, [closing, onClose]);
 
   // pressing the escape key closes the overlay
   useEffect(() => {

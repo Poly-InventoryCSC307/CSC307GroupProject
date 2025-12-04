@@ -31,7 +31,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 3000;
+  z-index: 3000;                                  /* make sure it is always in front */
   animation: fadeInOverlay 0.25s ease forwards;
 }
 
@@ -55,7 +55,7 @@
   animation: popOut 0.24s ease forwards; 
 }
 
-/* header */
+/* header container */
 .modal-header {
   position: relative;
   display: flex;
@@ -65,38 +65,49 @@
   border-bottom: 1.5px solid #0f0f0f;
   background: #b6ffc1;
 }
+/* header text details */
 .modal-header h3 {
   margin: 0;
   font-size: 1.15rem;
   font-weight: 800;
   color: #0f0f0f;
 }
+/* X in top right */
 .modal-close {
   border: none;
-  background: transparent;
+  background-color: transparent;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   font-size: 1.5rem;
   line-height: 1;
-  border-radius: 25%;
+  border-radius: 999px;
   cursor: pointer;
   color:black;
-  transition: all 0.3s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
 /* Change the background color to something else */
 .modal-close:hover{
-  background: black;
+  background-color: #a4e3ae;
+  transform: translateY(-2px);
+  color:black;
+  border: none;
+}
+
+.modal-close:active{
+  background-color: #a4e3ae;
+  transform: translateY(2px);
+  color:black;
   border: none;
 }
 
 /* body */
 .modal-content {
-  padding: 18px 16px 16px 16px;
+  padding: 5px 16px 16px 16px;  
 }
 .field {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-bottom: 14px;
 }
 .field label {
   font-weight: 700;
@@ -120,24 +131,27 @@
   justify-content: flex-end;
   gap: 10px;
   margin-top: 10px;
-  color: black
+  color: black;
 }
 .btn {
+  background-color: #26a69a;    /* box color  */
+  color: white;                 /* text color */
   border-radius: 8px;
-  padding: 10px 14px;
+  padding: 15px 24px;
+  border: none;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.05s ease, box-shadow 0.2s ease;
-  border: 1.5px solid #0f0f0f;
+  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
+
+.btn:hover {
+  background-color: #2e7d68;
+  transform: translateY(-2px);
+  border: none;
+}
+
 .btn:active {
-  transform: translateY(1px);
-}
-.btn.primary {
-  background: #26a69a;
-  color: black;
-}
-.btn.ghost {
-  background: white;
-  color: black;
+  background-color: #2e7d68;
+  transform: translateY(2px);
+  border: none;
 }

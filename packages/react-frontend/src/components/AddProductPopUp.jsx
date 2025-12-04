@@ -151,19 +151,19 @@ function AddProductPopUp({ open, onClose, onSubmit, isSubmitting }) {
 
           <footer className="modal-actions">
             <button
+              type="submit"
+              className="btn submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Saving..." : "Save Product"}
+            </button>
+            <button
               type="button"
-              className="btn ghost"
+              className="btn cancel"
               onClick={onClose}
               disabled={isSubmitting}
             >
               Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn primary"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Saving..." : "Save Product"}
             </button>
           </footer>
         </form>

@@ -15,18 +15,17 @@ export default function NavbarSearch({
   storeName = "",
   storeLocation = null,
 }) {
-
   // state for the logout-popup modal
   const [openLogout, setOpenLogout] = useState(false);
   const [submittingLogout, setSubmittingLogout] = useState(false);
-  
+
   const handleOpenLogout = () => {
     if (!submittingLogout) setOpenLogout(true);
   };
 
   // close the "Confirm Logout Popup" dialog safely
-  const handleCloseLogout = () => { 
-    if (!submittingLogout) setOpenLogout(false); 
+  const handleCloseLogout = () => {
+    if (!submittingLogout) setOpenLogout(false);
   };
 
   const handleConfirmLogout = async () => {
@@ -47,16 +46,11 @@ export default function NavbarSearch({
     <nav className="navbar-product">
       {/* LEFT: Logo */}
       <div className="navbar-product-left">
-        <img
-          src={logo}
-          alt="Poly+ Inventory Logo"
-          className="logo-product"
-        />
+        <img src={logo} alt="Poly+ Inventory Logo" className="logo-product" />
       </div>
 
       {/* RIGHT: search, greeting, store info, logout */}
       <div className="navbar-product-right">
-
         {/* optional search icon */}
         {showSearch && (
           <img
@@ -67,9 +61,7 @@ export default function NavbarSearch({
         )}
 
         {/* greeting */}
-        {userName && (
-          <span className="store-name">Hello {userName}</span>
-        )}
+        {userName && <span className="store-name">Hello {userName}</span>}
 
         {/* optional store name + tooltip (merged from filters branch) */}
         {storeName && (
@@ -79,14 +71,10 @@ export default function NavbarSearch({
             <div className="store-addr-rect">
               {storeLocation ? (
                 <>
-                  <div className="addr-line addr-title">
-                    Store Location
-                  </div>
+                  <div className="addr-line addr-title">Store Location</div>
 
                   {storeLocation.street && (
-                    <div className="addr-line">
-                      {storeLocation.street}
-                    </div>
+                    <div className="addr-line">{storeLocation.street}</div>
                   )}
 
                   {/* city, state, zip */}
@@ -94,7 +82,11 @@ export default function NavbarSearch({
                     .filter(Boolean)
                     .join(", ") && (
                     <div className="addr-line">
-                      {[storeLocation.city, storeLocation.state, storeLocation.zip]
+                      {[
+                        storeLocation.city,
+                        storeLocation.state,
+                        storeLocation.zip,
+                      ]
                         .filter(Boolean)
                         .join(", ")}
                     </div>
@@ -109,11 +101,7 @@ export default function NavbarSearch({
 
         {/* Logout wrapper */}
         <div className="logout-wrap" onClick={handleOpenLogout}>
-          <img
-            src={logoutIcon}
-            alt="Logout"
-            className="logout-product"
-          />
+          <img src={logoutIcon} alt="Logout" className="logout-product" />
         </div>
 
         {/* Logout confirmation popup */}
@@ -123,7 +111,6 @@ export default function NavbarSearch({
           onConfirm={handleConfirmLogout}
           isSubmitting={submittingLogout}
         />
-
       </div>
     </nav>
   );

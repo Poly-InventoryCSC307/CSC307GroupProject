@@ -9,14 +9,22 @@ import AddProductPopUp from "../components/AddProductPopUp";
 import RemoveProductPopUp from "../components/RemoveProductPopUp.jsx";
 
 import ProductScreen from "./productPage.jsx";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 import { createPortal } from "react-dom";
 
 const PRICE_MIN = 0;
-const PRICE_MAX = Infinity; // Subject to change
+const PRICE_MAX = Infinity;       // The user can enter any amount into the price max
+const PRICE_MAX_SLIDER = 1000;    // Display only up to 1000 with the slider
 
 const QTY_MIN = 0;
-const QTY_MAX = Infinity; // Subject to change
+const QTY_MAX = Infinity;         // The user can enter any amount into the quantity max
+const QTY_MAX_SLIDER = 1000;      // Display only up to 1000 with the slider
 
 function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
   const [term, setTerm] = useState("");
@@ -45,13 +53,16 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
   // update the main search grid with any new changes
   const [overrides, setOverrides] = useState({});
 
-  const applyOverrides = (list) =>
-    (list ?? []).map((p) => {
-      const base = p._baseSKU ?? p.SKU; // pick stable key
-      const ov = overrides[base];
-      // always keep _baseSKU on the object
-      return ov ? { ...p, ...ov, _baseSKU: base } : { ...p, _baseSKU: base };
-    });
+  const applyOverrides = useCallback(
+    (list) =>
+      (list ?? []).map((p) => {
+        const base = p._baseSKU ?? p.SKU; // pick stable key
+        const ov = overrides[base];
+        // always keep _baseSKU on the object
+        return ov ? { ...p, ...ov, _baseSKU: base } : { ...p, _baseSKU: base };
+      }),
+    [overrides],
+  );
 
   const handleProductUpdated = (originalSku, patch) => {
     // update the product in the overlay
@@ -196,45 +207,47 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
     inStockOnly: false,
     priceMin: PRICE_MIN,
     priceMax: PRICE_MAX,
-    minQty: QTY_MIN,
-    maxQty: QTY_MAX,
+    qtyMin: QTY_MIN,
+    qtyMax: QTY_MAX,
   });
 
-  const priceMinVal = Number.isFinite(filters.priceMin)
-    ? filters.priceMin
-    : PRICE_MIN;
-  const priceMaxVal = Number.isFinite(filters.priceMax)
-    ? filters.priceMax
-    : PRICE_MAX;
-  const priceMinPercent =
-    ((priceMinVal - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
-  // const priceMaxPercent = ((priceMaxVal - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
-
-  // Trying to fix only limiting the price to 1000
-  const priceMaxPercent =
-    PRICE_MAX === Infinity
-      ? 100
-      : ((priceMaxVal - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
-
-  // console.log(`Price Max: ${priceMaxVal}`);
-  // console.log(`Price Percent: ${priceMaxPercent}`);
-
+  // filter states
   const [sortBy, setSortBy] = useState("name-asc");
 
-  const qtyMinVal = Number.isFinite(filters.minQty) ? filters.minQty : QTY_MIN;
-  const qtyMaxVal = Number.isFinite(filters.maxQty) ? filters.maxQty : QTY_MAX;
-  const qtyMinPercent = ((qtyMinVal - QTY_MIN) / (QTY_MAX - QTY_MIN)) * 100;
-  // const qtyMaxPercent = ((qtyMaxVal - QTY_MIN) / (QTY_MAX - QTY_MIN)) * 100;
+  // where the filter slider should be 
+  const priceMinVal = Number.isFinite(filters.priceMin)
+    ? Math.min(filters.priceMin, PRICE_MAX_SLIDER)
+    : PRICE_MIN;
+  const priceMaxVal = Number.isFinite(filters.priceMax)
+    ? Math.min(filters.priceMax, PRICE_MAX_SLIDER)
+    : PRICE_MAX_SLIDER;
+  
+  // how full the slider bar should be
+  const priceMinPercent =
+    ((priceMinVal - PRICE_MIN) / (PRICE_MAX_SLIDER  - PRICE_MIN)) * 100;
 
-  // Trying to fix only limiting the quantity to 100
+  const priceMaxPercent =
+    ((priceMaxVal - PRICE_MIN) / (PRICE_MAX_SLIDER - PRICE_MIN)) * 100;
+
+  // where the filter slider should be 
+  const qtyMinVal = Number.isFinite(filters.qtMin)
+    ? Math.min(filters.qtyMin, QTY_MAX_SLIDER)
+    : QTY_MIN;
+
+  const qtyMaxVal = Number.isFinite(filters.qtMax)
+    ? Math.min(filters.qtyMax, QTY_MAX_SLIDER)
+    : QTY_MAX_SLIDER;
+
+  // how full the slider bar should be
+  const qtyMinPercent = 
+    ((qtyMinVal - QTY_MIN) / (QTY_MAX_SLIDER  - QTY_MIN)) * 100;
+
   const qtyMaxPercent =
-    QTY_MAX === Infinity
-      ? 100
-      : ((qtyMaxVal - QTY_MIN) / (QTY_MAX - QTY_MIN)) * 100;
+    ((qtyMaxVal - QTY_MIN) / (QTY_MAX_SLIDER  - QTY_MIN)) * 100;
 
   const withOverrides = useMemo(
     () => applyOverrides(productsData ?? []),
-    [productsData, overrides],
+    [productsData, applyOverrides],
   );
 
   // Removes products that don't fit with the given filters
@@ -297,6 +310,9 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
     const num = (v) => Number(v ?? 0);
     const cmpNum = (a, b, key) => num(a[key]) - num(b[key]);
     switch (sortBy) {
+      case "name-asc":
+        sortedList.sort((a, b) => cmpStr(a, b, "name"));
+        break;
       case "name-desc":
         sortedList.sort((a, b) => cmpStr(b, a, "name"));
         break;
@@ -309,8 +325,8 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
       case "sku-asc":
         sortedList.sort((a, b) => cmpStr(a, b, "SKU"));
         break;
-      case "name-asc":
-        sortedList.sort((a, b) => cmpStr(a, b, "name"));
+      case "sku-desc":
+        sortedList.sort((a, b) => cmpStr(b, a, "SKU"));
         break;
       default:
         break;
@@ -345,19 +361,13 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
     return () => io.disconnect();
   }, [sorted.length]);
 
-  const [portalProduct, setPortalProduct] = useState(null);
+  // const [portalProduct, setPortalProduct] = useState(null);
   const [overlayClosing, setOverlayClosing] = useState(false);
-
-  // whenever a product is selected, sync it into the portal
-  useEffect(() => {
-    if (selected) setPortalProduct(selected);
-  }, [selected]);
 
   const closeOverlay = () => {
     setOverlayClosing(true);
     setTimeout(() => {
       setOverlayClosing(false);
-      setPortalProduct(null);
       setSelected(null);
     }, 250); // match CSS overlayOut/panelOut timing
   };
@@ -409,7 +419,8 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
               <option value="name-desc">Name (Z-A)</option>
               <option value="price-asc">Price (Low to High)</option>
               <option value="price-desc">Price (High to Low)</option>
-              <option value="sku-asc">SKU</option>
+              <option value="sku-asc">SKU (A-Z)</option>
+              <option value="sku-desc">SKU (Z-A)</option>
             </select>
           </div>
           <div className="filters-body">
@@ -488,8 +499,8 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
                   />
                   <input
                     type="range"
-                    min="0"
-                    max="1000"
+                    min={PRICE_MIN}
+                    max={PRICE_MAX_SLIDER}
                     value={priceMinVal}
                     onChange={(e) => {
                       const val = Number(e.target.value);
@@ -505,8 +516,8 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
                   />
                   <input
                     type="range"
-                    min="0"
-                    max="1000"
+                    min={PRICE_MIN}
+                    max={PRICE_MAX_SLIDER}
                     value={priceMaxVal}
                     onChange={(e) => {
                       const val = Number(e.target.value);
@@ -589,7 +600,7 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
                   <input
                     type="range"
                     min={QTY_MIN}
-                    max={QTY_MAX}
+                    max={QTY_MAX_SLIDER}
                     value={qtyMinVal}
                     onChange={(e) => {
                       const val = Number(e.target.value);
@@ -607,7 +618,7 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
                   <input
                     type="range"
                     min={QTY_MIN}
-                    max={QTY_MAX}
+                    max={QTY_MAX_SLIDER}
                     value={qtyMaxVal}
                     onChange={(e) => {
                       const val = Number(e.target.value);
@@ -723,33 +734,6 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
                 flexDirection: "column",
               }}
             >
-              {/* close button */}
-              <button
-                onClick={closeOverlay}
-                aria-label="Close"
-                style={{
-                  position: "absolute",
-                  top: 16,
-                  right: 15,
-                  zIndex: 1,
-                  width: 36,
-                  height: 36,
-                  border: "none",
-                  borderRadius: 999,
-                  background: "#fff",
-                  fontSize: 22,
-                  fontWeight: 700,
-                  display: "grid",
-                  placeItems: "center",
-                  boxShadow: "0 3px 8px rgba(0,0,0,.25)",
-                  cursor: "pointer",
-                  color: "#111", // makes the × visible
-                  lineHeight: 1,
-                }}
-              >
-                X
-              </button>
-
               {/* scrollable body */}
               <div
                 style={{

@@ -171,19 +171,19 @@ function EditProductPopUp({
 
           <footer className="modal-actions">
             <button
+              type="submit"
+              className="btn submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Updating Product..." : "Update Product"}
+            </button>
+            <button
               type="button"
-              className="btn ghost"
+              className="btn cancel"
               onClick={onClose}
               disabled={isSubmitting}
             >
               Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn primary"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Updating Product..." : "Update Product"}
             </button>
           </footer>
         </form>

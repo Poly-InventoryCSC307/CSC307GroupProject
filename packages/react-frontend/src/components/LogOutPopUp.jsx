@@ -1,15 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./PopUp.css";
 
-function LogOutPopUp({
-  open,
-  onClose,
-  onConfirm,
-  isSubmitting,
-}) {
+function LogOutPopUp({ open, onClose, onConfirm, isSubmitting }) {
   const overlayRef = useRef(null);
 
-  // Use for opening and closing animations 
+  // Use for opening and closing animations
   const [show, setShow] = useState(open);
   const [closing, setClosing] = useState(false);
 
@@ -25,7 +20,7 @@ function LogOutPopUp({
     if (!open) return;
   }, [open]);
 
-  // Add transition between opening and closing 
+  // Add transition between opening and closing
   useEffect(() => {
     if (open) {
       setShow(true);
@@ -37,14 +32,14 @@ function LogOutPopUp({
       const t = setTimeout(() => {
         setShow(false);
         setClosing(false);
-      }, 250); 
+      }, 250);
       return () => clearTimeout(t);
     }
   }, [open, show]);
-  
+
   if (!show) return null;
 
-  // If you click outside the overlay, close it 
+  // If you click outside the overlay, close it
   const handleOverlayClick = (e) => {
     if (e.target === overlayRef.current) onClose?.();
   };
@@ -52,7 +47,7 @@ function LogOutPopUp({
   // Once you confirm to logout, sign the user out
   const handleSubmit = (e) => {
     e.preventDefault();
-    onConfirm?.();   // tell parent: “user confirmed logout”
+    onConfirm?.(); // tell parent: “user confirmed logout”
   };
 
   return (
@@ -73,40 +68,40 @@ function LogOutPopUp({
         </header>
 
         <form className="modal-content" onSubmit={handleSubmit}>
-            <p style={{ 
-                margin: "auto 1rem", 
-                color:"black", 
-                fontWeight:"bold", 
-                fontSize:"20pt",
-                paddingBottom:"20px" 
-                }}
-            >
-                Are you sure you want to log out?
-            </p>
+          <p
+            style={{
+              margin: "auto 1rem",
+              color: "black",
+              fontWeight: "bold",
+              fontSize: "20pt",
+              paddingBottom: "20px",
+            }}
+          >
+            Are you sure you want to log out?
+          </p>
           <footer className="modal-actions">
-            <button 
-                type="submit" 
-                className="btn primary" 
-                disabled={isSubmitting}
-                style={{
-                    margin:"auto",
-                }}
+            <button
+              type="submit"
+              className="btn primary"
+              disabled={isSubmitting}
+              style={{
+                margin: "auto",
+              }}
             >
               {isSubmitting ? "Logging Out..." : "Logout"}
             </button>
-            
+
             <button
               type="button"
               className="btn ghost"
               onClick={onClose}
               disabled={isSubmitting}
               style={{
-                margin:"auto"
+                margin: "auto",
               }}
             >
               Cancel
             </button>
-            
           </footer>
         </form>
       </div>
@@ -114,4 +109,4 @@ function LogOutPopUp({
   );
 }
 
-export default LogOutPopUp
+export default LogOutPopUp;
