@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useAuth } from "../context/authContext"; 
+import { useAuth } from "../context/authContext";
 import "./SignInModal.css";
 import logo from "../assets/logo-and-text.svg";
 
@@ -9,7 +9,7 @@ import logo from "../assets/logo-and-text.svg";
 
 export default function SignInModal({ onClose }) {
   // login and signup from index.jsx
-  const {login, signup, signInWithGoogle } = useAuth();
+  const { login, signup, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -24,15 +24,14 @@ export default function SignInModal({ onClose }) {
 
   // smooth transition on close
   const handleRequestClose = () => {
-    if (closing) return;           
+    if (closing) return;
     setClosing(true);
 
     // wait for CSS animation to finish, then unmount
     setTimeout(() => {
       onClose?.();
-    }, 250); 
+    }, 250);
   };
-
 
   // pressing the escape key closes the overlay
   useEffect(() => {
@@ -52,7 +51,7 @@ export default function SignInModal({ onClose }) {
     }
   };
 
-  //login and sign up submit 
+  //login and sign up submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -62,7 +61,7 @@ export default function SignInModal({ onClose }) {
       if (isSignUp) {
         await signup(email, password);
         return;
-      } 
+      }
       await login(email, password);
 
       handleRequestClose();
@@ -113,11 +112,11 @@ export default function SignInModal({ onClose }) {
               />
             </div>
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               style={{
                 // Add a little gap between sign in and sign in with google
-                marginBottom:"15px",      
+                marginBottom: "15px",
               }}
             >
               {isSignUp ? "Sign Up" : "Sign In"}

@@ -46,13 +46,19 @@ export function AuthProvider({ children }) {
 
   // Signup + send verification email
   const signup = async (email, password) => {
-    const userCred = await createUserWithEmailAndPassword(auth, email, password);
+    const userCred = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password,
+    );
     const user = userCred.user;
 
     await sendEmailVerification(user);
     await firebaseSignOut(auth);
 
-    throw new Error("A verification email has been sent. Please verify your email.");
+    throw new Error(
+      "A verification email has been sent. Please verify your email.",
+    );
   };
 
   // Google sign-in

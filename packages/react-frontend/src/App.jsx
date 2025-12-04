@@ -57,7 +57,7 @@ function App() {
     (async () => {
       try {
         const res = await fetch(
-          `http://localhost:8000/stores/by-user/${currentUser.uid}`
+          `http://localhost:8000/stores/by-user/${currentUser.uid}`,
         );
 
         if (res.status === 404) {
@@ -80,10 +80,7 @@ function App() {
         setStoreChecked(true);
 
         // If user is on home or setup, send them to products
-        if (
-          location.pathname === "/" ||
-          location.pathname === "/store-setup"
-        ) {
+        if (location.pathname === "/" || location.pathname === "/store-setup" || location.pathname === "/about" || location.pathname === "/features") {
           navigate("/products");
         }
       } catch (err) {
@@ -100,7 +97,7 @@ function App() {
     (async () => {
       try {
         const res = await fetch(
-          `http://localhost:8000/inventory/${store._id}/products`
+          `http://localhost:8000/inventory/${store._id}/products`,
         );
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
@@ -141,7 +138,7 @@ function App() {
 
   return (
     <>
-      {(isProductRoute || isStoreSetupRoute) ? (
+      {isProductRoute || isStoreSetupRoute ? (
         <NavbarSearch
           userName={userName}
           storeName={store?.name || ""}

@@ -1,13 +1,13 @@
 // StoreSetup.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/authContext/index"; 
+import { useAuth } from "../context/authContext/index";
 
 import "./StoreSetup.css";
-import "../components/PopUp.css";   
+import "../components/PopUp.css";
 
 export default function StoreSetup({ onStoreCreated }) {
-  const { currentUser } = useAuth();        // Get the logged in user ID
+  const { currentUser } = useAuth(); // Get the logged in user ID
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
@@ -74,7 +74,10 @@ export default function StoreSetup({ onStoreCreated }) {
           <h3 className="signup-header">Set up your store</h3>
         </header>
 
-        <form className="store-setup-form modal-content" onSubmit={handleSubmit}>
+        <form
+          className="store-setup-form modal-content"
+          onSubmit={handleSubmit}
+        >
           <div className="signup-info">
             Tell us about your location so we can store your inventory.
           </div>
@@ -137,11 +140,7 @@ export default function StoreSetup({ onStoreCreated }) {
           {error && <p className="error">{error}</p>}
 
           <footer className="modal-actions">
-            <button
-              className="btn primary"
-              type="submit"
-              disabled={submitting}
-            >
+            <button className="btn primary" type="submit" disabled={submitting}>
               {submitting ? "Saving..." : "Create store"}
             </button>
           </footer>

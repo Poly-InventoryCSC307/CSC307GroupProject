@@ -1,14 +1,14 @@
-import "./productPage.css"
+import "./productPage.css";
 
 import EditProductPopUp from "../components/EditProductPopUp";
 
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
-export default function ProductScreen({ 
-  initialProduct = null, 
-  baseSKU, 
+export default function ProductScreen({
+  initialProduct = null,
+  baseSKU,
   overlay = false,
-  storeID,           
+  storeID,
   onClose,
   onProductUpdated,
 }) {
@@ -21,15 +21,15 @@ export default function ProductScreen({
   const [submittingEP, setSubmittingEP] = useState(false);
 
   // close the "Edit Product" dialog safely
-  const handleCloseEP = () => { if (!submittingEP) setOpenEP(false); };
+  const handleCloseEP = () => {
+    if (!submittingEP) setOpenEP(false);
+  };
   const handleSubmitEP = async (payload) => {
     try {
       setSubmittingEP(true);
 
-      const oldSkuForDB = String(product?.SKU || "").trim();      
+      const oldSkuForDB = String(product?.SKU || "").trim();
       if (!oldSkuForDB) throw new Error("Missing SKU for this product.");
-
-      const originalSku = originalSkuRef.current || oldSkuForDB;
 
       const newName = payload.name.trim();
       const newSku = payload.SKU.trim();
@@ -57,16 +57,15 @@ export default function ProductScreen({
         incoming_quantity: Number(product?.incoming_quantity ?? 0),
       };
 
-      
       const res = await fetch(
         `http://localhost:8000/inventory/${storeID}/products/${encodeURIComponent(
-          oldSkuForDB
+          oldSkuForDB,
         )}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updates),
-        }
+        },
       );
 
       let data;
@@ -114,13 +113,13 @@ export default function ProductScreen({
 
     const onKey = (e) => {
       if (e.key !== "Escape") return;
-      if (openEP) return;     // If the edit or update is open 
+      if (openEP) return; // If the edit or update is open
       onClose?.();
     };
 
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [overlay, onClose, openEP]);  
+  }, [overlay, onClose, openEP]);
 
   const name = product?.name || "—";
   const sku = product?.SKU || "—";
@@ -186,7 +185,10 @@ export default function ProductScreen({
             </div>
 
             <div className="p-actions">
-              <button className="btn-edit-product" onClick={() => setOpenEP(true)}>
+              <button
+                className="btn-edit-product"
+                onClick={() => setOpenEP(true)}
+              >
                 Edit Product
               </button>
             </div>
