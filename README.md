@@ -21,12 +21,12 @@ Welcome to our humble GitHub page! Poly+ inventory is an inventory management we
 
 Our product includes the following features: 
 
-- Custom login credentials with email verification
-- Tracking of quantity on display as well as back stock
 - Add/removal of products
-- Searching by name or identification number
-- Filtering using price and quantity 
+- Custom login credentials with email verification
 - Editing of product information including name, identification number, quantity, and price 
+- Filtering using price and quantity 
+- Searching by name or identification number
+- Tracking of quantity on display as well as back stock
 
 ## Tech Stack
 
@@ -76,7 +76,9 @@ npm install
 ```
 
 3. Configure environment variables
+
 Create a .env file inside the backend folder with your personal settings. 
+
 ```bash
 MONGO_URI=your-database-url
 ```
@@ -96,7 +98,9 @@ cd ../react-frontend
 npm run dev
 ```
 3. Visit the website
+
 Open your browser and navigate to the url displayed in terminal running frontend. The url will appear similar to the following: 
+
 ```bash
 http://localhost:1111
 ```
