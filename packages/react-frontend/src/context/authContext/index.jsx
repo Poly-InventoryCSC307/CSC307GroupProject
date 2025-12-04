@@ -87,7 +87,6 @@ export function AuthProvider({ children }) {
       throw new Error ("Unexpected error occured during sign up")
     }
   };
-  
 
   // Google sign-in
   const signInWithGoogle = () => {
