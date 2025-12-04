@@ -1,18 +1,15 @@
 # Frontend (Powered by React) 
 
 ## Scripts 
+
 npm install
+
 npm run dev
+
 npm run lint 
+
 npm run lint -- --fix
 
-## Project Structure
-src/ 
-  assets/ 
-  components/
-  context/
-  firebase/
-  pages/ 
 
 ## Tech Used 
 - Azure Static Web Apps

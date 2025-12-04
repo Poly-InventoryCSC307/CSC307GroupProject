@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1764842466474" clover="3.2.0">
+  <project timestamp="1764842466474" name="All files">
+    <metrics statements="8" coveredstatements="8" conditionals="2" coveredconditionals="2" methods="6" coveredmethods="6" elements="16" coveredelements="16" complexity="0" loc="8" ncloc="8" packages="1" files="1" classes="1"/>
+    <file name="Navbar.jsx" path="/Users/alyssagerardo/Desktop/CSC307GroupProject/packages/jest-unit-testing/Navbar.jsx">
+      <metrics statements="8" coveredstatements="8" conditionals="2" coveredconditionals="2" methods="6" coveredmethods="6"/>
+      <line num="9" count="7" type="stmt"/>
+      <line num="10" count="7" type="stmt"/>
+      <line num="11" count="7" type="stmt"/>
+      <line num="19" count="1" type="stmt"/>
+      <line num="20" count="1" type="stmt"/>
+      <line num="21" count="1" type="stmt"/>
+      <line num="29" count="2" type="stmt"/>
+      <line num="34" count="1" type="cond" truecount="2" falsecount="0"/>
+    </file>
+  </project>
+</coverage>
