@@ -15,10 +15,13 @@
     "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.943.0",
+    "@aws-sdk/s3-request-presigner": "^3.943.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^5.1.0",
-    "mongoose": "^8.19.2"
+    "mongoose": "^8.19.2",
+    "multer": "^2.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

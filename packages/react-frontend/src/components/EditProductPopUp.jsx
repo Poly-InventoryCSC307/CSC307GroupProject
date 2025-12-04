@@ -15,11 +15,13 @@ function EditProductPopUp({
     price: "",
     quantity: "",
     description: "",
+    image: "",
   });
 
   // Use for opening and closing animations
   const [show, setShow] = useState(open);
   const [closing, setClosing] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
 
   useEffect(() => {
     if (!open) return;
@@ -46,6 +48,7 @@ function EditProductPopUp({
             )
           : "",
       description: initialProduct?.description ?? "",
+      image: initialProduct?.imageFile ?? "",
     });
   }, [open, initialProduct]);
 
@@ -76,6 +79,11 @@ function EditProductPopUp({
     setForm((f) => ({ ...f, [name]: value }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    setImageFile(file);
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const payload = {
@@ -84,6 +92,7 @@ function EditProductPopUp({
       price: Number(form.price || 0),
       quantity: Number(form.quantity || 0),
       description: form.description.trim(),
+      imageFile,
     };
     onSubmit?.(payload);
   };
@@ -166,6 +175,18 @@ function EditProductPopUp({
               onChange={handleChange}
               placeholder="Short description..."
               rows={4}
+            />
+          </div>
+
+          <div className="field">
+            <label htmlFor="img">Image</label>
+            <input
+              id="image"
+              name="image"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              required
             />
           </div>
 

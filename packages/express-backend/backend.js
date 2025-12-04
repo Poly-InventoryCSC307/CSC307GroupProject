@@ -1,22 +1,22 @@
 import dotenv from "dotenv";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+
 dotenv.config();
 console.log("MONGODB_URI:", process.env.MONGODB_URI);
 
 import inventoryServices from "./inventory-services.js";
+import uploadRoutes from "./uploadRoutes.js";
 import express from "express";
 import cors from "cors";
 
 const app = express();
 const port = 8000;
 
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  }),
-);
-
+app.use(cors());
 app.use(express.json());
+app.use("/images", uploadRoutes);
 
 app.get("/", (req, res) => {
   res.send("PolyPlus Inventory API is running");
@@ -129,6 +129,7 @@ app.get("/inventory/:storeId/products", (req, res) => {
         quantity_in_back: Number(p.quantity_in_back ?? 0),
         incoming_quantity: Number(p.incoming_quantity ?? 0),
         product_photo: p.product_photo ?? "",
+        imageURL: p.product_photo ?? "",
         description: p.description ?? "",
       }));
 

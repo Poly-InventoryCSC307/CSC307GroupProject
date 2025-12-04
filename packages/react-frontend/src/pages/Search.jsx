@@ -72,14 +72,50 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
       if (!prev) return prev;
       const base = prev._baseSKU ?? prev.SKU;
       if (base !== originalSku) return prev;
-      return { ...prev, ...patch, _baseSKU: base };
+      
+      const merged = { ...prev, ...patch, _baseSKU: base };
+
+      // normalize image fields if patch has an image
+      if (patch.image) {
+        merged.image = patch.image;
+        merged.imageURL = patch.image;
+      }
+
+      return merged;
     });
 
     // update the overrides used by the grid
-    setOverrides((prev) => ({
-      ...prev,
-      [originalSku]: { ...(prev[originalSku] || {}), ...patch },
-    }));
+    setOverrides((prev) => {
+      const overridesForOld = {
+        ...(prev[originalSku] || {}),
+        ...patch,
+      };
+
+      // normalize image in overrides too
+      if (patch.image) {
+        overridesForOld.image = patch.image;
+        overridesForOld.imageURL = patch.image;
+      }
+
+      const next = {
+        ...prev,
+        [originalSku]: overridesForOld,
+      };
+
+      // if SKU changed, move overrides to the new SKU key
+      const newSku =
+        patch.SKU && patch.SKU !== originalSku ? patch.SKU : null;
+
+      if (newSku) {
+        next[newSku] = {
+          ...(next[newSku] || {}),
+          ...overridesForOld,
+        };
+        delete next[originalSku];
+      }
+
+      return next;
+    });
   };
 
   // lock page scroll when overlay is open
@@ -112,7 +148,34 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
         return;
       }
 
-      const res = await fetch(`${API_BASE_URL}/inventory/${storeID}/products`, {
+      // upload image to polyproducts (name of s3 bucket)
+      let imageURL = "";
+
+      if (payload.imageFile) {
+        const formData = new FormData();
+        formData.append("image", payload.imageFile);
+        
+        const uploadRes = await fetch(`${API_BASE_URL}/upload/${storeID}`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          const errText = await uploadRes.text();
+          throw new Error(`Image upload failed: ${errText || uploadRes.status}`)
+        }
+
+        const uploadData = await uploadRes.json();
+        // adjust the property to whatever the api returns
+        imageURL = uploadData.imageURL || uploadData.url || uploadData.location || "";
+        if (!imageURL) {
+          throw new Error("Image upload did not return an imageURL");
+        }
+      }
+
+      const res = await fetch(
+        `${API_BASE_URL}/inventory/${storeID}/products`, 
+        {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -121,6 +184,7 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
           quantity: Number(payload.quantity ?? 0),
           description: payload.description?.trim() ?? "",
           price: Number(payload.price ?? 0),
+          product_photo: imageURL // send this back to backend to store it
         }),
       });
 
@@ -167,7 +231,66 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
   const handleSubmitRem = async (payload) => {
     try {
       setSubmittingRem(true);
-      const res = await fetch(`${API_BASE_URL}/inventory/${storeID}/products`, {
+
+      const sku = String(payload.SKU).trim();
+      if (!sku) {
+        throw new Error("SKU is required");
+      }
+
+      const product = (productsData ?? []).find((p) => 
+        String(p.SKU).trim().toLowerCase() === sku.toLowerCase()
+      );
+
+      let imageKey = "";
+
+      if (product) {
+        const raw = (product.product_photo && String(product.product_photo).trim()) ||
+          (product.imageURL && String(product.imageURL).trim()) ||
+          "";
+
+        if (raw) {
+          if (raw.startsWith("http://") || raw.startsWith("https://")) {
+            try {
+              const u = new URL(raw);
+              if (u.hostname === "polyproducts.s3.amazonaws.com") {
+                imageKey = u.pathname.replace(/^\/+/, "");
+              }
+            } catch {
+              throw Error("Couldn't delete Image, so can't delete product.");
+            }
+          } else {
+            imageKey = raw;
+          }
+        } else {console.error("issue with raw url")}
+      } else {
+        console.error("issue with getting product");
+      }
+      if (imageKey) {
+        try { 
+          const resFile = await fetch(
+          `${API_BASE_URL}/images/file/${encodeURIComponent(imageKey)}`,
+          {
+            method: "DELETE",
+          })
+          if (!resFile.ok) {
+            console.warn("Failed to delete image from S3",
+            resFile.status,
+          );
+          } else {
+            const fileData = await resFile.json();
+            console.log("Image deleted:", fileData);
+          }
+        } catch (err) {
+          console.warn("Error when deleting image from S3", err);
+        }
+      } else {
+        console.error("issue, can't get imageKey");
+      }
+      
+
+      const res = await fetch(
+        `${API_BASE_URL}/inventory/${storeID}/products`, 
+        {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
