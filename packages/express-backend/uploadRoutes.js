@@ -21,10 +21,10 @@ const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 // GET /api/file-url/:key  ->  { url: "https://signed-..." }
-router.get("/file-url/:key", async (req, res) => {
+router.get("/file-url/*", async (req, res) => {
   try {
     const bucket = process.env.S3_BUCKET_NAME;  // "polyproducts"
-    const key = decodeURIComponent(req.params.key);
+    const key = req.params[0]; // already decoded path segment
 
     const command = new GetObjectCommand({
       Bucket: bucket,

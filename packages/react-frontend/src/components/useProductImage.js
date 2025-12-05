@@ -37,7 +37,12 @@ export function useProductImage(product) {
           fetch(
             `${API_BASE_URL}/images/file-url/${encodeURIComponent(key)}`
           )
-            .then((res) => res.json())
+            .then((res) => {
+              if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
+              }
+              return res.json();
+            })
             .then((data) => setUrl(data.url || ""))
             .catch((err) => {
               console.error("Failed to fetch signed URL from S3 URL:", err);
@@ -60,7 +65,12 @@ export function useProductImage(product) {
     fetch(
       `${API_BASE_URL}/images/file-url/${encodeURIComponent(key)}`
     )
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => setUrl(data.url || ""))
       .catch((err) => {
         console.error("Failed to fetch signed URL from key:", err);
