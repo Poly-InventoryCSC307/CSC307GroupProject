@@ -104,7 +104,7 @@ function App() {
     (async () => {
       try {
         const res = await fetch(
-          `${API_BASE_URL}/inventory/${store._id}/products`,
+          `${VITE_API_URL}/inventory/${store._id}/products`,
         );
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
