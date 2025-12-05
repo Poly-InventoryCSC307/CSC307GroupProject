@@ -35,7 +35,7 @@ export function useProductImage(product) {
           const key = u.pathname.replace(/^\/+/, "");
 
           fetch(
-            `${API_BASE_URL}/file-url/${encodeURIComponent(key)}`
+            `${API_BASE_URL}/images/file-url/${encodeURIComponent(key)}`
           )
             .then((res) => res.json())
             .then((data) => setUrl(data.url || ""))
