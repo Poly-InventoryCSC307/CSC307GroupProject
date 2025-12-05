@@ -72,7 +72,7 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
       if (!prev) return prev;
       const base = prev._baseSKU ?? prev.SKU;
       if (base !== originalSku) return prev;
-      
+
       const merged = { ...prev, ...patch, _baseSKU: base };
 
       // normalize image fields if patch has an image
@@ -103,8 +103,7 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
       };
 
       // if SKU changed, move overrides to the new SKU key
-      const newSku =
-        patch.SKU && patch.SKU !== originalSku ? patch.SKU : null;
+      const newSku = patch.SKU && patch.SKU !== originalSku ? patch.SKU : null;
 
       if (newSku) {
         next[newSku] = {
@@ -154,7 +153,7 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
       if (payload.imageFile) {
         const formData = new FormData();
         formData.append("image", payload.imageFile);
-        
+
         const uploadRes = await fetch(
           `${API_BASE_URL}/images/upload/${storeID}`,
           {
@@ -165,20 +164,21 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
 
         if (!uploadRes.ok) {
           const errText = await uploadRes.text();
-          throw new Error(`Image upload failed: ${errText || uploadRes.status}`)
+          throw new Error(
+            `Image upload failed: ${errText || uploadRes.status}`,
+          );
         }
 
         const uploadData = await uploadRes.json();
         // adjust the property to whatever the api returns
-        imageURL = uploadData.imageURL || uploadData.url || uploadData.location || "";
+        imageURL =
+          uploadData.imageURL || uploadData.url || uploadData.location || "";
         if (!imageURL) {
           throw new Error("Image upload did not return an imageURL");
         }
       }
 
-      const res = await fetch(
-        `${API_BASE_URL}/inventory/${storeID}/products`, 
-        {
+      const res = await fetch(`${API_BASE_URL}/inventory/${storeID}/products`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -187,7 +187,7 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
           quantity: Number(payload.quantity ?? 0),
           description: payload.description?.trim() ?? "",
           price: Number(payload.price ?? 0),
-          product_photo: imageURL // send this back to backend to store it
+          product_photo: imageURL, // send this back to backend to store it
         }),
       });
 
@@ -218,6 +218,8 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
         quantity: Number(
           saved.quantity ?? saved.total_quantity ?? payload.quantity ?? 0,
         ),
+        quantity_on_floor: Number(saved.quantity_on_floor ?? 0),
+        quantity_in_back: Number(saved.quantity_in_back ?? 0),
         description: saved.description ?? payload.description ?? "",
       };
 
@@ -240,14 +242,15 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
         throw new Error("SKU is required");
       }
 
-      const product = (productsData ?? []).find((p) => 
-        String(p.SKU).trim().toLowerCase() === sku.toLowerCase()
+      const product = (productsData ?? []).find(
+        (p) => String(p.SKU).trim().toLowerCase() === sku.toLowerCase(),
       );
 
       let imageKey = "";
 
       if (product) {
-        const raw = (product.product_photo && String(product.product_photo).trim()) ||
+        const raw =
+          (product.product_photo && String(product.product_photo).trim()) ||
           (product.imageURL && String(product.imageURL).trim()) ||
           "";
 
@@ -264,21 +267,22 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
           } else {
             imageKey = raw;
           }
-        } else {console.error("issue with raw url")}
+        } else {
+          console.error("issue with raw url");
+        }
       } else {
         console.error("issue with getting product");
       }
       if (imageKey) {
-        try { 
+        try {
           const resFile = await fetch(
-          `${API_BASE_URL}/images/file/${encodeURIComponent(imageKey)}`,
-          {
-            method: "DELETE",
-          })
-          if (!resFile.ok) {
-            console.warn("Failed to delete image from S3",
-            resFile.status,
+            `${API_BASE_URL}/images/file/${encodeURIComponent(imageKey)}`,
+            {
+              method: "DELETE",
+            },
           );
+          if (!resFile.ok) {
+            console.warn("Failed to delete image from S3", resFile.status);
           } else {
             const fileData = await resFile.json();
             console.log("Image deleted:", fileData);
@@ -289,11 +293,8 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
       } else {
         console.error("issue, can't get imageKey");
       }
-      
 
-      const res = await fetch(
-        `${API_BASE_URL}/inventory/${storeID}/products`, 
-        {
+      const res = await fetch(`${API_BASE_URL}/inventory/${storeID}/products`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -336,10 +337,12 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
   // filter states
   const [sortBy, setSortBy] = useState("name-asc");
 
-  // where the filter slider should be
+  // where the left price filter slider should be
   const priceMinVal = Number.isFinite(filters.priceMin)
     ? Math.min(filters.priceMin, PRICE_MAX_SLIDER)
     : PRICE_MIN;
+
+  // where the left price filter slider should be
   const priceMaxVal = Number.isFinite(filters.priceMax)
     ? Math.min(filters.priceMax, PRICE_MAX_SLIDER)
     : PRICE_MAX_SLIDER;
@@ -351,12 +354,13 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
   const priceMaxPercent =
     ((priceMaxVal - PRICE_MIN) / (PRICE_MAX_SLIDER - PRICE_MIN)) * 100;
 
-  // where the filter slider should be
-  const qtyMinVal = Number.isFinite(filters.qtMin)
+  // where the left quantity filter slider should be
+  const qtyMinVal = Number.isFinite(filters.qtyMin)
     ? Math.min(filters.qtyMin, QTY_MAX_SLIDER)
     : QTY_MIN;
 
-  const qtyMaxVal = Number.isFinite(filters.qtMax)
+  // where the right quantity filter slider should be
+  const qtyMaxVal = Number.isFinite(filters.qtyMax)
     ? Math.min(filters.qtyMax, QTY_MAX_SLIDER)
     : QTY_MAX_SLIDER;
 
@@ -405,14 +409,14 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
         return false;
       }
       if (
-        Number.isFinite(filters.minQty) &&
-        Number(p.quantity ?? p.total_quantity ?? 0) < filters.minQty
+        Number.isFinite(filters.qtyMin) &&
+        Number(p.quantity ?? p.total_quantity ?? 0) < filters.qtyMin
       ) {
         return false;
       }
       if (
-        Number.isFinite(filters.maxQty) &&
-        Number(p.quantity ?? p.total_quantity ?? 0) > filters.maxQty
+        Number.isFinite(filters.qtyMax) &&
+        Number(p.quantity ?? p.total_quantity ?? 0) > filters.qtyMax
       ) {
         return false;
       }
@@ -667,20 +671,20 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
                     placeholder="Min Qty"
                     className="price-input"
                     value={
-                      Number.isFinite(filters.minQty) ? filters.minQty : ""
+                      Number.isFinite(filters.qtyMin) ? filters.qtyMin : ""
                     }
                     onChange={(e) => {
                       const raw = e.target.value;
                       if (raw === "") {
-                        setFilters((f) => ({ ...f, minQty: QTY_MIN }));
+                        setFilters((f) => ({ ...f, qtyMin: QTY_MIN }));
                         return;
                       }
                       const val = Number(raw);
                       setFilters((f) => ({
                         ...f,
-                        minQty: Math.min(
+                        qtyMin: Math.min(
                           val,
-                          Number.isFinite(f.maxQty) ? f.maxQty : QTY_MAX,
+                          Number.isFinite(f.qtyMax) ? f.qtyMax : QTY_MAX,
                         ),
                       }));
                     }}
@@ -690,20 +694,20 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
                     placeholder="Max Qty"
                     className="price-input"
                     value={
-                      Number.isFinite(filters.maxQty) ? filters.maxQty : ""
+                      Number.isFinite(filters.qtyMax) ? filters.qtyMax : ""
                     }
                     onChange={(e) => {
                       const raw = e.target.value;
                       if (raw === "") {
-                        setFilters((f) => ({ ...f, maxQty: QTY_MAX }));
+                        setFilters((f) => ({ ...f, qtyMax: QTY_MAX }));
                         return;
                       }
                       const val = Number(raw);
                       setFilters((f) => ({
                         ...f,
-                        maxQty: Math.max(
+                        qtyMax: Math.max(
                           val,
-                          Number.isFinite(f.minQty) ? f.minQty : QTY_MIN,
+                          Number.isFinite(f.qtyMin) ? f.qtyMin : QTY_MIN,
                         ),
                       }));
                     }}
@@ -729,9 +733,9 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
                       setFilters((f) => {
                         const newMin = Math.min(
                           val,
-                          Number.isFinite(f.maxQty) ? f.maxQty : QTY_MAX,
+                          Number.isFinite(f.qtyMax) ? f.qtyMax : QTY_MAX,
                         );
-                        return { ...f, minQty: newMin };
+                        return { ...f, qtyMin: newMin };
                       });
                     }}
                     className="range-slider__thumb"
@@ -747,9 +751,9 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
                       setFilters((f) => {
                         const newMax = Math.max(
                           val,
-                          Number.isFinite(f.minQty) ? f.minQty : QTY_MIN,
+                          Number.isFinite(f.qtyMin) ? f.qtyMin : QTY_MIN,
                         );
-                        return { ...f, maxQty: newMax };
+                        return { ...f, qtyMax: newMax };
                       });
                     }}
                     className="range-slider__thumb"
@@ -765,8 +769,8 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
                 inStockOnly: false,
                 priceMin: Infinity,
                 priceMax: Infinity,
-                minQty: QTY_MIN,
-                maxQty: QTY_MAX,
+                qtyMin: QTY_MIN,
+                qtyMax: QTY_MAX,
               });
               setSortBy("name-asc");
             }}

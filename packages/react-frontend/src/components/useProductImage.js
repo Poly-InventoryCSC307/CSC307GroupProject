@@ -29,13 +29,13 @@ export function useProductImage(product) {
       try {
         const u = new URL(raw);
 
-        // If it's your S3 bucket (private), derive the key and fetch signed URL
+        // If S3 bucket is private, derive the key and fetch signed URL
         if (u.hostname === S3_HOST) {
           // "/uploads/123.png" -> "uploads/123.png"
           const key = u.pathname.replace(/^\/+/, "");
 
           fetch(
-            `${API_BASE_URL}/images/file-url/?key=${encodeURIComponent(key)}`
+            `${API_BASE_URL}/images/file-url/?key=${encodeURIComponent(key)}`,
           )
             .then((res) => {
               if (!res.ok) {
@@ -62,9 +62,7 @@ export function useProductImage(product) {
 
     // ---- raw is a key like "uploads/123.png" ----
     const key = raw;
-    fetch(
-      `${API_BASE_URL}/images/file-url/?key=${encodeURIComponent(key)}`
-    )
+    fetch(`${API_BASE_URL}/images/file-url/?key=${encodeURIComponent(key)}`)
       .then((res) => {
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);

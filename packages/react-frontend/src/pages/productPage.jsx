@@ -2,7 +2,7 @@ import "./productPage.css";
 
 import EditProductPopUp from "../components/EditProductPopUp";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useProductImage } from "../components/useProductImage";
 import { API_BASE_URL } from "../apiConfig";
 
@@ -40,30 +40,40 @@ export default function ProductScreen({
       const newSku = payload.SKU.trim();
       const newPrice = Number(payload.price ?? 0);
       const newQty = Number(payload.quantity ?? 0);
+      let newQtyFloor = Number(
+        payload.quantity_on_floor ?? product?.quantity_on_floor ?? 0,
+      );
+      let newQtyBack = Number(
+        payload.quantity_in_back ?? product?.quantity_in_back ?? 0,
+      );
       const newDesc = payload.description.trim();
       // upload image to polyproducts (name of s3 bucket)
       const oldimageURL = product?.image || product?.imageURL || "";
-      let newimageURL = oldimageURL
+      let newimageURL = oldimageURL;
 
       if (payload.imageFile) {
         const formData = new FormData();
         formData.append("image", payload.imageFile);
-        
+
         const uploadRes = await fetch(
-          `${API_BASE_URL}/images/upload/${storeID}`, 
+          `${API_BASE_URL}/images/upload/${storeID}`,
           {
-          method: "POST",
-          body: formData,
-        });
+            method: "POST",
+            body: formData,
+          },
+        );
 
         if (!uploadRes.ok) {
           const errText = await uploadRes.text();
-          throw new Error(`Image upload failed: ${errText || uploadRes.status}`)
+          throw new Error(
+            `Image upload failed: ${errText || uploadRes.status}`,
+          );
         }
 
         const uploadData = await uploadRes.json();
         // adjust the property to whatever the api returns
-        newimageURL = uploadData.imageURL || uploadData.url || uploadData.location || "";
+        newimageURL =
+          uploadData.imageURL || uploadData.url || uploadData.location || "";
         if (!newimageURL) {
           throw new Error("Image upload did not return an imageURL");
         }
@@ -78,7 +88,33 @@ export default function ProductScreen({
         throw new Error("Quantity must be an integer ≥ 0.");
       }
 
-      if (!newimageURL && !oldimageURL) throw Error("You must tag an image to the product");
+      if (!Number.isFinite(newQtyFloor)) newQtyFloor = 0;
+      if (!Number.isFinite(newQtyBack)) newQtyBack = 0;
+
+      if (newQty <= 0) {
+        newQtyFloor = 0;
+        newQtyBack = 0;
+      } else if (newQtyFloor === 0 && newQtyBack === 0) {
+        newQtyBack = Math.floor(newQty * 0.75);
+        newQtyFloor = newQty - newQtyBack;
+      } else {
+        if (newQtyFloor < 0) newQtyFloor = 0;
+        if (newQtyBack < 0) newQtyBack = 0;
+
+        if (newQtyFloor + newQtyBack === 0) {
+          newQtyBack = Math.floor(newQty * 0.75);
+          newQtyFloor = newQty - newQtyBack;
+        } else if (newQtyBack > newQty) {
+          newQtyBack = newQty;
+          newQtyFloor = 0;
+        } else {
+          // keep back as the “primary” and adjust floor
+          newQtyFloor = newQty - newQtyBack;
+        }
+      }
+
+      if (!newimageURL && !oldimageURL)
+        throw Error("You must tag an image to the product");
       const finalImageURL = newimageURL || oldimageURL;
 
       const updates = {
@@ -87,9 +123,8 @@ export default function ProductScreen({
         description: newDesc,
         price: newPrice,
         total_quantity: newQty,
-        quantity_on_floor: Number(product?.quantity_on_floor ?? 0),
-        quantity_in_back: Number(product?.quantity_in_back ?? 0),
-        incoming_quantity: Number(product?.incoming_quantity ?? 0),
+        quantity_on_floor: newQtyFloor,
+        quantity_in_back: newQtyBack,
         product_photo: finalImageURL,
       };
 
@@ -120,8 +155,12 @@ export default function ProductScreen({
 
       // data is the updated product from backend.js
       const saved = data;
-      const newImage = 
-        saved.product_photo || newimageURL || product.product_photo || product.imageURL || "";
+      const newImage =
+        saved.product_photo ||
+        newimageURL ||
+        product.product_photo ||
+        product.imageURL ||
+        "";
 
       // update local overlay product
       setProduct((prev) => ({
@@ -138,19 +177,18 @@ export default function ProductScreen({
         SKU: saved.SKU,
         price: saved.price,
         total_quantity: saved.total_quantity,
+        quantity_on_floor: saved.quantity_on_floor,
+        quantity_in_back: saved.quantity_in_back,
         description: saved.description,
         image: newImage,
         product_photo: newImage,
       });
 
-      if (payload.imageFile && oldimageURL && oldimageURL !=- finalImageURL) {
+      if (payload.imageFile && oldimageURL && oldimageURL != -finalImageURL) {
         try {
-          await fetch(
-            `${API_BASE_URL}/images/file/${storeID}`,
-            {
-              method: "DELETE",
-            },
-          );
+          await fetch(`${API_BASE_URL}/images/file/${storeID}`, {
+            method: "DELETE",
+          });
         } catch (err) {
           console.err("Failed to delete old image:", err);
         }

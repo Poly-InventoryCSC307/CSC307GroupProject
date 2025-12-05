@@ -102,9 +102,9 @@ app.get("/inventory/:storeId/products", (req, res) => {
 
   // Use service: returns all store docs; filter in-memory to the one we need
   inventoryServices
-    .getInventory(undefined, undefined) // <- required per your request
+    .getInventory(undefined, undefined)
     .then((docs) => {
-      // docs can be one or many store documents depending on your data
+      // docs can be one or many store documents depending on the data
       const storeDoc = Array.isArray(docs)
         ? docs.find((d) => d._id?.toString() === storeId)
         : null;
@@ -114,24 +114,35 @@ app.get("/inventory/:storeId/products", (req, res) => {
       }
 
       // Return just the inventory array
-      const items = (storeDoc.inventory ?? []).map((p) => ({
-        _id: p._id,
-        name: p.name ?? "",
-        SKU: p.SKU ?? "",
-        price: Number(p.price ?? 0),
-        total_quantity: Number(p.total_quantity ?? 0),
-        // include a 'quantity' mirror since UI reads either
-        quantity: Number(p.total_quantity ?? 0),
-        quantity_on_floor: Number(p.quantity_on_floor ?? 0),
-        quantity_in_back: Number(p.quantity_in_back ?? 0),
-        incoming_quantity: Number(p.incoming_quantity ?? 0),
-        product_photo: p.product_photo ?? "",
-        imageURL: p.product_photo ?? "",
-        description: p.description ?? "",
-      }));
+      const items = (storeDoc.inventory ?? []).map((p) => {
+        const total = Number(p.total_quantity ?? 0);
+        let floor = Number(p.quantity_on_floor ?? 0);
+        let back = Number(p.quantity_in_back ?? 0);
 
+        // If legacy product had no split, compute 75/25 for the UI
+        if (total > 0 && floor === 0 && back === 0) {
+          back = Math.floor(total * 0.75);
+          floor = total - back;
+        }
+
+        return {
+          _id: p._id,
+          name: p.name ?? "",
+          SKU: p.SKU ?? "",
+          price: Number(p.price ?? 0),
+          total_quantity: total,
+          quantity: total, // mirror
+          quantity_on_floor: floor,
+          quantity_in_back: back,
+          incoming_quantity: Number(p.incoming_quantity ?? 0),
+          product_photo: p.product_photo ?? "",
+          imageURL: p.product_photo ?? "",
+          description: p.description ?? "",
+        };
+      });
       return res.json(items);
     })
+
     .catch((err) => {
       console.error(err);
       return res.status(500).json({ message: "Failed to load inventory" });

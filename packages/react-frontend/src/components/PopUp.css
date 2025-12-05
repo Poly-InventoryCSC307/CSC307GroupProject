@@ -61,7 +61,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
+  padding-left: 16px;
+  padding-top: 5px;
   border-bottom: 1.5px solid #0f0f0f;
   background: #b6ffc1;
 }
@@ -80,6 +81,7 @@
   font-size: 1.5rem;
   line-height: 1;
   border-radius: 999px;
+  margin-right: 10px;
   cursor: pointer;
   color:black;
   transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
@@ -107,7 +109,7 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  /* gap: 6px; */
 }
 .field label {
   font-weight: 700;
@@ -123,6 +125,26 @@
 }
 .field textarea {
   resize: vertical;
+}
+
+/* all quantity fields in same row */
+.qty-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.qty-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.qty-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: #0f0f0f;
 }
 
 /* footer */

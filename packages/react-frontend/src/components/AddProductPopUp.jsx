@@ -15,7 +15,7 @@ function AddProductPopUp({ open, onClose, onSubmit, isSubmitting }) {
   // Use for opening and closing animations
   const [show, setShow] = useState(open);
   const [closing, setClosing] = useState(false);
-  const [imageFile, setImageFile] = useState(null)
+  const [imageFile, setImageFile] = useState(null);
 
   // Close the popup with escape key
   useEffect(() => {
@@ -62,7 +62,7 @@ function AddProductPopUp({ open, onClose, onSubmit, isSubmitting }) {
   const handleFileChange = (e) => {
     const file = e.target.files?.[0] || null;
     setImageFile(file);
-  }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -157,7 +157,7 @@ function AddProductPopUp({ open, onClose, onSubmit, isSubmitting }) {
               rows={4}
             />
           </div>
-          
+
           <div className="field">
             <label htmlFor="img">Image</label>
             <input

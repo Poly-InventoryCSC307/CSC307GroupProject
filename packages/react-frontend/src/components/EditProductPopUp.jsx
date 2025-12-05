@@ -23,6 +23,13 @@ function EditProductPopUp({
   const [closing, setClosing] = useState(false);
   const [imageFile, setImageFile] = useState(null);
 
+  // Convert input into an integer
+  const toInt = (v) => {
+    const n = parseInt(v, 10);
+    return Number.isFinite(n) && n >= 0 ? n : 0;
+  };
+
+  // Close the popup with escape key
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === "Escape" && onClose?.();
@@ -33,6 +40,22 @@ function EditProductPopUp({
   // When it opens, populate from the product
   useEffect(() => {
     if (!open) return;
+
+    // Special logic to split the quantities properly
+    const total =
+      initialProduct?.total_quantity ?? initialProduct?.quantity ?? 0;
+
+    let floor = initialProduct?.quantity_on_floor;
+    let back = initialProduct?.quantity_in_back;
+
+    floor = floor != null ? Number(floor) : 0;
+    back = back != null ? Number(back) : 0;
+
+    if (total > 0 && floor === 0 && back === 0) {
+      back = Math.floor(total * 0.75);
+      floor = total - back;
+    }
+
     setForm({
       name: initialProduct?.name ?? "",
       SKU: initialProduct?.SKU ?? "",
@@ -40,16 +63,13 @@ function EditProductPopUp({
         initialProduct?.price !== undefined && initialProduct?.price !== null
           ? String(initialProduct.price)
           : "",
-      quantity:
-        (initialProduct?.total_quantity ?? initialProduct?.quantity ?? "") !==
-        ""
-          ? String(
-              initialProduct?.total_quantity ?? initialProduct?.quantity ?? "",
-            )
-          : "",
+      quantity: total !== "" ? String(total) : "",
+      quantity_on_floor: floor !== "" ? String(floor) : "",
+      quantity_in_back: back !== "" ? String(back) : "",
       description: initialProduct?.description ?? "",
       image: initialProduct?.imageFile ?? "",
     });
+    setImageFile(null);
   }, [open, initialProduct]);
 
   useEffect(() => {
@@ -82,10 +102,105 @@ function EditProductPopUp({
   const handleFileChange = (e) => {
     const file = e.target.files?.[0] || null;
     setImageFile(file);
-  }
+  };
+
+  // Keep floor + back = total, don't exceed total
+  const handleQuantityChange = (e) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => {
+      let total = toInt(name === "quantity" ? value : (prev.quantity ?? "0"));
+      let floor = toInt(prev.quantity_on_floor ?? "0");
+      let back = toInt(prev.quantity_in_back ?? "0");
+
+      if (name === "quantity") {
+        // User changed total
+        if (total <= 0) {
+          floor = 0;
+          back = 0;
+        } else {
+          const sum = floor + back;
+          if (sum === 0) {
+            back = Math.floor(total * 0.75);
+            floor = total - back;
+          } else {
+            // Preserve ratio
+            back = Math.round((back / sum) * total);
+            floor = total - back;
+          }
+        }
+
+        return {
+          ...prev,
+          quantity: String(total),
+          quantity_on_floor: String(floor),
+          quantity_in_back: String(back),
+        };
+      }
+
+      if (name === "quantity_in_back") {
+        back = toInt(value);
+        if (back > total) back = total;
+        if (total <= 0) {
+          back = 0;
+          floor = 0;
+        } else {
+          floor = total - back;
+        }
+
+        return {
+          ...prev,
+          quantity: String(total),
+          quantity_in_back: String(back),
+          quantity_on_floor: String(floor),
+        };
+      }
+
+      if (name === "quantity_on_floor") {
+        floor = toInt(value);
+        if (floor > total) floor = total;
+        if (total <= 0) {
+          floor = 0;
+          back = 0;
+        } else {
+          back = total - floor;
+        }
+
+        return {
+          ...prev,
+          quantity: String(total),
+          quantity_on_floor: String(floor),
+          quantity_in_back: String(back),
+        };
+      }
+
+      return prev;
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const total = toInt(form.quantity);
+    let floor = toInt(form.quantity_on_floor);
+    let back = toInt(form.quantity_in_back);
+
+    if (total <= 0) {
+      floor = 0;
+      back = 0;
+    } else if (floor === 0 && back === 0) {
+      back = Math.floor(total * 0.75);
+      floor = total - back;
+    } else {
+      if (floor > total) floor = total;
+      if (back > total) back = total;
+      if (floor + back !== total) {
+        // Treat back as authoritative and fix floor
+        if (back > total) back = total;
+        floor = total - back;
+      }
+    }
+
     const payload = {
       name: form.name.trim(),
       SKU: form.SKU.trim(),
@@ -151,19 +266,49 @@ function EditProductPopUp({
             />
           </div>
 
+          {/* Have Total, Floor, and Back Quantity on same line */}
           <div className="field">
             <label htmlFor="quantity">Quantity</label>
-            <input
-              id="quantity"
-              name="quantity"
-              type="number"
-              min="0"
-              step="1"
-              value={form.quantity}
-              onChange={handleChange}
-              placeholder="0"
-              required
-            />
+            <div className="qty-row">
+              <div className="qty-col">
+                <span className="qty-label">Total</span>
+                <input
+                  id="quantity"
+                  name="quantity"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={form.quantity}
+                  onChange={handleQuantityChange}
+                  placeholder="0"
+                  required
+                />
+              </div>
+              <div className="qty-col">
+                <span className="qty-label">On Floor</span>
+                <input
+                  name="quantity_on_floor"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={form.quantity_on_floor}
+                  onChange={handleQuantityChange}
+                  placeholder="0"
+                />
+              </div>
+              <div className="qty-col">
+                <span className="qty-label">In Back</span>
+                <input
+                  name="quantity_in_back"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={form.quantity_in_back}
+                  onChange={handleQuantityChange}
+                  placeholder="0"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="field">

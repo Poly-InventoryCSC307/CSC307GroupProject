@@ -204,6 +204,24 @@ function addProduct(storeID, product) {
     quantity_in_back: Number(product.quantity_in_back ?? 0),
     incoming_quantity: Number(product.incoming_quantity ?? 0),
   };
+
+  // create a default 75-25 split of back stock and floor stock
+  const total = Number(productDetails.total_quantity || 0);
+  let floor = Number.isFinite(productDetails.quantity_on_floor)
+    ? productDetails.quantity_on_floor
+    : 0;
+  let back = Number.isFinite(productDetails.quantity_in_back)
+    ? productDetails.quantity_in_back
+    : 0;
+
+  if (total > 0 && floor === 0 && back === 0) {
+    back = Math.floor(total * 0.75);
+    floor = total - back;
+  }
+
+  productDetails.quantity_on_floor = floor;
+  productDetails.quantity_in_back = back;
+
   return inventoryModel.findByIdAndUpdate(
     storeID,
     { $push: { inventory: productDetails } },
