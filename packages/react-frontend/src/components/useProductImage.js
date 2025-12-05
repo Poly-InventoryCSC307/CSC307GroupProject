@@ -35,7 +35,7 @@ export function useProductImage(product) {
           const key = u.pathname.replace(/^\/+/, "");
 
           fetch(
-            `${API_BASE_URL}/images/file-url/${encodeURIComponent(key)}`
+            `${API_BASE_URL}/images/file-url/?key=${encodeURIComponent(key)}`
           )
             .then((res) => {
               if (!res.ok) {
@@ -63,7 +63,7 @@ export function useProductImage(product) {
     // ---- raw is a key like "uploads/123.png" ----
     const key = raw;
     fetch(
-      `${API_BASE_URL}/images/file-url/${encodeURIComponent(key)}`
+      `${API_BASE_URL}/images/file-url/?key=${encodeURIComponent(key)}`
     )
       .then((res) => {
         if (!res.ok) {
