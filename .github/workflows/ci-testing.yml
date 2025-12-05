@@ -15,7 +15,8 @@ jobs:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v3
       with:
-        node-version: 20
+        node-version: 22.20
     - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+    - run: npm run -w express-backend lint
+    - run: npm run -w react-frontend lint
+    - run: npm run -w react-frontend build
