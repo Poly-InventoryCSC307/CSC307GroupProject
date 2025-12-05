@@ -186,7 +186,6 @@ function EditProductPopUp({
               type="file"
               accept="image/*"
               onChange={handleFileChange}
-              required
             />
           </div>
 
