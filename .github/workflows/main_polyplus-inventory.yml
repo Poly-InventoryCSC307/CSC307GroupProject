@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read # Required for checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -23,27 +23,13 @@ jobs:
         with:
           node-version: '20.x'
 
-      # Install backend dependencies
       - name: Install backend dependencies
         working-directory: packages/express-backend
         run: npm install
 
-      # Optional build step for backend
       - name: Build backend
         working-directory: packages/express-backend
         run: npm run build --if-present
-
-      # Zip ONLY the backend folder
-      - name: Zip backend for deployment
-        working-directory: packages/express-backend
-        run: zip -r ../../backend.zip .
-
-      # Upload backend.zip artifact
-      - name: Upload backend artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-artifact
-          path: backend.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -53,11 +39,7 @@ jobs:
       contents: read
 
     steps:
-      - name: Download backend artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-artifact
-          path: .
+      - uses: actions/checkout@v4
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -66,12 +48,9 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_B43637298A484B6FB6CD7EF505FDD1A8 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_6A74C609F48B4AEA86C02C33F8122077 }}
 
-      # Deploy the zipped backend to Azure App Service
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
+      - name: Deploy backend folder to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'PolyPlus-Inventory'
           slot-name: 'Production'
-          package: backend.zip
-
+          package: packages/express-backend
