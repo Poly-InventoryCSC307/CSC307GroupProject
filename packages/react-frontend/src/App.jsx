@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 
-import { VITE_API_URL } from "./apiConfig";
+import { VITE_API_BASE_URL } from "./apiConfig";
 
 import Navbar from "./components/Navbar";
 import NavbarSearch from "./components/Navbar_search";
@@ -59,7 +59,7 @@ function App() {
     (async () => {
       try {
         const res = await fetch(
-          `${VITE_API_URL}/stores/by-user/${currentUser.uid}`,
+          `${VITE_API_BASE_URL}/stores/by-user/${currentUser.uid}`,
         );
 
         if (res.status === 404) {
@@ -104,7 +104,7 @@ function App() {
     (async () => {
       try {
         const res = await fetch(
-          `${VITE_API_URL}/inventory/${store._id}/products`,
+          `${VITE_API_BASE_URL}/inventory/${store._id}/products`,
         );
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
