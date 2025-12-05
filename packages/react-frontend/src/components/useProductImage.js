@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 
 const S3_HOST = "polyproducts.s3.amazonaws.com"; // bucket host
+import { API_BASE_URL } from "../apiConfig";
 
 export function useProductImage(product) {
   const [url, setUrl] = useState("");
@@ -34,7 +35,7 @@ export function useProductImage(product) {
           const key = u.pathname.replace(/^\/+/, "");
 
           fetch(
-            `http://localhost:8000/images/file-url/${encodeURIComponent(key)}`
+            `${API_BASE_URL}/file-url/${encodeURIComponent(key)}`
           )
             .then((res) => res.json())
             .then((data) => setUrl(data.url || ""))
@@ -57,7 +58,7 @@ export function useProductImage(product) {
     // ---- raw is a key like "uploads/123.png" ----
     const key = raw;
     fetch(
-      `http://localhost:8000/images/file-url/${encodeURIComponent(key)}`
+      `${API_BASE_URL}/images/file-url/${encodeURIComponent(key)}`
     )
       .then((res) => res.json())
       .then((data) => setUrl(data.url || ""))
