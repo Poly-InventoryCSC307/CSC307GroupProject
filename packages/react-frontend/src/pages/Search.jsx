@@ -155,10 +155,13 @@ function Search({ productsData, onProductAdded, onProductRemoved, storeID }) {
         const formData = new FormData();
         formData.append("image", payload.imageFile);
         
-        const uploadRes = await fetch(`${API_BASE_URL}/upload/${storeID}`, {
-          method: "POST",
-          body: formData,
-        });
+        const uploadRes = await fetch(
+          `${API_BASE_URL}/images/upload/${storeID}`,
+          {
+            method: "POST",
+            body: formData,
+          },
+        );
 
         if (!uploadRes.ok) {
           const errText = await uploadRes.text();

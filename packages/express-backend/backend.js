@@ -1,7 +1,4 @@
 import dotenv from "dotenv";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
 
 dotenv.config();
 console.log("MONGODB_URI:", process.env.MONGODB_URI);

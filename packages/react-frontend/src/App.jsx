@@ -3,6 +3,8 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 
 import { API_BASE_URL } from "./apiConfig";
 
+console.log("API_BASE_URL =", API_BASE_URL);
+
 import Navbar from "./components/Navbar";
 import NavbarSearch from "./components/Navbar_search";
 

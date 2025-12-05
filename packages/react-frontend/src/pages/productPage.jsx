@@ -4,6 +4,7 @@ import EditProductPopUp from "../components/EditProductPopUp";
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useProductImage } from "../components/useProductImage";
+import { API_BASE_URL } from "../apiConfig";
 
 export default function ProductScreen({
   initialProduct = null,
@@ -48,7 +49,9 @@ export default function ProductScreen({
         const formData = new FormData();
         formData.append("image", payload.imageFile);
         
-        const uploadRes = await fetch(`http://localhost:8000/images/upload/${storeID}`, {
+        const uploadRes = await fetch(
+          `${API_BASE_URL}/images/upload/${storeID}`, 
+          {
           method: "POST",
           body: formData,
         });
@@ -65,7 +68,6 @@ export default function ProductScreen({
           throw new Error("Image upload did not return an imageURL");
         }
       }
-
 
       if (!newName) throw new Error("Product name is required.");
       if (!newSku) throw new Error("SKU is required.");
@@ -92,7 +94,7 @@ export default function ProductScreen({
       };
 
       const res = await fetch(
-        `http://localhost:8000/inventory/${storeID}/products/${encodeURIComponent(
+        `${API_BASE_URL}/inventory/${storeID}/products/${encodeURIComponent(
           oldSkuForDB,
         )}`,
         {
@@ -144,7 +146,7 @@ export default function ProductScreen({
       if (payload.imageFile && oldimageURL && oldimageURL !=- finalImageURL) {
         try {
           await fetch(
-            `http://localhost:8000/images/file/${storeID}`,
+            `${API_BASE_URL}/images/file/${storeID}`,
             {
               method: "DELETE",
             },

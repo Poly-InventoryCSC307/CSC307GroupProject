@@ -43,13 +43,14 @@ section.hero {
   border-radius: 10px;
   padding: 0;              
   background-color: transparent;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
 
 .remove-product:hover,
 .add-product:hover {
   background-color: #cff7d3;
   color: #26a69a;
+  transform: translateY(-2px);
 }
 
 /* removes outline when overlap is open */
@@ -60,6 +61,7 @@ section.hero {
   outline: none;
   background: transparent;
   box-shadow: none;
+  transform: translateY(2px);
 }
 
 /*Containter for the product cards */
@@ -243,6 +245,7 @@ section.hero {
   border: 1px solid #ccc;
   background: rgba(0, 63, 70, 0.16);
   color: rgb(255, 255, 255);
+  cursor: pointer;
 }
 
 .sort-body select option{
