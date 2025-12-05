@@ -23,14 +23,14 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: npm install and build backend
-        working-directory: packages/express-backend
+      - name: npm install, build, and test
         run: |
-          npm install 
-          npm run build --if-present
-        
-      - name: Zip artifact for deployment
+          npm install --workspaces=false
+          npm run -w express-backend build --if-present
+          npm run -w express-backend test --if-present
+      - name: Zip artifavt for deployment
         run: zip release.zip ./* -r
+        working-directory: packages/express-backend
         
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
