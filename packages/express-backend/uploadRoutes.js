@@ -47,7 +47,6 @@ router.get("/file-url", async (req, res) => {
 router.get("/files", async (req, res) => {
   try {
     const bucket = process.env.S3_BUCKET_NAME;
-    
     const command = new ListObjectsV2Command({
       Bucket: bucket,
       Prefix: "uploads/", // only list things in uploads/ "folder"
